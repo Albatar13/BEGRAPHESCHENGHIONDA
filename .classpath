@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main"/>
+	<classpathentry kind="src" path="src/test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
+	<classpathentry kind="lib" path="libs/piccolo2d-core-3.0.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/be-graphes-base/libs/piccolo2d-core-3.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="libs/piccolo2d-extras-3.0.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/be-graphes-base/libs/piccolo2d-extras-3.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="libs/piccolo2d-swt-3.0.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/be-graphes-base/libs/piccolo2d-swt-3.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

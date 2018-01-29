@@ -1,0 +1,21 @@
+===  Format des fichiers .path  ===
+
+ - Version du document (= version du format) : 1
+
+ - Sauf mention contraire, les entiers sont codés en big endian (compatible DataOutputStream).
+
+ [No d'octets] = signification
+
+ [0-3]   = Magic number 0xdecafe (doit se trouver au début du fichier)
+ [4-7]   = Version du format
+ [8-11]  = Identifiant de carte
+ [12-15] = Nombre de noeuds dans le chemin
+ [16-19] = Identifiant du premier noeud (8 bits zone + 24 bits numéro noeud)
+ [20-23] = Identifiant du dernier noeud (8 bits zone + 24 bits numéro noeud)
+
+ [24-27] = Identifiant du premier noeud (encore)
+ [28-31] = Identifiant du deuxième noeud
+ [32-35] = Identifiant du troisième noeud
+ etc.
+ [derniers octets] = Identifiant du dernier noeud
+
