@@ -1,22 +1,40 @@
 package org.insa.algo ;
 
-import java.io.* ;
+import java.util.ArrayList;
 
-public abstract class AbstractAlgorithm {
+public abstract class AbstractAlgorithm implements Runnable {
 
-    protected PrintStream output;
     protected AbstractInstance instance;
     protected AbstractSolution solution;
+
+    protected ArrayList<AbstractObserver> observers;
+    
+    protected AbstractAlgorithm(AbstractInstance instance) {
+		this.instance = instance;
+		this.observers = new ArrayList<AbstractObserver>();	
+		this.solution = null;
+    }
+
+    protected AbstractAlgorithm(AbstractInstance instance, ArrayList<AbstractObserver> observers) {
+    		this.instance = instance;
+    		this.observers = observers;;	
+    		this.solution = null;
+    }
     
     /**
+     * Add an observer to this algorithm.
      * 
-     * @param instance
-     * @param logOutput
+     * @param observer
      */
-    protected AbstractAlgorithm(AbstractInstance instance, PrintStream logOutput) {
-    		this.instance = instance;
-    		this.output = logOutput;	
-    		this.solution = null;
+    public void addObserver(AbstractObserver observer) {
+    		observers.add(observer);
+    }
+    
+    /**
+     * @return The list of observers for this algorithm.
+     */
+    public ArrayList<AbstractObserver> getObservers() {
+    		return observers;
     }
     
     /**
@@ -44,9 +62,8 @@ public abstract class AbstractAlgorithm {
      * 
      * @return true if a feasible solution was found (even non-optimal).
      */
-    public boolean run() {
+    public void run() {
     		this.solution = this.doRun();
-    		return this.solution != null && this.solution.isFeasible();
     }
     
     /**

@@ -2,7 +2,7 @@ package org.insa.graph;
 
 import java.util.ArrayList;
 
-public class Node {
+public class Node implements Comparable<Node> {
 
 	// ID of the node.
 	private int id;
@@ -48,5 +48,18 @@ public class Node {
 	 * @return Point of this node.
 	 */
 	public Point getPoint() { return point; }
+	
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof Node) {
+			return getId() == ((Node) other).getId();
+		}
+		return false;
+	}
+
+	@Override
+	public int compareTo(Node other) {
+		return Integer.compare(getId(), other.getId());
+	}
 	
 }

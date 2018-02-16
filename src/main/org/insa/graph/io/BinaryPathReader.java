@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.insa.graph.Arc;
 import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Path;
@@ -35,23 +36,36 @@ public class BinaryPathReader extends BinaryReader implements AbstractPathReader
 		// Number of nodes in the path (without first and last).
 		int nbNodes = dis.readInt();
 		
-		ArrayList<Node> nodes = new ArrayList<Node>(nbNodes + 2);
+		ArrayList<Arc> arcs = new ArrayList<Arc>();
 		
-		// Read first node
-		nodes.add(readNode(graph));
-		
-		// Read last node
-		Node lastNode = readNode(graph);
+		// Skip (duplicate) first and last node
+		readNode(graph);
+		readNode(graph);
 		
 		// Read intermediate nodes:
-		for (int node = 0; node < nbNodes; ++node) {
+		ArrayList<Node> nodes = new ArrayList<Node>();
+		for (int i = 0; i < nbNodes; ++i) {
 			nodes.add(readNode(graph));
 		}
 		
-		// Add last node
-		nodes.add(lastNode);
+		Node current = nodes.get(0);
+		for (int i = 1; i < nodes.size(); ++i) {
+			Node node = nodes.get(i);
+			Arc minArc = null;
+			for (Arc arc: current.getSuccessors()) {
+				if (arc.getDestination().equals(node)
+					&& (minArc == null || arc.getMinimumTravelTime() < minArc.getMinimumTravelTime())) {
+					minArc = arc;
+				}
+			}
+			arcs.add(minArc);
+			if (minArc == null) {
+				System.out.println("No arc found between nodes " + current.getId() + " and " + node.getId() + "\n");
+			}
+			current = node;
+		}
 		
-		return new Path(graph, nodes);
+		return new Path(graph, nodes.get(0), arcs);
 	}
 
 	/**

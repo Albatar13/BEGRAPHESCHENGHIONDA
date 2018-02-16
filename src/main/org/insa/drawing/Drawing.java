@@ -37,10 +37,15 @@ public interface Drawing {
     /**
      * Set the pencil color.
      * 
-     * param color Color for the pencil.
+     * @param color Color for the pencil.
      * 
      */
     public void setColor(Color col);
+    
+    /**
+     * Clear the drawing.
+     */
+	public void clear();
 
     /**
      *  Indique les bornes de la fenetre graphique.

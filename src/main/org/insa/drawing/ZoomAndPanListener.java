@@ -1,4 +1,5 @@
 package org.insa.drawing;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
@@ -30,6 +31,11 @@ public class ZoomAndPanListener implements MouseListener, MouseMotionListener, M
 		this.minZoomLevel = minZoomLevel;
 		this.maxZoomLevel = maxZoomLevel;
 		this.zoomMultiplicationFactor = zoomMultiplicationFactor;
+	}
+	
+	public void translate(double dx, double dy) {
+		coordTransform.translate(dx, dy);
+		targetComponent.repaint();
 	}
 
 

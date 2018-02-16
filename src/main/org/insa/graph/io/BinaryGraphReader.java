@@ -3,6 +3,9 @@ package org.insa.graph.io;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+
+import javax.sound.midi.ControllerEventListener;
 
 import org.insa.graph.Arc;
 import org.insa.graph.Graph;
@@ -149,7 +152,9 @@ public class BinaryGraphReader extends BinaryReader implements AbstractGraphRead
 					// And reverse arc if its a two-way road.
 					if (!info.isOneWay()) {
 						// Add without segments.
-						dest.addSuccessor(new Arc(orig, length, info));
+						ArrayList<Point> rPoints = new ArrayList<Point>(points);
+						Collections.reverse(rPoints);
+						dest.addSuccessor(new Arc(orig, length, info, rPoints));
 					}
 					
 				}

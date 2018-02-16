@@ -45,7 +45,7 @@ public class Arc {
 	/**
 	 * @return Destination node of this arc.
 	 */
-	public Node getDest() {
+	public Node getDestination() {
 		return dest;
 	}
 

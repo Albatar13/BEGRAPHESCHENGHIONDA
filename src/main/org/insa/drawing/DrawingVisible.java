@@ -1,28 +1,35 @@
 package org.insa.drawing;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.*;
+
+import javax.swing.JPanel;
 
 /**
  *   Cette implementation de la classe Dessin produit vraiment un affichage
  *   (au contraire de la classe DessinInvisible).
  */
 
-public class DrawingVisible extends Canvas implements Drawing {
+public class DrawingVisible extends JPanel implements Drawing {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 96779785877771827L;
-
+	
 	private final Graphics2D gr;
 
 	private float long1;
 	private float long2;
 	private float lat1;
 	private float lat2;
-	private final float width;
-	private final float height;
+	
+	// Width and height of the image
+	private final int width, height;
 
 	private boolean bb_is_set ;
 	
@@ -34,15 +41,18 @@ public class DrawingVisible extends Canvas implements Drawing {
 	/**
 	 *  Cree et affiche une nouvelle fenetre de dessin.
 	 */
-	public DrawingVisible (int largeur, int hauteur) {
+	public DrawingVisible() {
 		super();
 		
-		this.zoomAndPanListener = new ZoomAndPanListener(this, 0, ZoomAndPanListener.DEFAULT_MAX_ZOOM_LEVEL, 1.2);
+		this.zoomAndPanListener = new ZoomAndPanListener(this, ZoomAndPanListener.DEFAULT_MIN_ZOOM_LEVEL, 20, 1.2);
 		this.addMouseListener(zoomAndPanListener);
 		this.addMouseMotionListener(zoomAndPanListener);
 		this.addMouseWheelListener(zoomAndPanListener);
 		
-		BufferedImage img = new BufferedImage (largeur, hauteur, BufferedImage.TYPE_3BYTE_BGR);
+		this.width = 2000;
+		this.height = 1600;
+		
+		BufferedImage img = new BufferedImage (this.width, this.height, BufferedImage.TYPE_3BYTE_BGR);
 		
 		this.image = img;
 		this.gr = img.createGraphics();
@@ -51,38 +61,22 @@ public class DrawingVisible extends Canvas implements Drawing {
 		
 		this.bb_is_set = false;
 
-		this.width = largeur;
-		this.height = hauteur;
 
-		this.long1 = (float)0.0;
-		this.long2 = (float)largeur;
-		this.lat1  = (float)0.0;
-		this.lat2  = (float)hauteur;
+		this.long1 = 0.0f;
+		this.long2 = this.width;
+		this.lat1  = 0.0f;
+		this.lat2  = this.height;
 
-		this.setColor(Color.white);
-		gr.fillRect(0,0, largeur, hauteur);
+		this.clear();
 		this.repaint();
 
 	}
 
 	@Override
-	public void paint(Graphics g1) {
+	public void paintComponent(Graphics g1) {
 		Graphics2D g = (Graphics2D)g1;
 		g.setTransform(zoomAndPanListener.getCoordTransform());
 		g.drawImage(image, 0, 0, this);
-	}
-	
-
-	@Override
-	public Dimension getPreferredSize() {
-		Dimension size = new Dimension(0, 0);
-
-		if (image != null) {
-			int w = image.getWidth(null);
-			int h = image.getHeight(null);
-			size = new Dimension(w > 0 ? w : 0, h > 0 ? h : 0);
-		}
-		return size;
 	}
 	
 	@Override
@@ -96,48 +90,41 @@ public class DrawingVisible extends Canvas implements Drawing {
 		}
 	}
 	
-	public void setWidth (int width) {
+	public void setWidth(int width) {
 		this.gr.setStroke(new BasicStroke(width));
 	}
 
-	public void setColor (Color col) {
-		this.gr.setColor (col);
+	public void setColor(Color col) {
+		this.gr.setColor(col);
 	}
 
-	public void setBB (double long1, double long2, double lat1, double lat2) {	
+	public void clear() {
+		this.gr.setColor(Color.WHITE);
+		this.gr.fillRect(0, 0, this.width, this.height);
+	}
+
+	public void setBB(double long1, double long2, double lat1, double lat2) {	
 
 		if (long1 > long2 || lat1 > lat2) {
 			throw new Error("DessinVisible.setBB : mauvaises coordonnees.");
 		}
-
-		/* Adapte la BB en fonction de la taille du dessin, pour préserver le ratio largeur/hauteur */
-		double deltalong = long2 - long1 ;
-		double deltalat = lat2 - lat1 ;
-		double ratiobb = deltalong / deltalat ;
-		double ratiogr = width / height ;
-
-		/* On ne peut qu'agrandir la BB, pour ne rien perdre. 
-		 * Si le ratiobb est trop petit, il faut agrandir deltalong 
-		 * s'il est trop grand, il faut agrandir deltalat. */
-		if (ratiobb < ratiogr) {
-			/* De combien faut-il agrandir ? */
-			double delta = (ratiogr - ratiobb) * deltalat ;
-
-			this.long1 = (float)(long1 - 0.5*delta) ;
-			this.long2 = (float)(long2 + 0.5*delta) ;
-			this.lat1 = (float)lat1 ;
-			this.lat2 = (float)lat2 ;
-		}
-		else {
-			double delta = (deltalong / ratiogr) - deltalat ;
-
-			this.long1 = (float)long1 ;
-			this.long2 = (float)long2 ;
-			this.lat1 = (float)(lat1 - 0.5*delta);
-			this.lat2 = (float)(lat2 + 0.5*delta);
-		}
-
-		this.bb_is_set = true ;
+		
+		this.long1 = (float)long1;
+		this.long2 = (float)long2;
+		this.lat1= (float)lat1;
+		this.lat2 = (float)lat2;
+		
+		this.bb_is_set = true;
+		
+		double scale = 1 / Math.max(this.width / (double)this.getWidth(),  this.height / (double)this.getHeight());
+		
+		this.zoomAndPanListener.getCoordTransform().setToIdentity();
+		this.zoomAndPanListener.getCoordTransform().translate((this.getWidth() - this.width * scale) / 2, 
+				(this.getHeight() - this.height * scale) / 2);
+		this.zoomAndPanListener.getCoordTransform().scale(scale, scale);
+		this.zoomAndPanListener.setZoomLevel(0);
+		this.repaint();
+		
 	}
 
 	private int projx(float lon) {
@@ -154,7 +141,7 @@ public class DrawingVisible extends Canvas implements Drawing {
 		}
 	}
 
-	public void drawLine (float long1, float lat1, float long2, float lat2) {
+	public void drawLine(float long1, float lat1, float long2, float lat2) {
 		this.checkBB() ;
 		int x1 = this.projx(long1) ;
 		int x2 = this.projx(long2) ;
@@ -165,7 +152,7 @@ public class DrawingVisible extends Canvas implements Drawing {
 		this.doAutoPaint();
 	}
 
-	public void drawPoint (float lon, float lat, int width) {
+	public void drawPoint(float lon, float lat, int width) {
 		this.checkBB() ;
 		int x = this.projx(lon) - width / 2 ;
 		int y = this.projy(lat) - width / 2 ;
@@ -173,7 +160,7 @@ public class DrawingVisible extends Canvas implements Drawing {
 		this.doAutoPaint();
 	}
 
-	public void putText (float lon, float lat, String txt) {
+	public void putText(float lon, float lat, String txt) {
 		this.checkBB() ;
 		int x = this.projx(lon) ;
 		int y = this.projy(lat) ;

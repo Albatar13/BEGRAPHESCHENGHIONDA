@@ -34,5 +34,11 @@ public class DrawingInvisible implements Drawing {
 
 	@Override
 	public void repaint() { }
+
+	@Override
+	public void clear() {
+		// TODO Auto-generated method stub
+		
+	}
     
 }
