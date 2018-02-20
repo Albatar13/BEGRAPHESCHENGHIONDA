@@ -114,7 +114,6 @@ public class MainWindow extends JFrame {
 		 */
 		public void enable(int nTargetPoints, CallableWithNodes callable) {
 			this.enabled = true;
-			MainWindow.this.getJMenuBar().setEnabled(false);
 			this.nTargetPoints = nTargetPoints;
 			this.points.clear();
 			this.callable = callable;
@@ -125,7 +124,6 @@ public class MainWindow extends JFrame {
 		 */
 		public void disable() {
 			this.enabled = false;
-			MainWindow.this.getJMenuBar().setEnabled(true);
 		}
 		
         public void mouseClicked(MouseEvent evt) {
@@ -182,8 +180,8 @@ public class MainWindow extends JFrame {
 	private JMenuItem openMapItem;
 
 	// List of items that cannot be used without a graph
-	private ArrayList<JMenuItem> graphItems = new ArrayList<JMenuItem>();
-
+	private ArrayList<JMenuItem> graphLockItems = new ArrayList<JMenuItem>();
+	
 	// Label containing the map ID of the current graph.
 	private JLabel mapIdPanel;
 	
@@ -246,7 +244,9 @@ public class MainWindow extends JFrame {
 		sp.add(drawing);
 		sp.add(new JScrollPane(infoPanel));		
 		this.add(sp, BorderLayout.CENTER);
-
+		
+		// Top Panel
+		this.add(createTopPanel(), BorderLayout.NORTH);		
 		this.add(createStatusBar(), BorderLayout.SOUTH);
 	}
 	
@@ -342,7 +342,7 @@ public class MainWindow extends JFrame {
 							drawing.clear();
 							new GraphDrawing(drawing).drawGraph(graph);
 
-							for (JMenuItem item: graphItems) {
+							for (JMenuItem item: graphLockItems) {
 								item.setEnabled(true);
 							}
 							mapIdPanel.setText("Map ID: 0x" + Integer.toHexString(graph.getMapId()));
@@ -388,7 +388,7 @@ public class MainWindow extends JFrame {
 				}
 			}
 		});
-		graphItems.add(openPathItem);
+		graphLockItems.add(openPathItem);
 
 		// Close item
 		JMenuItem closeItem = new JMenuItem("Quit", KeyEvent.VK_Q);
@@ -425,7 +425,7 @@ public class MainWindow extends JFrame {
 				});
 			}
 		});
-		graphItems.add(drawGraphItem);
+		graphLockItems.add(drawGraphItem);
 		JMenuItem drawGraphBWItem = new JMenuItem("Redraw (B&W)", KeyEvent.VK_B);
 		drawGraphBWItem.setAccelerator(KeyStroke.getKeyStroke(
 				KeyEvent.VK_B, ActionEvent.ALT_MASK));
@@ -442,7 +442,7 @@ public class MainWindow extends JFrame {
 				});
 			}
 		});
-		graphItems.add(drawGraphBWItem);
+		graphLockItems.add(drawGraphBWItem);
 
 		JMenu graphMenu = new JMenu("Graph");
 		graphMenu.add(drawGraphItem);
@@ -491,8 +491,8 @@ public class MainWindow extends JFrame {
 				}
 			}
 		});
-		graphItems.add(wccItem);
-		graphItems.add(bellmanItem);
+		graphLockItems.add(wccItem);
+		graphLockItems.add(bellmanItem);
 
 		algoMenu.add(wccItem);
 		algoMenu.addSeparator();
@@ -507,10 +507,10 @@ public class MainWindow extends JFrame {
 		menuBar.add(graphMenu);
 		menuBar.add(algoMenu);
 
-		for (JMenuItem item: graphItems) {
+		for (JMenuItem item: graphLockItems) {
 			item.setEnabled(false);
 		}
-
+		
 		return menuBar;
 	}
 	
@@ -574,6 +574,12 @@ public class MainWindow extends JFrame {
 		return statusPanel;
 	}
 
+	protected JPanel createTopPanel() {
+		JPanel topPanel = new JPanel();
+		
+		return topPanel;
+	}
+	
 	public static void main(final String[] args) {
 
 		// Try to set system look and feel.
