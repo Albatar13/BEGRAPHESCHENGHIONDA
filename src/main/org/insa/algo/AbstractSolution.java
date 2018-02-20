@@ -35,10 +35,8 @@ public abstract class AbstractSolution {
 		this.status = Status.UNKNOWN;
 	}
 	
-	protected AbstractSolution(AbstractInstance instance, 
-							  Duration solvingTime, Status status) {
+	protected AbstractSolution(AbstractInstance instance, Status status) {
 		this.instance = instance;
-		this.solvingTime = solvingTime;
 		this.status = status;
 	}
 	
@@ -56,6 +54,15 @@ public abstract class AbstractSolution {
 	 * @return Solving time of this solution.
 	 */
 	public Duration getSolvingTime() { return solvingTime; }
+	
+	/**
+	 * Set the solving time of this solution.
+	 * 
+	 * @param solvingTime Solving time for the solution.
+	 */
+	protected void setSolvingTime(Duration solvingTime) {
+		this.solvingTime = solvingTime;
+	}
 	
 	/**
 	 * @return true if the solution is feasible or optimal.

@@ -1,6 +1,5 @@
 package org.insa.algo.strongconnectivity;
 
-import java.time.Duration;
 import java.util.ArrayList;
 
 import org.insa.algo.AbstractSolution;
@@ -16,8 +15,8 @@ public class StronglyConnectedComponentsSolution extends AbstractSolution {
 	}
 	
 	protected StronglyConnectedComponentsSolution(StronglyConnectedComponentsInstance instance, 
-					   Duration solvingTime, Status status, ArrayList<ArrayList<Node>> components) {
-		super(instance, solvingTime, status);
+					   Status status, ArrayList<ArrayList<Node>> components) {
+		super(instance, status);
 		this.components = components;
 	}
 	

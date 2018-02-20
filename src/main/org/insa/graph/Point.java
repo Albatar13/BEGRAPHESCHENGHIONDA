@@ -26,14 +26,14 @@ public class Point {
 	}
 
 	// Longitude and latitude of the point.
-	private float longitude, latitude;
+	private double longitude, latitude;
 	
 	/**
 	 * 
 	 * @param longitude Longitude of the point, in degrees.
 	 * @param latitude Latitude of the point, in degrees.
 	 */
-	public Point(float longitude, float latitude) {
+	public Point(double longitude, double latitude) {
 		this.longitude = longitude;
 		this.latitude = latitude;
 	}
@@ -41,12 +41,12 @@ public class Point {
 	/**
 	 * @return Longitude of this point (in degrees).
 	 */
-	public float getLongitude() { return longitude; }
+	public double getLongitude() { return longitude; }
 	
 	/**
 	 * @return Latitude of this point (in degrees).
 	 */
-	public float getLatitude() { return latitude; }
+	public double getLatitude() { return latitude; }
 
 	/**
 	 * Compute the distance from this point to the given point
@@ -58,5 +58,9 @@ public class Point {
 	public double distanceTo(Point target) {
 		return distance(this, target);
 	}
-	
+
+	@Override
+	public String toString() {
+		return String.format("Point(%f, %f)", getLongitude(), getLatitude());
+	}
 }

@@ -1,23 +1,18 @@
 package org.insa.algo.weakconnectivity;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.HashSet;
 
 import org.insa.algo.AbstractAlgorithm;
-import org.insa.algo.AbstractObserver;
-import org.insa.algo.AbstractSolution;
 import org.insa.algo.AbstractSolution.Status;
 import org.insa.graph.Arc;
 import org.insa.graph.Graph;
 import org.insa.graph.Node;
 
-public class WeaklyConnectedComponentsAlgorithm extends AbstractAlgorithm {
+public class WeaklyConnectedComponentsAlgorithm extends AbstractAlgorithm<WeaklyConnectedComponentObserver>{
 
 	/**
 	 * 
@@ -26,6 +21,49 @@ public class WeaklyConnectedComponentsAlgorithm extends AbstractAlgorithm {
 	 */
 	public WeaklyConnectedComponentsAlgorithm(WeaklyConnectedComponentsInstance instance) {
 		super(instance);
+	}
+	
+	@Override
+	public WeaklyConnectedComponentsSolution run() {
+		return (WeaklyConnectedComponentsSolution)super.run();
+	}
+	
+	@Override
+	public WeaklyConnectedComponentsInstance getInstance() {
+		return (WeaklyConnectedComponentsInstance)super.getInstance();
+	}
+	
+	/**
+	 * Notify all observers that the algorithm is entering a new component.
+	 * 
+	 * @param curNode Starting node for the component.
+	 */
+	protected void notifyStartComponent(Node curNode) {
+		for (WeaklyConnectedComponentObserver obs: getObservers()) {
+			obs.notifyStartComponent(curNode);
+		}
+	}
+	
+	/**
+	 * Notify all observers that a new node has been found for the current component.
+	 * 
+	 * @param node New node found for the current component.
+	 */
+	protected void notifyNewNodeInComponent(Node node) {
+		for (WeaklyConnectedComponentObserver obs: getObservers()) {
+			obs.notifyNewNodeInComponent(node);
+		}
+	}
+	
+	/**
+	 * Notify all observers that the algorithm has computed a new component.
+	 * 
+	 * @param nodes List of nodes in the component.
+	 */
+	protected void notifyEndComponent(ArrayList<Node> nodes) {
+		for (WeaklyConnectedComponentObserver obs: getObservers()) {
+			obs.notifyEndComponent(nodes);
+		}
 	}
 	
 	/**
@@ -66,9 +104,8 @@ public class WeaklyConnectedComponentsAlgorithm extends AbstractAlgorithm {
 		// Using a queue because we are doing a BFS
 		Queue<Integer> queue = new LinkedList<Integer>();
 
-		for (AbstractObserver obs: getObservers()) {
-			((WeaklyConnectedComponentObserver)obs).notifyStartComponent(nodes.get(cur));
-		}
+		// Notify observers about the current component.
+		notifyStartComponent(nodes.get(cur));
 		
 		// Add original node and loop until the queue is empty.
 		queue.add(cur);
@@ -77,8 +114,8 @@ public class WeaklyConnectedComponentsAlgorithm extends AbstractAlgorithm {
 			Node node = nodes.get(queue.remove());
 			component.add(node);
 			
-			// notify observers
-			for (AbstractObserver obs: getObservers()) ((WeaklyConnectedComponentObserver)obs).notifyNewNodeInComponent(node);
+			// Notify observers
+			notifyNewNodeInComponent(node);
 			
 			for (Integer destId: ugraph.get(node.getId())) {
 				Node dest = nodes.get(destId);
@@ -89,18 +126,14 @@ public class WeaklyConnectedComponentsAlgorithm extends AbstractAlgorithm {
 			}
 		}
 		
-		for (AbstractObserver obs: getObservers()) {
-			((WeaklyConnectedComponentObserver)obs).notifyEndComponent(component);
-		}
+		notifyEndComponent(component);
 		
 		return component;
 	}
 
 	@Override
-	protected AbstractSolution doRun() {
+	protected WeaklyConnectedComponentsSolution doRun() {
 		
-		Instant start = Instant.now();
-
 		Graph graph = getInstance().getGraph();
 		ArrayList<HashSet<Integer>> ugraph = createUndirectedGraph();
 		boolean[] marked = new boolean[graph.getNodes().size()];
@@ -117,11 +150,8 @@ public class WeaklyConnectedComponentsAlgorithm extends AbstractAlgorithm {
 			// Find next non-marked
 			for (; cur < marked.length && marked[cur]; ++cur);
 		}
-		
-		Duration solvingTime = Duration.between(start, Instant.now());
-		
-		return new WeaklyConnectedComponentsSolution((WeaklyConnectedComponentsInstance)getInstance(), 
-				solvingTime, Status.OPTIMAL, components);
+				
+		return new WeaklyConnectedComponentsSolution(getInstance(), Status.OPTIMAL, components);
 	}
 
 }

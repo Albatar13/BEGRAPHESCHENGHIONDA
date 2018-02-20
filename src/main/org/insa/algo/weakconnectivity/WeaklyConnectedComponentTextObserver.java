@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import org.insa.graph.Node;
 
-public class WeaklyConnectedComponentTextObserver extends WeaklyConnectedComponentObserver {
+public class WeaklyConnectedComponentTextObserver implements WeaklyConnectedComponentObserver {
 	
 	// Number of the current component.
 	private int numComponent = 1;
@@ -14,7 +14,6 @@ public class WeaklyConnectedComponentTextObserver extends WeaklyConnectedCompone
 	PrintStream stream;
 
 	public WeaklyConnectedComponentTextObserver(PrintStream stream) {
-		super(false);
 		this.stream = stream;
 	}
 

@@ -1,6 +1,5 @@
 package org.insa.algo.weakconnectivity;
 
-import java.time.Duration;
 import java.util.ArrayList;
 
 import org.insa.algo.AbstractSolution;
@@ -16,8 +15,8 @@ public class WeaklyConnectedComponentsSolution extends AbstractSolution {
 	}
 	
 	protected WeaklyConnectedComponentsSolution(WeaklyConnectedComponentsInstance instance, 
-					   Duration solvingTime, Status status, ArrayList<ArrayList<Node>> components) {
-		super(instance, solvingTime, status);
+					   Status status, ArrayList<ArrayList<Node>> components) {
+		super(instance, status);
 		this.components = components;
 	}
 	

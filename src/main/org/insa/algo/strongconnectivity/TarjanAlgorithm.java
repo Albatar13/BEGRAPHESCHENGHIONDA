@@ -1,12 +1,9 @@
 package org.insa.algo.strongconnectivity;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Stack;
 
-import org.insa.algo.AbstractSolution;
 import org.insa.algo.AbstractSolution.Status;
 import org.insa.graph.Arc;
 import org.insa.graph.Graph;
@@ -74,7 +71,6 @@ public class TarjanAlgorithm extends StronglyConnectedComponentsAlgorithm {
 	 * @return The strong component containing the given node.
 	 */
 	protected void findAndAddStrongComponent(Node v) {
-		Graph graph = getInstance().getGraph();
 		
 		// Update node info, index and push the node.
 		indexes[v.getId()] = index;
@@ -117,13 +113,10 @@ public class TarjanAlgorithm extends StronglyConnectedComponentsAlgorithm {
 	}
 
 	@Override
-	protected AbstractSolution doRun() {
+	protected StronglyConnectedComponentsSolution doRun() {
 		Graph graph = getInstance().getGraph();
 		
 		components = new ArrayList<ArrayList<Node>>();
-		
-		// Starting time...
-		Instant start = Instant.now();
 		
 		// Initialize everything
 		final int nbNodes = graph.getNodes().size();
@@ -144,12 +137,8 @@ public class TarjanAlgorithm extends StronglyConnectedComponentsAlgorithm {
 				findAndAddStrongComponent(node);
 			}
 		}
-
-		// Duration...
-		Duration solvingTime = Duration.between(start, Instant.now());
 		
-		return new StronglyConnectedComponentsSolution((StronglyConnectedComponentsInstance)getInstance(),
-					   solvingTime, Status.OPTIMAL, components);
+		return new StronglyConnectedComponentsSolution(getInstance(), Status.OPTIMAL, components);
 	}
 
 }

@@ -2,7 +2,7 @@ package org.insa.algo.strongconnectivity ;
 
 import org.insa.algo.AbstractAlgorithm;
 
-public abstract class StronglyConnectedComponentsAlgorithm extends AbstractAlgorithm {
+public abstract class StronglyConnectedComponentsAlgorithm extends AbstractAlgorithm<StronglyConnectedComponentObserver> {
 
 	/**
 	 * 
@@ -11,6 +11,16 @@ public abstract class StronglyConnectedComponentsAlgorithm extends AbstractAlgor
 	 */
 	public StronglyConnectedComponentsAlgorithm(StronglyConnectedComponentsInstance instance) {
 		super(instance);
+	}
+	
+	@Override
+	public StronglyConnectedComponentsSolution run() {
+		return (StronglyConnectedComponentsSolution)super.run();
+	}
+	
+	@Override
+	public StronglyConnectedComponentsInstance getInstance() {
+		return (StronglyConnectedComponentsInstance)super.getInstance();
 	}
 
 }

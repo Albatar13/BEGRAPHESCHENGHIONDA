@@ -65,7 +65,7 @@ public class BinaryPathReader extends BinaryReader implements AbstractPathReader
 			current = node;
 		}
 		
-		return new Path(graph, nodes.get(0), arcs);
+		return new Path(graph, arcs);
 	}
 
 	/**

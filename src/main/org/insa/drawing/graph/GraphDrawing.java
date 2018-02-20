@@ -9,7 +9,6 @@ import org.insa.graph.Arc;
 import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Point;
-import org.insa.graph.RoadInformation.RoadType;
 
 public class GraphDrawing {
 
@@ -30,8 +29,7 @@ public class GraphDrawing {
 	}
 
 	public void drawLine(Point p1, Point p2) {
-		drawing.drawLine(p1.getLongitude(), p1.getLatitude(), 
-				p2.getLongitude(), p2.getLatitude());
+		drawing.drawLine(p1, p2);
 	}
 	
 	public void drawPoint(Point p) {
@@ -39,12 +37,12 @@ public class GraphDrawing {
 	}
 	
 	public void drawPoint(Point p, int width) {
-		drawing.drawPoint(p.getLongitude(), p.getLatitude(), width);
+		drawing.drawPoint(p, width);
 	}
 	
 	public void drawPoint(Point p, int width, Color c) {
 		drawing.setColor(c);
-		drawing.drawPoint(p.getLongitude(), p.getLatitude(), width);
+		drawing.drawPoint(p, width);
 	}
 
 	/**

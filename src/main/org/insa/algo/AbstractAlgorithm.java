@@ -1,24 +1,22 @@
 package org.insa.algo ;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 
-public abstract class AbstractAlgorithm implements Runnable {
+public abstract class AbstractAlgorithm<Observer> {
 
     protected AbstractInstance instance;
-    protected AbstractSolution solution;
-
-    protected ArrayList<AbstractObserver> observers;
+    protected ArrayList<Observer> observers;
     
     protected AbstractAlgorithm(AbstractInstance instance) {
 		this.instance = instance;
-		this.observers = new ArrayList<AbstractObserver>();	
-		this.solution = null;
+		this.observers = new ArrayList<Observer>();	
     }
 
-    protected AbstractAlgorithm(AbstractInstance instance, ArrayList<AbstractObserver> observers) {
+    protected AbstractAlgorithm(AbstractInstance instance, ArrayList<Observer> observers) {
     		this.instance = instance;
     		this.observers = observers;;	
-    		this.solution = null;
     }
     
     /**
@@ -26,44 +24,32 @@ public abstract class AbstractAlgorithm implements Runnable {
      * 
      * @param observer
      */
-    public void addObserver(AbstractObserver observer) {
+    public void addObserver(Observer observer) {
     		observers.add(observer);
     }
     
     /**
      * @return The list of observers for this algorithm.
      */
-    public ArrayList<AbstractObserver> getObservers() {
+    public ArrayList<Observer> getObservers() {
     		return observers;
-    }
-    
-    /**
-     * Update the current solution.
-     * 
-     * @param solution New solution, or null to unset the current solution.
-     * 
-     */
-    protected void updateLastSolution(AbstractSolution solution) {
-    		this.solution = solution;
     }
     
     /**
      * @return Instance corresponding to this algorithm.
      */
     public AbstractInstance getInstance() { return instance; }
-    
-    /**
-     * @return Last solution, or null if no solution was stored.
-     */
-    public AbstractSolution getLastSolution() { return solution; }
         
     /**
      * Run the algorithm and update the current solution.
      * 
      * @return true if a feasible solution was found (even non-optimal).
      */
-    public void run() {
-    		this.solution = this.doRun();
+    public AbstractSolution run() {
+    		Instant start = Instant.now();
+    		AbstractSolution solution = this.doRun();
+    		solution.setSolvingTime(Duration.between(start, Instant.now()));
+    		return solution;
     }
     
     /**

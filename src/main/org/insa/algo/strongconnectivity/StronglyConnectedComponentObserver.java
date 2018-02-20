@@ -1,10 +1,10 @@
-package org.insa.algo.weakconnectivity;
+package org.insa.algo.strongconnectivity;
 
 import java.util.ArrayList;
 
 import org.insa.graph.Node;
 
-public interface WeaklyConnectedComponentObserver {
+public interface StronglyConnectedComponentObserver {
 
 	/**
 	 * Notify that the algorithm is entering a new component.

@@ -5,9 +5,14 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.MouseEvent;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
 import java.awt.image.*;
 
 import javax.swing.JPanel;
+
+import org.insa.graph.Point;
 
 /**
  *   Cette implementation de la classe Dessin produit vraiment un affichage
@@ -23,15 +28,10 @@ public class Drawing extends JPanel {
 	
 	private final Graphics2D gr;
 
-	private float long1;
-	private float long2;
-	private float lat1;
-	private float lat2;
+	private double long1, long2, lat1, lat2;
 	
 	// Width and height of the image
 	private final int width, height;
-
-	private boolean bb_is_set ;
 	
 	private Image image;
 	private ZoomAndPanListener zoomAndPanListener;
@@ -57,14 +57,11 @@ public class Drawing extends JPanel {
 		this.gr = img.createGraphics();
 		
 		this.zoomAndPanListener.setCoordTransform(this.gr.getTransform());
-		
-		this.bb_is_set = false;
 
-
-		this.long1 = 0.0f;
-		this.long2 = this.width;
-		this.lat1  = 0.0f;
-		this.lat2  = this.height;
+		this.long1 = -180;
+		this.long2 = 180;
+		this.lat1  = -90;
+		this.lat2  = 90;
 
 		this.clear();
 		this.repaint();
@@ -108,13 +105,11 @@ public class Drawing extends JPanel {
 			throw new Error("DessinVisible.setBB : mauvaises coordonnees.");
 		}
 		
-		this.long1 = (float)long1;
-		this.long2 = (float)long2;
-		this.lat1= (float)lat1;
-		this.lat2 = (float)lat2;
-		
-		this.bb_is_set = true;
-		
+		this.long1 = long1;
+		this.long2 = long2;
+		this.lat1= lat1;
+		this.lat2 = lat2;
+				
 		double scale = 1 / Math.max(this.width / (double)this.getWidth(),  this.height / (double)this.getHeight());
 		
 		this.zoomAndPanListener.getCoordTransform().setToIdentity();
@@ -126,44 +121,58 @@ public class Drawing extends JPanel {
 		
 	}
 
-	private int projx(float lon) {
+	private int projx(double lon) {
 		return (int)(width * (lon - this.long1) / (this.long2 - this.long1)) ;
 	}
 
-	private int projy(float lat) {
+	private int projy(double lat) {
 		return (int)(height * (1 - (lat - this.lat1) / (this.lat2 - this.lat1))) ;
 	}
-
-	private void checkBB() {
-		if (!this.bb_is_set) {
-			throw new Error("Classe DessinVisible : vous devez invoquer la methode setBB avant de dessiner.") ;
-		}
+	
+	/**
+	 * Return the longitude and latitude corresponding to the given
+	 * position of the MouseEvent.
+	 * 
+	 * @param event
+	 * 
+	 * @return
+	 */
+	public Point getLongitudeLatitude(MouseEvent event) throws NoninvertibleTransformException {
+		// Get the point using the inverse transform of the Zoom/Pan object, this gives us
+		// a point within the drawing box (between [0, 0] and [width, height]).
+		Point2D ptDst = this.zoomAndPanListener.getCoordTransform().inverseTransform(event.getPoint(), null);
+		
+		// Inverse the "projection" on x/y to get longitude and latitude.
+		double lon = ptDst.getX();
+		double lat = ptDst.getY();
+		lon = (lon / this.width) * (this.long2 - this.long1) + this.long1;
+		lat = (1 - lat / this.height) * (this.lat2 - this.lat1) + this.lat1;
+		
+		// Return a new point.
+		return new Point(lon, lat);			
 	}
 
-	public void drawLine(float long1, float lat1, float long2, float lat2) {
-		this.checkBB() ;
-		int x1 = this.projx(long1) ;
-		int x2 = this.projx(long2) ;
-		int y1 = this.projy(lat1) ;
-		int y2 = this.projy(lat2) ;
+	public void drawLine(Point from, Point to) {
+		int x1 = this.projx(from.getLongitude()) ;
+		int x2 = this.projx(to.getLongitude()) ;
+		int y1 = this.projy(from.getLatitude()) ;
+		int y2 = this.projy(to.getLatitude()) ;
 
 		gr.drawLine(x1, y1, x2, y2) ;
 		this.doAutoPaint();
 	}
 
-	public void drawPoint(float lon, float lat, int width) {
-		this.checkBB() ;
-		int x = this.projx(lon) - width / 2 ;
-		int y = this.projy(lat) - width / 2 ;
-		gr.fillOval (x, y, width, width) ;
+	public void drawPoint(Point point, int width) {
+		int x = this.projx(point.getLongitude()) - width / 2;
+		int y = this.projy(point.getLatitude()) - width / 2;
+		gr.fillOval(x, y, width, width);
 		this.doAutoPaint();
 	}
 
-	public void putText(float lon, float lat, String txt) {
-		this.checkBB() ;
-		int x = this.projx(lon) ;
-		int y = this.projy(lat) ;
-		gr.drawString (txt, x, y) ;
+	public void putText(Point point, String txt) {
+		int x = this.projx(point.getLongitude());
+		int y = this.projy(point.getLatitude());
+		gr.drawString(txt, x, y);
 		this.doAutoPaint();	
 	}
 

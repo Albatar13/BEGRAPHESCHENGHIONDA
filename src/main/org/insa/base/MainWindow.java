@@ -5,17 +5,23 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Constructor;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -30,10 +36,10 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.insa.algo.AbstractSolution;
 import org.insa.algo.shortestpath.BellmanFordAlgorithm;
 import org.insa.algo.shortestpath.ShortestPathAlgorithm;
 import org.insa.algo.shortestpath.ShortestPathGraphicObserver;
@@ -41,7 +47,6 @@ import org.insa.algo.shortestpath.ShortestPathInstance;
 import org.insa.algo.shortestpath.ShortestPathInstance.Mode;
 import org.insa.algo.shortestpath.ShortestPathSolution;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentGraphicObserver;
-import org.insa.algo.weakconnectivity.WeaklyConnectedComponentTextObserver;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsAlgorithm;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsInstance;
 import org.insa.drawing.Drawing;
@@ -49,17 +54,17 @@ import org.insa.drawing.graph.BlackAndWhiteGraphPalette;
 import org.insa.drawing.graph.GraphDrawing;
 import org.insa.drawing.graph.PathDrawing;
 import org.insa.graph.Graph;
+import org.insa.graph.Node;
 import org.insa.graph.Path;
+import org.insa.graph.Point;
 import org.insa.graph.io.BinaryGraphReader;
 import org.insa.graph.io.BinaryPathReader;
 import org.insa.graph.io.MapMismatchException;
 import org.insa.graph.io.Openfile;
 
-import com.sun.glass.events.KeyEvent;
-
 public class MainWindow extends JFrame {
 
-	public class JOutputStream extends OutputStream {
+	protected class JOutputStream extends OutputStream {
 		private JTextArea textArea;
 
 		public JOutputStream(JTextArea textArea) {
@@ -76,7 +81,91 @@ public class MainWindow extends JFrame {
 			textArea.update(textArea.getGraphics());
 		}
 	}
+	
+	protected interface CallableWithNodes {
+		
+		void call(ArrayList<Node> nodes);
+		
+	};
 
+	protected class DrawingClickListener extends MouseAdapter {
+	
+		// Enable/Disable.
+		private boolean enabled = false;
+
+		// List of points.
+		private ArrayList<Node> points = new ArrayList<Node>();
+		
+		// Number of points to find before running.
+		private int nTargetPoints = 0;
+		
+		// Callable to call when points are reached.
+		CallableWithNodes callable = null;
+		
+		/**
+		 * @return true if this listener is enabled.
+		 */
+		public boolean isEnabled() {
+			return enabled;
+		}
+		
+		/**
+		 * Enable this listener.
+		 * 
+		 * @param nTargetPoints Number of point to found before calling the callable.
+		 */
+		public void enable(int nTargetPoints, CallableWithNodes callable) {
+			this.enabled = true;
+			MainWindow.this.getJMenuBar().setEnabled(false);
+			this.nTargetPoints = nTargetPoints;
+			this.points.clear();
+			this.callable = callable;
+		}
+		
+		/**
+		 * Disable this listener.
+		 */
+		public void disable() {
+			this.enabled = false;
+			MainWindow.this.getJMenuBar().setEnabled(true);
+		}
+		
+        public void mouseClicked(MouseEvent evt) {
+        		if (!isEnabled()) {
+        			return;
+        		}
+        		Point lonlat;
+			try {
+				lonlat = drawing.getLongitudeLatitude(evt);
+			} 
+			catch (NoninvertibleTransformException e) {
+				// Should never happens in "normal" circumstances... 
+				e.printStackTrace();
+				return;
+			}
+			
+			System.out.println("MOUSE CLICKED: " + evt.getPoint() + " -> " + lonlat);
+			
+			ArrayList<Node> nodes = graph.getNodes();
+			Node node = null;
+			double minDis = Double.POSITIVE_INFINITY;
+			for (int n = 0 ; n < nodes.size(); ++n) {
+				double dis = lonlat.distanceTo(nodes.get(n).getPoint());
+				if (dis < minDis) {
+					node = nodes.get(n);
+					minDis = dis;
+				}
+            }
+			new GraphDrawing(drawing).drawPoint(node.getPoint(), 10, Color.BLUE);
+        		points.add(node);
+        		if (points.size() == nTargetPoints) {
+            		System.out.println("CALLABLE!");
+        			callable.call(points);
+        			this.disable();
+        		}
+        }
+	};
+	
 	/**
 	 * 
 	 */
@@ -86,11 +175,11 @@ public class MainWindow extends JFrame {
 	 * 
 	 */
 	private static final String WINDOW_TITLE = "BE Graphes INSA";
-
+	
 	/**
 	 * 
 	 */
-	private static final Dimension DEFAULT_DIMENSION = new Dimension(800, 600);
+	private static final int THREAD_TIMER_DELAY = 1000; // in milliseconds
 
 	// Current graph.
 	private Graph graph;
@@ -98,6 +187,10 @@ public class MainWindow extends JFrame {
 	// Current loaded path.
 	private Path currentPath;
 
+	// Drawing and click adapter.
+	private Drawing drawing;
+	private DrawingClickListener clickAdapter;
+	
 	// List of item for the top menus.
 	private JMenuItem openMapItem;
 
@@ -107,25 +200,24 @@ public class MainWindow extends JFrame {
 	// Label containing the map ID of the current graph.
 	private JLabel mapIdPanel;
 	
+	// Thread information
+	private Instant threadStartTime;
+	private Timer threadTimer;
 	private JPanel threadPanel;
 
 	// Log stream and print stream
 	private JOutputStream logStream;
+	
+	@SuppressWarnings("unused")
 	private PrintStream printStream;
 	
 	// Current running thread
 	private Thread currentThread;
 
-	/**
-	 * 
-	 */
-	private Drawing drawing;
-
 	public MainWindow() {
 		super(WINDOW_TITLE);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setLayout(new BorderLayout());
-		setSize(DEFAULT_DIMENSION);
 		setJMenuBar(createMenuBar());
 
 		addWindowListener(new WindowAdapter() {
@@ -145,7 +237,10 @@ public class MainWindow extends JFrame {
 		JSplitPane sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
 		drawing = new Drawing();
-		drawing.setBackground(Color.WHITE);
+		
+		// Click adapter
+		this.clickAdapter = new DrawingClickListener();
+		drawing.addMouseListener(this.clickAdapter);
 
 		JTextArea infoPanel = new JTextArea();
 		infoPanel.setMinimumSize(new Dimension(200, 50));
@@ -168,22 +263,45 @@ public class MainWindow extends JFrame {
 		this.add(createStatusBar(), BorderLayout.SOUTH);
 	}
 	
-	private void launchThread(Runnable runnable) {
-		currentThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				threadPanel.setVisible(true);
-				runnable.run();
-				threadPanel.setVisible(false);
-			}
-		});
+	private void restartThreadTimer() {
+		threadStartTime = Instant.now();
+		threadTimer.restart();
+	}
+	
+	private void stopThreadTimer() {
+		threadTimer.stop();
+	}
+	
+	/**
+	 * @param runnable
+	 * @param canInterrupt
+	 */
+	private void launchThread(Runnable runnable, boolean canInterrupt) {
+		if (canInterrupt) {
+			currentThread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					restartThreadTimer();
+					threadPanel.setVisible(true);
+					runnable.run();
+					clearCurrentThread();
+				}
+			});
+		}
+		else {
+			currentThread = new Thread(runnable);
+		}
 		currentThread.start();
 	}
-
-	private ShortestPathInstance getShortestPathParameters() {
-		// TODO: Select origin / end nodes.
-		return new ShortestPathInstance(
-			graph, graph.getNodes().get(2), graph.getNodes().get(139), Mode.TIME);
+	private void launchThread(Runnable runnable) {
+		launchThread(runnable, true);
+	}
+	
+	
+	private void clearCurrentThread() {
+		stopThreadTimer();
+		threadPanel.setVisible(false);
+		currentThread = null;
 	}
 	
 	private void launchShortestPathThread(ShortestPathAlgorithm spAlgorithm) {	
@@ -192,16 +310,14 @@ public class MainWindow extends JFrame {
 		launchThread(new Runnable() {
 			@Override
 			public void run() {
-				spAlgorithm.run();
-				AbstractSolution solution = spAlgorithm.getLastSolution();
+				ShortestPathSolution solution = spAlgorithm.run();
 				if (solution != null && solution.isFeasible()) {
-					new PathDrawing(drawing).drawPath(((ShortestPathSolution)solution).getPath());
+					new PathDrawing(drawing).drawPath(solution.getPath());
 				}
 			}
 		});
 	}
 	
-	@SuppressWarnings("restriction")
 	private JMenuBar createMenuBar() {
 
 		// Open Map item...
@@ -218,28 +334,33 @@ public class MainWindow extends JFrame {
 				chooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
 				chooser.setFileFilter(filter);
 				if (chooser.showOpenDialog(MainWindow.this) == JFileChooser.APPROVE_OPTION) {
-					BinaryGraphReader reader;
-					try {
-						reader = new BinaryGraphReader(
-								Openfile.open(chooser.getSelectedFile().getAbsolutePath()));
-					} catch (IOException e1) {
-						JOptionPane.showMessageDialog(MainWindow.this, "Cannot open the selected file.");
-						return ;
-					}
-					try {
-						graph = reader.read();
-					}
-					catch (Exception exception) {
-						JOptionPane.showMessageDialog(MainWindow.this, "Unable to read graph from the selected file.");
-						return ;
-					}
-					drawing.clear();
-					new GraphDrawing(drawing).drawGraph(graph);
+					launchThread(new Runnable() {
+						@Override
+						public void run() {
+							BinaryGraphReader reader;
+							try {
+								reader = new BinaryGraphReader(
+										Openfile.open(chooser.getSelectedFile().getAbsolutePath()));
+							} catch (IOException e1) {
+								JOptionPane.showMessageDialog(MainWindow.this, "Cannot open the selected file.");
+								return ;
+							}
+							try {
+								graph = reader.read();
+							}
+							catch (Exception exception) {
+								JOptionPane.showMessageDialog(MainWindow.this, "Unable to read graph from the selected file.");
+								return ;
+							}
+							drawing.clear();
+							new GraphDrawing(drawing).drawGraph(graph);
 
-					for (JMenuItem item: graphItems) {
-						item.setEnabled(true);
-					}
-					mapIdPanel.setText("Map ID: 0x" + Integer.toHexString(graph.getMapId()));
+							for (JMenuItem item: graphItems) {
+								item.setEnabled(true);
+							}
+							mapIdPanel.setText("Map ID: 0x" + Integer.toHexString(graph.getMapId()));
+						}
+					}, false);
 				}
 			}
 		});
@@ -352,7 +473,12 @@ public class MainWindow extends JFrame {
 				WeaklyConnectedComponentsAlgorithm algo = new WeaklyConnectedComponentsAlgorithm(instance);
 				algo.addObserver(new WeaklyConnectedComponentGraphicObserver(drawing));
 				// algo.addObserver(new WeaklyConnectedComponentTextObserver(printStream));
-				launchThread(algo);
+				launchThread(new Runnable() {
+					@Override
+					public void run() {
+						algo.run();
+					}
+				});
 			}
 		});
 
@@ -361,7 +487,13 @@ public class MainWindow extends JFrame {
 		bellmanItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				launchShortestPathThread(new BellmanFordAlgorithm(getShortestPathParameters()));
+				clickAdapter.enable(2, new CallableWithNodes() {
+					@Override
+					public void call(ArrayList<Node> nodes) {
+						launchShortestPathThread(new BellmanFordAlgorithm(
+								new ShortestPathInstance(graph, nodes.get(0), nodes.get(1), Mode.TIME)));
+					}
+				});
 			}
 		});
 		graphItems.add(wccItem);
@@ -386,12 +518,20 @@ public class MainWindow extends JFrame {
 
 		return menuBar;
 	}
+	
+	@SuppressWarnings("deprecation")
+	private void stopCurrentThread() {
+		// Should not be used in production code, but here I have no idea how
+		// to do this properly... Cannot use .interrupt() because it would requires
+		// the algorithm to watch the ThreadInteruption exception.
+		currentThread.stop();
+	}
 
 	private JPanel createStatusBar() {
 		// create the status bar panel and shove it down the bottom of the frame
 		JPanel statusPanel = new JPanel();
 		statusPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY));
-		statusPanel.setPreferredSize(new Dimension(getWidth(), 34));
+		statusPanel.setPreferredSize(new Dimension(getWidth(), 38));
 		statusPanel.setLayout(new BorderLayout());
 
 		mapIdPanel = new JLabel();
@@ -399,9 +539,10 @@ public class MainWindow extends JFrame {
 		statusPanel.add(mapIdPanel, BorderLayout.WEST);
 		
 		JLabel threadInfo = new JLabel("Thread running... ");
+		JLabel threadTimerLabel = new JLabel("00:00:00");
 		JButton threadButton = new JButton("Stop");
 		threadButton.addActionListener(new ActionListener() {
-			@SuppressWarnings("deprecation")
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (currentThread != null && currentThread.isAlive()) {
@@ -409,17 +550,30 @@ public class MainWindow extends JFrame {
 							"Are you sure you want to kill the running thread?", "Kill Confirmation",
 							JOptionPane.YES_NO_OPTION);
 					if (confirmed == JOptionPane.YES_OPTION) {
-						currentThread.stop();
-						currentThread = null;
+						stopCurrentThread();
+						clearCurrentThread();
 						threadPanel.setVisible(false);
 					}
 				}
 			}
 		});
+		
+		threadTimer = new Timer(THREAD_TIMER_DELAY, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Duration elapsed = Duration.between(threadStartTime, Instant.now());
+				long seconds = elapsed.getSeconds();
+				threadTimerLabel.setText(String.format(
+				    "%02d:%02d:%02d", seconds/3600, seconds/60 % 60, seconds % 60));
+			}
+		});
+		threadTimer.setInitialDelay(0);
+		
 		threadPanel = new JPanel();
 		threadPanel.add(threadInfo);
+		threadPanel.add(threadTimerLabel);
 		threadPanel.add(threadButton);
-		// threadPanel.setVisible(false);
+		threadPanel.setVisible(false);
 		statusPanel.add(threadPanel, BorderLayout.EAST);
 
 		return statusPanel;

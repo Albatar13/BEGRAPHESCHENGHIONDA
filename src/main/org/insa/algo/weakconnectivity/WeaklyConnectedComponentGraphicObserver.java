@@ -7,7 +7,7 @@ import org.insa.drawing.Drawing;
 import org.insa.drawing.graph.GraphDrawing;
 import org.insa.graph.Node;
 
-public class WeaklyConnectedComponentGraphicObserver extends WeaklyConnectedComponentObserver {
+public class WeaklyConnectedComponentGraphicObserver implements WeaklyConnectedComponentObserver {
 	
 	private static final Color[] COLORS = {
 		Color.BLUE, Color.ORANGE, Color.GREEN, Color.YELLOW, Color.RED
@@ -21,7 +21,6 @@ public class WeaklyConnectedComponentGraphicObserver extends WeaklyConnectedComp
 	private int cindex = 0;
 	
 	public WeaklyConnectedComponentGraphicObserver(Drawing drawing) {
-		super(true);
 		this.drawing = drawing;
 		this.gdrawing = new GraphDrawing(drawing);
 		this.drawing.setAutoRepaint(true);
