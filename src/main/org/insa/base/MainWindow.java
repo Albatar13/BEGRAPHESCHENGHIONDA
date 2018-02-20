@@ -8,11 +8,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -144,22 +142,11 @@ public class MainWindow extends JFrame {
 				return;
 			}
 			
-			System.out.println("MOUSE CLICKED: " + evt.getPoint() + " -> " + lonlat);
+			Node node = graph.findClosestNode(lonlat);
 			
-			ArrayList<Node> nodes = graph.getNodes();
-			Node node = null;
-			double minDis = Double.POSITIVE_INFINITY;
-			for (int n = 0 ; n < nodes.size(); ++n) {
-				double dis = lonlat.distanceTo(nodes.get(n).getPoint());
-				if (dis < minDis) {
-					node = nodes.get(n);
-					minDis = dis;
-				}
-            }
 			new GraphDrawing(drawing).drawPoint(node.getPoint(), 10, Color.BLUE);
         		points.add(node);
         		if (points.size() == nTargetPoints) {
-            		System.out.println("CALLABLE!");
         			callable.call(points);
         			this.disable();
         		}
@@ -487,13 +474,21 @@ public class MainWindow extends JFrame {
 		bellmanItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				clickAdapter.enable(2, new CallableWithNodes() {
-					@Override
-					public void call(ArrayList<Node> nodes) {
-						launchShortestPathThread(new BellmanFordAlgorithm(
-								new ShortestPathInstance(graph, nodes.get(0), nodes.get(1), Mode.TIME)));
-					}
-				});
+				int idx = JOptionPane.showOptionDialog(MainWindow.this, 
+						"Which mode do you want?", "Mode selection", 
+						JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, 
+						null, Mode.values(), Mode.LENGTH);
+				
+				if (idx != -1) {
+					Mode mode = Mode.values()[idx];
+					clickAdapter.enable(2, new CallableWithNodes() {
+						@Override
+						public void call(ArrayList<Node> nodes) {
+							launchShortestPathThread(new BellmanFordAlgorithm(
+									new ShortestPathInstance(graph, nodes.get(0), nodes.get(1), mode)));
+						}
+					});
+				}
 			}
 		});
 		graphItems.add(wccItem);
