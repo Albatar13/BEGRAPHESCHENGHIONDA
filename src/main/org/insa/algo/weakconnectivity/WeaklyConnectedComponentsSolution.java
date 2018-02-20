@@ -10,11 +10,11 @@ public class WeaklyConnectedComponentsSolution extends AbstractSolution {
 	// Components
 	private ArrayList<ArrayList<Node>> components;
 
-	protected WeaklyConnectedComponentsSolution(WeaklyConnectedComponentsInstance instance) {
+	protected WeaklyConnectedComponentsSolution(WeaklyConnectedComponentsData instance) {
 		super(instance);
 	}
 	
-	protected WeaklyConnectedComponentsSolution(WeaklyConnectedComponentsInstance instance, 
+	protected WeaklyConnectedComponentsSolution(WeaklyConnectedComponentsData instance, 
 					   Status status, ArrayList<ArrayList<Node>> components) {
 		super(instance, status);
 		this.components = components;

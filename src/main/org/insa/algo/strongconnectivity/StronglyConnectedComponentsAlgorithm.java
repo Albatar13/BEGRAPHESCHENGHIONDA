@@ -9,7 +9,7 @@ public abstract class StronglyConnectedComponentsAlgorithm extends AbstractAlgor
 	 * @param instance
 	 * @param logOutput
 	 */
-	public StronglyConnectedComponentsAlgorithm(StronglyConnectedComponentsInstance instance) {
+	public StronglyConnectedComponentsAlgorithm(StronglyConnectedComponentsData instance) {
 		super(instance);
 	}
 	
@@ -19,8 +19,8 @@ public abstract class StronglyConnectedComponentsAlgorithm extends AbstractAlgor
 	}
 	
 	@Override
-	public StronglyConnectedComponentsInstance getInstance() {
-		return (StronglyConnectedComponentsInstance)super.getInstance();
+	public StronglyConnectedComponentsData getInstance() {
+		return (StronglyConnectedComponentsData)super.getInstance();
 	}
 
 }

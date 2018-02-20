@@ -27,7 +27,7 @@ public class TarjanAlgorithm extends StronglyConnectedComponentsAlgorithm {
 	// Array of strongly connected components
 	ArrayList<ArrayList<Node>> components;
 
-	public TarjanAlgorithm(StronglyConnectedComponentsInstance instance) {
+	public TarjanAlgorithm(StronglyConnectedComponentsData instance) {
 		super(instance);
 	}
 	

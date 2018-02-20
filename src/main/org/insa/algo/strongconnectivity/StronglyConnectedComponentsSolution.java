@@ -10,11 +10,11 @@ public class StronglyConnectedComponentsSolution extends AbstractSolution {
 	// Components
 	private ArrayList<ArrayList<Node>> components;
 
-	protected StronglyConnectedComponentsSolution(StronglyConnectedComponentsInstance instance) {
+	protected StronglyConnectedComponentsSolution(StronglyConnectedComponentsData instance) {
 		super(instance);
 	}
 	
-	protected StronglyConnectedComponentsSolution(StronglyConnectedComponentsInstance instance, 
+	protected StronglyConnectedComponentsSolution(StronglyConnectedComponentsData instance, 
 					   Status status, ArrayList<ArrayList<Node>> components) {
 		super(instance, status);
 		this.components = components;

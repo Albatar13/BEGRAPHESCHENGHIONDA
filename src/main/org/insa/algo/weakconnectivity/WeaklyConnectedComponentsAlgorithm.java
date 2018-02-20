@@ -19,7 +19,7 @@ public class WeaklyConnectedComponentsAlgorithm extends AbstractAlgorithm<Weakly
 	 * @param instance
 	 * @param logOutput
 	 */
-	public WeaklyConnectedComponentsAlgorithm(WeaklyConnectedComponentsInstance instance) {
+	public WeaklyConnectedComponentsAlgorithm(WeaklyConnectedComponentsData instance) {
 		super(instance);
 	}
 	
@@ -29,8 +29,8 @@ public class WeaklyConnectedComponentsAlgorithm extends AbstractAlgorithm<Weakly
 	}
 	
 	@Override
-	public WeaklyConnectedComponentsInstance getInstance() {
-		return (WeaklyConnectedComponentsInstance)super.getInstance();
+	public WeaklyConnectedComponentsData getInstance() {
+		return (WeaklyConnectedComponentsData)super.getInstance();
 	}
 	
 	/**

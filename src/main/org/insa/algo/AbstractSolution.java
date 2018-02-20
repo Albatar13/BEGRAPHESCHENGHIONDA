@@ -22,20 +22,20 @@ public abstract class AbstractSolution {
 	Duration solvingTime;
 	
 	// Original instance of the solution
-	AbstractInstance instance;
+	AbstractData instance;
 
 	/**
 	 * Create a new abstract solution with unknown status.
 	 * 
 	 * @param instance
 	 */
-	protected AbstractSolution(AbstractInstance instance) {
+	protected AbstractSolution(AbstractData instance) {
 		this.instance = instance;
 		this.solvingTime = Duration.ZERO;
 		this.status = Status.UNKNOWN;
 	}
 	
-	protected AbstractSolution(AbstractInstance instance, Status status) {
+	protected AbstractSolution(AbstractData instance, Status status) {
 		this.instance = instance;
 		this.status = status;
 	}
@@ -43,7 +43,7 @@ public abstract class AbstractSolution {
 	/**
 	 * @return Original instance for this solution.
 	 */
-	public AbstractInstance getInstance() { return instance; }
+	public AbstractData getInstance() { return instance; }
 	
 	/**
 	 * @return Status of this solution.

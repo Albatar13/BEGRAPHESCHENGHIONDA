@@ -41,12 +41,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.insa.algo.shortestpath.BellmanFordAlgorithm;
 import org.insa.algo.shortestpath.ShortestPathAlgorithm;
 import org.insa.algo.shortestpath.ShortestPathGraphicObserver;
-import org.insa.algo.shortestpath.ShortestPathInstance;
-import org.insa.algo.shortestpath.ShortestPathInstance.Mode;
+import org.insa.algo.shortestpath.ShortestPathData;
+import org.insa.algo.shortestpath.ShortestPathData.Mode;
 import org.insa.algo.shortestpath.ShortestPathSolution;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentGraphicObserver;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsAlgorithm;
-import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsInstance;
+import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsData;
 import org.insa.drawing.Drawing;
 import org.insa.drawing.graph.BlackAndWhiteGraphPalette;
 import org.insa.drawing.graph.GraphDrawing;
@@ -456,7 +456,7 @@ public class MainWindow extends JFrame {
 		wccItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				WeaklyConnectedComponentsInstance instance = new WeaklyConnectedComponentsInstance(graph);
+				WeaklyConnectedComponentsData instance = new WeaklyConnectedComponentsData(graph);
 				WeaklyConnectedComponentsAlgorithm algo = new WeaklyConnectedComponentsAlgorithm(instance);
 				algo.addObserver(new WeaklyConnectedComponentGraphicObserver(drawing));
 				// algo.addObserver(new WeaklyConnectedComponentTextObserver(printStream));
@@ -485,7 +485,7 @@ public class MainWindow extends JFrame {
 						@Override
 						public void call(ArrayList<Node> nodes) {
 							launchShortestPathThread(new BellmanFordAlgorithm(
-									new ShortestPathInstance(graph, nodes.get(0), nodes.get(1), mode)));
+									new ShortestPathData(graph, nodes.get(0), nodes.get(1), mode)));
 						}
 					});
 				}

@@ -6,15 +6,15 @@ import java.util.ArrayList;
 
 public abstract class AbstractAlgorithm<Observer> {
 
-    protected AbstractInstance instance;
+    protected AbstractData instance;
     protected ArrayList<Observer> observers;
     
-    protected AbstractAlgorithm(AbstractInstance instance) {
+    protected AbstractAlgorithm(AbstractData instance) {
 		this.instance = instance;
 		this.observers = new ArrayList<Observer>();	
     }
 
-    protected AbstractAlgorithm(AbstractInstance instance, ArrayList<Observer> observers) {
+    protected AbstractAlgorithm(AbstractData instance, ArrayList<Observer> observers) {
     		this.instance = instance;
     		this.observers = observers;;	
     }
@@ -38,7 +38,7 @@ public abstract class AbstractAlgorithm<Observer> {
     /**
      * @return Instance corresponding to this algorithm.
      */
-    public AbstractInstance getInstance() { return instance; }
+    public AbstractData getInstance() { return instance; }
         
     /**
      * Run the algorithm and update the current solution.

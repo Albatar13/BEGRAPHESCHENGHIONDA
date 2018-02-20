@@ -2,7 +2,7 @@ package org.insa.algo;
 
 import org.insa.graph.Graph;
 
-public abstract class AbstractInstance {
+public abstract class AbstractData {
 
 	protected Graph graph;
 	
@@ -11,7 +11,7 @@ public abstract class AbstractInstance {
 	 * 
 	 * @param graph
 	 */
-	protected AbstractInstance(Graph graph) {
+	protected AbstractData(Graph graph) {
 		this.graph = graph;
 	}
 	
