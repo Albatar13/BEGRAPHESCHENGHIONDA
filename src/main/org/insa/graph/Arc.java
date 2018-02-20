@@ -70,8 +70,8 @@ public class Arc {
 	/**
 	 * @return Minimum time required to travel this arc, in seconds.
 	 */
-	public float getMinimumTravelTime() {
-		return getLength() * 3600f / (info.getMaximumSpeed() * 1000f);
+	public double getMinimumTravelTime() {
+		return getLength() * 3600.0 / (info.getMaximumSpeed() * 1000.0);
 	}
 
 	/**
