@@ -30,7 +30,7 @@ public class Node implements Comparable<Node> {
 	 * 
 	 * @param arc Arc to the successor.
 	 */
-	public void addSuccessor(Arc arc) {
+	protected void addSuccessor(Arc arc) {
 		successors.add(arc);
 	}
 	

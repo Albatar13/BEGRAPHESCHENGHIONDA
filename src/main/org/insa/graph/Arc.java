@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Arc {
 	
 	// Destination node.
-	private Node dest;
+	private Node origin, destination;
 
 	// Length of the road (in meters).
 	private int length;
@@ -22,11 +22,13 @@ public class Arc {
 	 * @param roadInformation
 	 * @param points
 	 */
-	public Arc(Node dest, int length, RoadInformation roadInformation) {
-		this.dest = dest;
+	public Arc(Node origin, Node dest, int length, RoadInformation roadInformation) {
+		this.origin = origin;
+		this.destination = dest;
 		this.length = length;
 		this.info = roadInformation;
 		this.points = new ArrayList<Point>();
+		origin.addSuccessor(this);
 	}
 
 	/**
@@ -35,18 +37,27 @@ public class Arc {
 	 * @param roadInformation
 	 * @param points
 	 */
-	public Arc(Node dest, int length, RoadInformation roadInformation, ArrayList<Point> points) {
-		this.dest = dest;
+	public Arc(Node origin, Node dest, int length, RoadInformation roadInformation, ArrayList<Point> points) {
+		this.origin = origin;
+		this.destination = dest;
 		this.length = length;
 		this.info = roadInformation;
 		this.points = points;
+		origin.addSuccessor(this);
+	}
+	
+	/**
+	 * @return Origin node of this arc.
+	 */
+	public Node getOrigin() {
+		return origin;
 	}
 	
 	/**
 	 * @return Destination node of this arc.
 	 */
 	public Node getDestination() {
-		return dest;
+		return destination;
 	}
 
 	/**

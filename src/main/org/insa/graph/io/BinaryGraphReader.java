@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import javax.sound.midi.ControllerEventListener;
-
 import org.insa.graph.Arc;
 import org.insa.graph.Graph;
 import org.insa.graph.Node;
@@ -147,14 +145,14 @@ public class BinaryGraphReader extends BinaryReader implements AbstractGraphRead
 					Node dest = nodes.get(destNode);
 	
 					// Add successor to initial arc.
-					orig.addSuccessor(new Arc(dest, length, info, points));
+					new Arc(orig, dest, length, info, points);
 					
 					// And reverse arc if its a two-way road.
 					if (!info.isOneWay()) {
 						// Add without segments.
 						ArrayList<Point> rPoints = new ArrayList<Point>(points);
 						Collections.reverse(rPoints);
-						dest.addSuccessor(new Arc(orig, length, info, rPoints));
+						new Arc(dest, orig, length, info, rPoints);
 					}
 					
 				}
