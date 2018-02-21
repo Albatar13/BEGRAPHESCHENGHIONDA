@@ -1,6 +1,8 @@
 package org.insa.drawing;
 
 import java.awt.Color;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseWheelEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ import org.mapsforge.map.awt.util.AwtUtil;
 import org.mapsforge.map.awt.util.JavaPreferences;
 import org.mapsforge.map.awt.view.MapView;
 import org.mapsforge.map.datastore.MapDataStore;
+import org.mapsforge.map.layer.Layer;
 import org.mapsforge.map.layer.Layers;
 import org.mapsforge.map.layer.cache.TileCache;
 import org.mapsforge.map.layer.hills.HillsRenderConfig;
@@ -60,6 +63,8 @@ public class MapViewDrawing extends MapView implements Drawing {
 	
 	// Tile size.
 	int tileSize;
+	
+	ArrayList<Paint> extraLayers;
 
 	public MapViewDrawing() {
 		setBackground(Color.WHITE);
@@ -68,6 +73,17 @@ public class MapViewDrawing extends MapView implements Drawing {
 		DisplayModel model = getModel().displayModel;
         model.setFixedTileSize(tileSize);
         model.setBackgroundColor(convertColor(Color.WHITE));
+        
+        extraLayers = new ArrayList<Paint>();
+        addMouseWheelListener(new MouseAdapter() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                byte zoomLevelDiff = (byte) -e.getWheelRotation();
+                for (Paint p: extraLayers) {
+                	p.setStrokeWidth(p.getStrokeWidth() + zoomLevelDiff);
+                }
+            }
+		});
 	}
 	
 	protected int convertColor(Color color) {
@@ -75,11 +91,16 @@ public class MapViewDrawing extends MapView implements Drawing {
 				color.getGreen(), color.getBlue());
 	}
 	
+	private int getStrokeWidth(int width) {
+		byte zoomLevel = getModel().mapViewPosition.getZoomLevel();
+		return width * (2 - (8 - zoomLevel));
+	}
+	
 	private Paint createPaintStroke(int width, Color color) {
 		Paint paintStroke = AwtGraphicFactory.INSTANCE.createPaint();
 		paintStroke.setStyle(Style.STROKE);
 		if (width != 0) {
-			paintStroke.setStrokeWidth(width);
+			paintStroke.setStrokeWidth(getStrokeWidth(width));
 		}
 		if (color != null) {
 			paintStroke.setColor(convertColor(color));
@@ -131,6 +152,7 @@ public class MapViewDrawing extends MapView implements Drawing {
 	@Override
 	public void clear() {
 		getLayerManager().getLayers().clear();
+		extraLayers.clear();
 		repaint();
 	}
 
@@ -151,7 +173,7 @@ public class MapViewDrawing extends MapView implements Drawing {
         line.getLatLongs().add(convertPoint(from));
         line.getLatLongs().add(convertPoint(to));
         getLayerManager().getLayers().add(line);	
-       }
+    }
 	
 	@Override
 	public void drawMarker(Point point) {
@@ -188,12 +210,11 @@ public class MapViewDrawing extends MapView implements Drawing {
         layers.add(tileRendererLayer);
         BoundingBox boundingBox = mapDataStore.boundingBox();
 		
-        final PreferencesFacade preferencesFacade = new JavaPreferences(Preferences.userNodeForPackage(MapViewDrawing.class));
         final Model model = getModel();
-        model.init(preferencesFacade);
         if (model.mapViewPosition.getZoomLevel() == 0 || !boundingBox.contains(model.mapViewPosition.getCenter())) {
             byte zoomLevel = LatLongUtils.zoomForBounds(model.mapViewDimension.getDimension(), boundingBox, model.displayModel.getTileSize());
             model.mapViewPosition.setMapPosition(new MapPosition(boundingBox.getCenterPoint(), zoomLevel));
+            model.mapViewPosition.setZoomLevelMin(zoomLevel);
         }
 	}
 
@@ -204,7 +225,7 @@ public class MapViewDrawing extends MapView implements Drawing {
 
 	@Override
 	public void drawPath(Path path, Color color, boolean markers) {
-		Paint paintStroke = createPaintStroke(5, DEFAULT_PATH_COLOR);
+		Paint paintStroke = createPaintStroke(1, DEFAULT_PATH_COLOR);
 		Polyline line = new Polyline(paintStroke, AwtGraphicFactory.INSTANCE);
         for (Arc arc: path.getArcs()) {
         		ArrayList<Point> points = arc.getPoints();
@@ -213,6 +234,7 @@ public class MapViewDrawing extends MapView implements Drawing {
         		}
         }
         getLayerManager().getLayers().add(line);
+        extraLayers.add(paintStroke);
         if (markers) {
         		drawMarker(path.getOrigin().getPoint());
         		drawMarker(path.getDestination().getPoint());
