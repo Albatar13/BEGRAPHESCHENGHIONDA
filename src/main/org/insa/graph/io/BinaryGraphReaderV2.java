@@ -12,11 +12,11 @@ import org.insa.graph.Point;
 import org.insa.graph.RoadInformation;
 import org.insa.graph.RoadInformation.RoadType;
 
-public class BinaryGraphReader extends BinaryReader implements AbstractGraphReader {
+public class BinaryGraphReaderV2 extends BinaryReader implements AbstractGraphReader {
 	
 	// Map version and magic number targeted for this reader.
-	private static final int VERSION = 4;
-	private static final int MAGIC_NUMBER = 0xbacaff;
+	private static final int VERSION = 5;
+	private static final int MAGIC_NUMBER = 0x208BC3B3;
 
 	/**
 	 * Convert a character to its corresponding road type.
@@ -54,24 +54,19 @@ public class BinaryGraphReader extends BinaryReader implements AbstractGraphRead
 	 * 
 	 * @param dis
 	 */
-	public BinaryGraphReader(DataInputStream dis) {
+	public BinaryGraphReaderV2(DataInputStream dis) {
 		super(MAGIC_NUMBER, VERSION, dis);
 	}
 
 	@Override
 	public Graph read() throws IOException {
-		
-		System.out.println(getClass());
-		
+				
 		// Read and check magic number and file version.
 		checkMagicNumberOrThrow(dis.readInt());
 		checkVersionOrThrow(dis.readInt());
 		
 		// Read map id.
 		int mapId = dis.readInt();
-		
-		// Read zone.
-		int graphZone = dis.readInt();
 
 		// Number of descriptors and nodes.
 		int nbDesc = dis.readInt();
@@ -104,13 +99,10 @@ public class BinaryGraphReader extends BinaryReader implements AbstractGraphRead
 		
 		// Check format.
 		checkByteOrThrow(254);
-		
+				
 		// Read successors and convert to arcs.
 		for (int node = 0; node < nbNodes; ++node) {
 			for (int succ = 0; succ < nbSuccessors[node]; ++succ) {
-				
-				// Read destination zone.
-				int destZone = dis.readUnsignedByte();
 				
 				// Read target node number.
 				int destNode = this.read24bits();
@@ -139,25 +131,22 @@ public class BinaryGraphReader extends BinaryReader implements AbstractGraphRead
 				}
 				
 				points.add(nodes.get(destNode).getPoint());
+									
+				RoadInformation info = descs[descrNum];
+				Node orig = nodes.get(node);
+				Node dest = nodes.get(destNode);
+
+				// Add successor to initial arc.
+				new Arc(orig, dest, length, info, points);
 				
-				if (graphZone == destZone) {
-					
-					RoadInformation info = descs[descrNum];
-					Node orig = nodes.get(node);
-					Node dest = nodes.get(destNode);
-	
-					// Add successor to initial arc.
-					new Arc(orig, dest, length, info, points);
-					
-					// And reverse arc if its a two-way road.
-					if (!info.isOneWay()) {
-						// Add without segments.
-						ArrayList<Point> rPoints = new ArrayList<Point>(points);
-						Collections.reverse(rPoints);
-						new Arc(dest, orig, length, info, rPoints);
-					}
-					
+				// And reverse arc if its a two-way road.
+				if (!info.isOneWay()) {
+					// Add without segments.
+					ArrayList<Point> rPoints = new ArrayList<Point>(points);
+					Collections.reverse(rPoints);
+					new Arc(dest, orig, length, info, rPoints);
 				}
+					
 			}
 		}
 		

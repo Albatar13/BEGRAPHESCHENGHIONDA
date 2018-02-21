@@ -1,4 +1,4 @@
-package org.insa.drawing.graph;
+package org.insa.drawing;
 
 import java.awt.Color;
 

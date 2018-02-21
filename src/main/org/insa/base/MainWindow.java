@@ -2,6 +2,7 @@ package org.insa.base;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,6 +12,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.NoninvertibleTransformException;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -47,15 +50,17 @@ import org.insa.algo.shortestpath.ShortestPathSolution;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentGraphicObserver;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsAlgorithm;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsData;
+import org.insa.drawing.BasicDrawing;
+import org.insa.drawing.BlackAndWhiteGraphPalette;
 import org.insa.drawing.Drawing;
-import org.insa.drawing.graph.BlackAndWhiteGraphPalette;
-import org.insa.drawing.graph.GraphDrawing;
-import org.insa.drawing.graph.PathDrawing;
+import org.insa.drawing.MapViewDrawing;
 import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Path;
 import org.insa.graph.Point;
+import org.insa.graph.io.AbstractGraphReader;
 import org.insa.graph.io.BinaryGraphReader;
+import org.insa.graph.io.BinaryGraphReaderV2;
 import org.insa.graph.io.BinaryPathReader;
 import org.insa.graph.io.MapMismatchException;
 import org.insa.graph.io.Openfile;
@@ -132,7 +137,8 @@ public class MainWindow extends JFrame {
         		}
         		Point lonlat;
 			try {
-				lonlat = drawing.getLongitudeLatitude(evt);
+				// TODO: Fix
+				lonlat = ((BasicDrawing)drawing).getLongitudeLatitude(evt);
 			} 
 			catch (NoninvertibleTransformException e) {
 				// Should never happens in "normal" circumstances... 
@@ -142,7 +148,7 @@ public class MainWindow extends JFrame {
 			
 			Node node = graph.findClosestNode(lonlat);
 			
-			new GraphDrawing(drawing).drawPoint(node.getPoint(), 10, Color.BLUE);
+			drawing.drawMarker(node.getPoint(), Color.BLUE);
         		points.add(node);
         		if (points.size() == nTargetPoints) {
         			callable.call(points);
@@ -175,6 +181,9 @@ public class MainWindow extends JFrame {
 	// Drawing and click adapter.
 	private Drawing drawing;
 	private DrawingClickListener clickAdapter;
+	
+	// Main panel.
+	private JSplitPane mainPanel;
 	
 	// List of item for the top menus.
 	private JMenuItem openMapItem;
@@ -219,13 +228,17 @@ public class MainWindow extends JFrame {
 		});
 
 		// Create graph area
-		JSplitPane sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
-		drawing = new Drawing();
+		BasicDrawing drawing = new BasicDrawing();
+		// MapViewDrawing drawing = new MapViewDrawing();
+		
+		Component drawingComponent = drawing;
+		this.drawing = drawing;
 		
 		// Click adapter
 		this.clickAdapter = new DrawingClickListener();
-		drawing.addMouseListener(this.clickAdapter);
+		// drawing.addMouseListener(this.clickAdapter);
 
 		JTextArea infoPanel = new JTextArea();
 		infoPanel.setMinimumSize(new Dimension(200, 50));
@@ -236,14 +249,14 @@ public class MainWindow extends JFrame {
 		this.logStream = new JOutputStream(infoPanel);
 		this.printStream = new PrintStream(this.logStream);
 
-		sp.setResizeWeight(0.8);
+		mainPanel.setResizeWeight(0.8);
 		// sp.setEnabled(false);
-		sp.setDividerSize(5);
+		mainPanel.setDividerSize(5);
 
-		sp.setBackground(Color.WHITE);
-		sp.add(drawing);
-		sp.add(new JScrollPane(infoPanel));		
-		this.add(sp, BorderLayout.CENTER);
+		mainPanel.setBackground(Color.WHITE);
+		mainPanel.add(drawingComponent);
+		mainPanel.add(new JScrollPane(infoPanel));	
+		this.add(mainPanel, BorderLayout.CENTER);
 		
 		// Top Panel
 		this.add(createTopPanel(), BorderLayout.NORTH);		
@@ -299,7 +312,7 @@ public class MainWindow extends JFrame {
 			public void run() {
 				ShortestPathSolution solution = spAlgorithm.run();
 				if (solution != null && solution.isFeasible()) {
-					new PathDrawing(drawing).drawPath(solution.getPath());
+					drawing.drawPath(solution.getPath());
 				}
 			}
 		});
@@ -317,30 +330,38 @@ public class MainWindow extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser chooser = new JFileChooser();
 				FileNameExtensionFilter filter = new FileNameExtensionFilter(
-						"Map & compressed map files", "map", "map.gz");
+						"Map & compressed map files", "map", "map2", "map.gz");
 				chooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
 				chooser.setFileFilter(filter);
 				if (chooser.showOpenDialog(MainWindow.this) == JFileChooser.APPROVE_OPTION) {
 					launchThread(new Runnable() {
 						@Override
 						public void run() {
-							BinaryGraphReader reader;
+							String path = chooser.getSelectedFile().getAbsolutePath();
+							DataInputStream stream;
 							try {
-								reader = new BinaryGraphReader(
-										Openfile.open(chooser.getSelectedFile().getAbsolutePath()));
+								stream = Openfile.open(path);
 							} catch (IOException e1) {
 								JOptionPane.showMessageDialog(MainWindow.this, "Cannot open the selected file.");
 								return ;
+							}
+							AbstractGraphReader reader;
+							if (path.endsWith(".map2")) {
+								reader = new BinaryGraphReaderV2(stream);
+							}
+							else {
+								reader = new BinaryGraphReader(stream);
 							}
 							try {
 								graph = reader.read();
 							}
 							catch (Exception exception) {
 								JOptionPane.showMessageDialog(MainWindow.this, "Unable to read graph from the selected file.");
+								exception.printStackTrace(System.out);
 								return ;
 							}
 							drawing.clear();
-							new GraphDrawing(drawing).drawGraph(graph);
+							drawing.drawGraph(graph);
 
 							for (JMenuItem item: graphLockItems) {
 								item.setEnabled(true);
@@ -384,7 +405,7 @@ public class MainWindow extends JFrame {
 						JOptionPane.showMessageDialog(MainWindow.this, "Unable to read path from the selected file.");
 						return ;
 					}
-					new PathDrawing(drawing).drawPath(currentPath);
+					drawing.drawPath(currentPath);
 				}
 			}
 		});
@@ -418,9 +439,13 @@ public class MainWindow extends JFrame {
 				launchThread(new Runnable() {
 					@Override
 					public void run() {
+						if (!(drawing instanceof BasicDrawing)) {
+							BasicDrawing tmp = new BasicDrawing();
+							mainPanel.setLeftComponent(tmp);
+							drawing = tmp;
+						}
 						drawing.clear();
-						drawing.setAutoRepaint(true);
-						new GraphDrawing(drawing).drawGraph(graph);				
+						drawing.drawGraph(graph);	
 					}
 				});
 			}
@@ -435,18 +460,45 @@ public class MainWindow extends JFrame {
 				launchThread(new Runnable() {
 					@Override
 					public void run() {
+						if (!(drawing instanceof BasicDrawing)) {
+							BasicDrawing tmp = new BasicDrawing();
+							mainPanel.setLeftComponent(tmp);
+							drawing = tmp;
+						}
 						drawing.clear();
-						drawing.setAutoRepaint(true);
-						new GraphDrawing(drawing, new BlackAndWhiteGraphPalette()).drawGraph(graph);				
+						drawing.drawGraph(graph, new BlackAndWhiteGraphPalette());			
 					}
 				});
 			}
 		});
 		graphLockItems.add(drawGraphBWItem);
+		JMenuItem drawGraphMapsforgeItem = new JMenuItem("Redraw (Map)", KeyEvent.VK_M);
+		drawGraphMapsforgeItem.setAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_M, ActionEvent.ALT_MASK));
+		drawGraphMapsforgeItem.addActionListener(new ActionListener() {		
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				launchThread(new Runnable() {
+					@Override
+					public void run() {
+						if (!(drawing instanceof MapViewDrawing)) {
+							MapViewDrawing tmp = new MapViewDrawing();
+							mainPanel.setLeftComponent(tmp);
+							drawing = tmp;
+						}
+						drawing.clear();
+						drawing.drawGraph(graph, new BlackAndWhiteGraphPalette());			
+					}
+				});
+			}
+		});
+		graphLockItems.add(drawGraphMapsforgeItem);
 
 		JMenu graphMenu = new JMenu("Graph");
 		graphMenu.add(drawGraphItem);
 		graphMenu.add(drawGraphBWItem);
+		graphMenu.addSeparator();
+		graphMenu.add(drawGraphMapsforgeItem);
 
 		// Algo menu
 		JMenu algoMenu = new JMenu("Algorithms");

@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.util.ArrayList;
 
 import org.insa.drawing.Drawing;
-import org.insa.drawing.graph.GraphDrawing;
 import org.insa.graph.Node;
 
 public class WeaklyConnectedComponentGraphicObserver implements WeaklyConnectedComponentObserver {
@@ -15,27 +14,22 @@ public class WeaklyConnectedComponentGraphicObserver implements WeaklyConnectedC
 
 	// Drawing + Graph drawing
 	private Drawing drawing;
-	private GraphDrawing gdrawing;
 	
 	// Current index color
-	private int cindex = 0;
+	private int cindex = -1;
 	
 	public WeaklyConnectedComponentGraphicObserver(Drawing drawing) {
 		this.drawing = drawing;
-		this.gdrawing = new GraphDrawing(drawing);
-		this.drawing.setAutoRepaint(true);
 	}
 
 	@Override
 	public void notifyStartComponent(Node curNode) {
-		this.drawing.setColor(COLORS[cindex]);
 		cindex = (cindex + 1) % COLORS.length;
 	}
 
 	@Override
 	public void notifyNewNodeInComponent(Node node) {
-		this.gdrawing.drawPoint(node.getPoint(), 5);
-		this.drawing.repaint();
+		this.drawing.drawMarker(node.getPoint(), COLORS[cindex]);
 	}
 
 	@Override
