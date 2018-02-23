@@ -7,11 +7,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.NoninvertibleTransformException;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -52,6 +49,7 @@ import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsData;
 import org.insa.drawing.BasicDrawing;
 import org.insa.drawing.BlackAndWhiteGraphPalette;
 import org.insa.drawing.Drawing;
+import org.insa.drawing.DrawingClickListener;
 import org.insa.drawing.MapViewDrawing;
 import org.insa.graph.Graph;
 import org.insa.graph.Node;
@@ -90,7 +88,7 @@ public class MainWindow extends JFrame {
 
     };
 
-    protected class DrawingClickListener extends MouseAdapter {
+    protected class MultiPointsClickListener implements DrawingClickListener {
 
         // Enable/Disable.
         private boolean enabled = false;
@@ -114,7 +112,8 @@ public class MainWindow extends JFrame {
         /**
          * Enable this listener.
          * 
-         * @param nTargetPoints Number of point to found before calling the callable.
+         * @param nTargetPoints
+         *            Number of point to found before calling the callable.
          */
         public void enable(int nTargetPoints, CallableWithNodes callable) {
             this.enabled = true;
@@ -130,25 +129,15 @@ public class MainWindow extends JFrame {
             this.enabled = false;
         }
 
-        public void mouseClicked(MouseEvent evt) {
+        @Override
+        public void mouseClicked(Point lonlat) {
             if (!isEnabled()) {
                 return;
             }
-            Point lonlat;
-            try {
-                // TODO: Fix
-                lonlat = ((BasicDrawing) drawing).getLongitudeLatitude(evt);
-            }
-            catch (NoninvertibleTransformException e) {
-                // Should never happens in "normal" circumstances...
-                e.printStackTrace();
-                return;
-            }
-
             Node node = graph.findClosestNode(lonlat);
-
             drawing.drawMarker(node.getPoint(), Color.BLUE);
             points.add(node);
+            System.out.println("Click at " + lonlat + ", " + points.size() + "/" + nTargetPoints + " in array.");
             if (points.size() == nTargetPoints) {
                 callable.call(points);
                 this.disable();
@@ -179,7 +168,7 @@ public class MainWindow extends JFrame {
 
     // Drawing and click adapter.
     private Drawing drawing;
-    private DrawingClickListener clickAdapter;
+    private MultiPointsClickListener clickAdapter;
 
     // Main panel.
     private JSplitPane mainPanel;
@@ -215,9 +204,8 @@ public class MainWindow extends JFrame {
 
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                int confirmed = JOptionPane.showConfirmDialog(null,
-                        "Are you sure you want to close the application?", "Exit Confirmation",
-                        JOptionPane.YES_NO_OPTION);
+                int confirmed = JOptionPane.showConfirmDialog(null, "Are you sure you want to close the application?",
+                        "Exit Confirmation", JOptionPane.YES_NO_OPTION);
 
                 if (confirmed == JOptionPane.YES_OPTION) {
                     dispose();
@@ -229,19 +217,14 @@ public class MainWindow extends JFrame {
         // Create graph area
         mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
-        BasicDrawing drawing = new BasicDrawing();
-        // MapViewDrawing drawing = new MapViewDrawing();
-
-        Component drawingComponent = drawing;
-        this.drawing = drawing;
+        this.drawing = new BasicDrawing();
 
         // Click adapter
-        this.clickAdapter = new DrawingClickListener();
-        // drawing.addMouseListener(this.clickAdapter);
+        this.clickAdapter = new MultiPointsClickListener();
+        this.drawing.addDrawingClickListener(this.clickAdapter);
 
         JTextArea infoPanel = new JTextArea();
         infoPanel.setMinimumSize(new Dimension(200, 50));
-        // infoPanel.setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, Color.GRAY));
         infoPanel.setBackground(Color.WHITE);
         infoPanel.setLineWrap(true);
         infoPanel.setEditable(false);
@@ -253,8 +236,8 @@ public class MainWindow extends JFrame {
         mainPanel.setDividerSize(5);
 
         mainPanel.setBackground(Color.WHITE);
-        mainPanel.add(drawingComponent);
-        mainPanel.add(new JScrollPane(infoPanel));
+        mainPanel.setLeftComponent((Component) this.drawing);
+        mainPanel.setRightComponent(new JScrollPane(infoPanel));
         this.add(mainPanel, BorderLayout.CENTER);
 
         // Top Panel
@@ -317,6 +300,21 @@ public class MainWindow extends JFrame {
         });
     }
 
+    private void updateDrawing(Class<? extends Drawing> newClass) {
+
+        drawing.clear();
+        if (drawing == null || !newClass.isInstance(drawing)) {
+            try {
+                drawing = newClass.newInstance();
+            }
+            catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            drawing.addDrawingClickListener(this.clickAdapter);
+        }
+        mainPanel.setLeftComponent((Component) drawing);
+    }
+
     private JMenuBar createMenuBar() {
 
         // Open Map item...
@@ -326,8 +324,8 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser();
-                FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                        "Map & compressed map files", "map", "map2", "mapgr", "map.gz");
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("Map & compressed map files", "map",
+                        "map2", "mapgr", "map.gz");
                 chooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
                 chooser.setFileFilter(filter);
                 if (chooser.showOpenDialog(MainWindow.this) == JFileChooser.APPROVE_OPTION) {
@@ -340,8 +338,7 @@ public class MainWindow extends JFrame {
                                 stream = Openfile.open(path);
                             }
                             catch (IOException e1) {
-                                JOptionPane.showMessageDialog(MainWindow.this,
-                                        "Cannot open the selected file.");
+                                JOptionPane.showMessageDialog(MainWindow.this, "Cannot open the selected file.");
                                 return;
                             }
                             AbstractGraphReader reader;
@@ -366,8 +363,7 @@ public class MainWindow extends JFrame {
                             for (JMenuItem item: graphLockItems) {
                                 item.setEnabled(true);
                             }
-                            mapIdPanel
-                                    .setText("Map ID: 0x" + Integer.toHexString(graph.getMapId()));
+                            mapIdPanel.setText("Map ID: 0x" + Integer.toHexString(graph.getMapId()));
                         }
                     }, false);
                 }
@@ -381,19 +377,17 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser();
-                FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                        "Path & compressed path files", "path", "path.gz");
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("Path & compressed path files", "path",
+                        "path.gz");
                 chooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
                 chooser.setFileFilter(filter);
                 if (chooser.showOpenDialog(MainWindow.this) == JFileChooser.APPROVE_OPTION) {
                     BinaryPathReader reader;
                     try {
-                        reader = new BinaryPathReader(
-                                Openfile.open(chooser.getSelectedFile().getAbsolutePath()));
+                        reader = new BinaryPathReader(Openfile.open(chooser.getSelectedFile().getAbsolutePath()));
                     }
                     catch (IOException e1) {
-                        JOptionPane.showMessageDialog(MainWindow.this,
-                                "Cannot open the selected file.");
+                        JOptionPane.showMessageDialog(MainWindow.this, "Cannot open the selected file.");
                         return;
                     }
                     try {
@@ -405,8 +399,7 @@ public class MainWindow extends JFrame {
                         return;
                     }
                     catch (Exception exception) {
-                        JOptionPane.showMessageDialog(MainWindow.this,
-                                "Unable to read path from the selected file.");
+                        JOptionPane.showMessageDialog(MainWindow.this, "Unable to read path from the selected file.");
                         return;
                     }
                     drawing.drawPath(currentPath);
@@ -421,8 +414,7 @@ public class MainWindow extends JFrame {
         closeItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                MainWindow.this.dispatchEvent(
-                        new WindowEvent(MainWindow.this, WindowEvent.WINDOW_CLOSING));
+                MainWindow.this.dispatchEvent(new WindowEvent(MainWindow.this, WindowEvent.WINDOW_CLOSING));
             }
         });
 
@@ -442,12 +434,7 @@ public class MainWindow extends JFrame {
                 launchThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (!(drawing instanceof BasicDrawing)) {
-                            BasicDrawing tmp = new BasicDrawing();
-                            mainPanel.setLeftComponent(tmp);
-                            drawing = tmp;
-                        }
-                        drawing.clear();
+                        updateDrawing(BasicDrawing.class);
                         drawing.drawGraph(graph);
                     }
                 });
@@ -462,12 +449,7 @@ public class MainWindow extends JFrame {
                 launchThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (!(drawing instanceof BasicDrawing)) {
-                            BasicDrawing tmp = new BasicDrawing();
-                            mainPanel.setLeftComponent(tmp);
-                            drawing = tmp;
-                        }
-                        drawing.clear();
+                        updateDrawing(BasicDrawing.class);
                         drawing.drawGraph(graph, new BlackAndWhiteGraphPalette());
                     }
                 });
@@ -475,21 +457,15 @@ public class MainWindow extends JFrame {
         });
         graphLockItems.add(drawGraphBWItem);
         JMenuItem drawGraphMapsforgeItem = new JMenuItem("Redraw (Map)", KeyEvent.VK_M);
-        drawGraphMapsforgeItem
-                .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.ALT_MASK));
+        drawGraphMapsforgeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.ALT_MASK));
         drawGraphMapsforgeItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 launchThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (!(drawing instanceof MapViewDrawing)) {
-                            MapViewDrawing tmp = new MapViewDrawing();
-                            mainPanel.setLeftComponent(tmp);
-                            drawing = tmp;
-                        }
-                        drawing.clear();
-                        drawing.drawGraph(graph, new BlackAndWhiteGraphPalette());
+                        updateDrawing(MapViewDrawing.class);
+                        drawing.drawGraph(graph);
                     }
                 });
             }
@@ -511,8 +487,7 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 WeaklyConnectedComponentsData instance = new WeaklyConnectedComponentsData(graph);
-                WeaklyConnectedComponentsAlgorithm algo = new WeaklyConnectedComponentsAlgorithm(
-                        instance);
+                WeaklyConnectedComponentsAlgorithm algo = new WeaklyConnectedComponentsAlgorithm(instance);
                 algo.addObserver(new WeaklyConnectedComponentGraphicObserver(drawing));
                 // algo.addObserver(new WeaklyConnectedComponentTextObserver(printStream));
                 launchThread(new Runnable() {
@@ -529,9 +504,8 @@ public class MainWindow extends JFrame {
         bellmanItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int idx = JOptionPane.showOptionDialog(MainWindow.this, "Which mode do you want?",
-                        "Mode selection", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
-                        null, Mode.values(), Mode.LENGTH);
+                int idx = JOptionPane.showOptionDialog(MainWindow.this, "Which mode do you want?", "Mode selection",
+                        JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, Mode.values(), Mode.LENGTH);
 
                 if (idx != -1) {
                     Mode mode = Mode.values()[idx];
@@ -596,8 +570,8 @@ public class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (currentThread != null && currentThread.isAlive()) {
                     int confirmed = JOptionPane.showConfirmDialog(null,
-                            "Are you sure you want to kill the running thread?",
-                            "Kill Confirmation", JOptionPane.YES_NO_OPTION);
+                            "Are you sure you want to kill the running thread?", "Kill Confirmation",
+                            JOptionPane.YES_NO_OPTION);
                     if (confirmed == JOptionPane.YES_OPTION) {
                         stopCurrentThread();
                         clearCurrentThread();
@@ -612,8 +586,8 @@ public class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 Duration elapsed = Duration.between(threadStartTime, Instant.now());
                 long seconds = elapsed.getSeconds();
-                threadTimerLabel.setText(String.format("%02d:%02d:%02d", seconds / 3600,
-                        seconds / 60 % 60, seconds % 60));
+                threadTimerLabel
+                        .setText(String.format("%02d:%02d:%02d", seconds / 3600, seconds / 60 % 60, seconds % 60));
             }
         });
         threadTimer.setInitialDelay(0);

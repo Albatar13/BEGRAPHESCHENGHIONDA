@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseWheelEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,10 +13,12 @@ import java.util.UUID;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.insa.drawing.utils.MarkerUtils;
 import org.insa.graph.Arc;
 import org.insa.graph.Graph;
 import org.insa.graph.Path;
 import org.insa.graph.Point;
+import org.mapsforge.core.graphics.Bitmap;
 import org.mapsforge.core.graphics.GraphicFactory;
 import org.mapsforge.core.graphics.Paint;
 import org.mapsforge.core.graphics.Style;
@@ -37,7 +40,7 @@ import org.mapsforge.map.model.DisplayModel;
 import org.mapsforge.map.model.MapViewPosition;
 import org.mapsforge.map.model.Model;
 import org.mapsforge.map.reader.MapFile;
-import org.mapsforge.map.rendertheme.InternalRenderTheme;
+import org.mapsforge.map.rendertheme.ExternalRenderTheme;
 import org.mapsforge.map.rendertheme.XmlRenderTheme;
 
 public class MapViewDrawing extends MapView implements Drawing {
@@ -56,40 +59,73 @@ public class MapViewDrawing extends MapView implements Drawing {
     // Default tile size.
     private static final int DEFAULT_TILE_SIZE = 512;
 
+    // List of listeners.
+    private ArrayList<DrawingClickListener> drawingClickListeners = new ArrayList<>();
+
     // Tile size.
     int tileSize;
 
-    ArrayList<Paint> extraLayers;
+    // Extra layers...
+    private static class FixedStrokeWidthLayer {
+        public Paint paint;
+        public int width;
+
+        public FixedStrokeWidthLayer(Paint paint, int width) {
+            this.paint = paint;
+            this.width = width;
+        }
+
+    };
+
+    ArrayList<FixedStrokeWidthLayer> extraLayers = new ArrayList<>();
 
     public MapViewDrawing() {
         getMapScaleBar().setVisible(true);
         this.tileSize = DEFAULT_TILE_SIZE;
         DisplayModel model = getModel().displayModel;
         model.setFixedTileSize(tileSize);
-        // model.setBackgroundColor(convertColor(Color.WHITE));
 
-        extraLayers = new ArrayList<Paint>();
         addMouseWheelListener(new MouseAdapter() {
+
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
-                byte zoomLevelDiff = (byte) -e.getWheelRotation();
-                for (Paint p: extraLayers) {
-                    p.setStrokeWidth(p.getStrokeWidth() + zoomLevelDiff);
+                for (FixedStrokeWidthLayer f: extraLayers) {
+                    f.paint.setStrokeWidth(getStrokeWidth(f.width));
                 }
             }
         });
+
     }
 
+    /**
+     * @param color
+     * @return
+     */
     protected int convertColor(Color color) {
-        return GRAPHIC_FACTORY.createColor(color.getAlpha(), color.getRed(), color.getGreen(),
-                color.getBlue());
+        return GRAPHIC_FACTORY.createColor(color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
     }
 
+    /**
+     * @param width
+     * @return
+     */
     private int getStrokeWidth(int width) {
         byte zoomLevel = getModel().mapViewPosition.getZoomLevel();
-        return width * (2 - (8 - zoomLevel));
+        int mul = 2;
+        if (zoomLevel < 8) {
+            mul = 1;
+        }
+        else {
+            mul += 2 * (zoomLevel - 8) / 3;
+        }
+        return width * mul;
     }
 
+    /**
+     * @param width
+     * @param color
+     * @return
+     */
     private Paint createPaintStroke(int width, Color color) {
         Paint paintStroke = AwtGraphicFactory.INSTANCE.createPaint();
         paintStroke.setStyle(Style.STROKE);
@@ -141,21 +177,40 @@ public class MapViewDrawing extends MapView implements Drawing {
         return new LatLong(point.getLatitude(), point.getLongitude());
     }
 
-    private static TileRendererLayer createTileRendererLayer(TileCache tileCache,
-            MapDataStore mapDataStore, MapViewPosition mapViewPosition,
-            HillsRenderConfig hillsRenderConfig) {
-        TileRendererLayer tileRendererLayer = new TileRendererLayer(tileCache, mapDataStore,
-                mapViewPosition, false, true, false, GRAPHIC_FACTORY, hillsRenderConfig) {
+    private TileRendererLayer createTileRendererLayer(TileCache tileCache, MapDataStore mapDataStore,
+            MapViewPosition mapViewPosition, HillsRenderConfig hillsRenderConfig) {
+        TileRendererLayer tileRendererLayer = new TileRendererLayer(tileCache, mapDataStore, mapViewPosition, false,
+                true, false, GRAPHIC_FACTORY, hillsRenderConfig) {
             @Override
             public boolean onTap(LatLong tapLatLong, org.mapsforge.core.model.Point layerXY,
                     org.mapsforge.core.model.Point tapXY) {
                 System.out.println("Tap on: " + tapLatLong);
+                Point pt = new Point(tapLatLong.getLongitude(), tapLatLong.getLatitude());
+                for (DrawingClickListener listener: MapViewDrawing.this.drawingClickListeners) {
+                    listener.mouseClicked(pt);
+                }
                 return true;
             }
         };
-        XmlRenderTheme renderTheme = InternalRenderTheme.DEFAULT;
+        XmlRenderTheme renderTheme = null;
+        try {
+            renderTheme = new ExternalRenderTheme("resources/assets/custom-theme.xml");
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         tileRendererLayer.setXmlRenderTheme(renderTheme);
         return tileRendererLayer;
+    }
+
+    @Override
+    public void addDrawingClickListener(DrawingClickListener listener) {
+        this.drawingClickListeners.add(listener);
+    }
+
+    @Override
+    public void removeDrawingClickListener(DrawingClickListener listener) {
+        this.drawingClickListeners.remove(listener);
     }
 
     @Override
@@ -186,18 +241,19 @@ public class MapViewDrawing extends MapView implements Drawing {
 
     @Override
     public void drawMarker(Point point) {
-        drawMarker(point, null);
+        drawMarker(point, Color.GREEN);
     }
 
     @Override
     public void drawMarker(Point point, Color color) {
-        Marker marker = new Marker(convertPoint(point), GRAPHIC_FACTORY.createBitmap(10, 20), 1, 2);
+        Bitmap bitmap = MarkerUtils.getMarkerForColor(color);
+        Marker marker = new Marker(convertPoint(point), bitmap, 0, -bitmap.getHeight() / 2);
         getLayerManager().getLayers().add(marker);
     }
 
     @Override
     public void drawPoint(Point point, int width, Color color) {
-        // TODO: Maybe do something?
+        // TODO:
     }
 
     @Override
@@ -206,8 +262,7 @@ public class MapViewDrawing extends MapView implements Drawing {
         File graphFile = getMapsforgeFileFromGraph(graph);
 
         // Tile cache
-        TileCache tileCache = AwtUtil.createTileCache(tileSize,
-                getModel().frameBufferModel.getOverdrawFactor(), 1024,
+        TileCache tileCache = AwtUtil.createTileCache(tileSize, getModel().frameBufferModel.getOverdrawFactor(), 1024,
                 new File(System.getProperty("java.io.tmpdir"), UUID.randomUUID().toString()));
 
         // Layers
@@ -220,12 +275,10 @@ public class MapViewDrawing extends MapView implements Drawing {
         BoundingBox boundingBox = mapDataStore.boundingBox();
 
         final Model model = getModel();
-        if (model.mapViewPosition.getZoomLevel() == 0
-                || !boundingBox.contains(model.mapViewPosition.getCenter())) {
-            byte zoomLevel = LatLongUtils.zoomForBounds(model.mapViewDimension.getDimension(),
-                    boundingBox, model.displayModel.getTileSize());
-            model.mapViewPosition
-                    .setMapPosition(new MapPosition(boundingBox.getCenterPoint(), zoomLevel));
+        if (model.mapViewPosition.getZoomLevel() == 0 || !boundingBox.contains(model.mapViewPosition.getCenter())) {
+            byte zoomLevel = LatLongUtils.zoomForBounds(model.mapViewDimension.getDimension(), boundingBox,
+                    model.displayModel.getTileSize());
+            model.mapViewPosition.setMapPosition(new MapPosition(boundingBox.getCenterPoint(), zoomLevel));
             model.mapViewPosition.setZoomLevelMin(zoomLevel);
         }
     }
@@ -242,15 +295,14 @@ public class MapViewDrawing extends MapView implements Drawing {
         for (Arc arc: path.getArcs()) {
             ArrayList<Point> points = arc.getPoints();
             for (int i = 0; i < points.size(); ++i) {
-                line.getLatLongs().add(
-                        new LatLong(points.get(i).getLatitude(), points.get(i).getLongitude()));
+                line.getLatLongs().add(new LatLong(points.get(i).getLatitude(), points.get(i).getLongitude()));
             }
         }
         getLayerManager().getLayers().add(line);
-        extraLayers.add(paintStroke);
+        extraLayers.add(new FixedStrokeWidthLayer(paintStroke, 1));
         if (markers) {
-            drawMarker(path.getOrigin().getPoint());
-            drawMarker(path.getDestination().getPoint());
+            drawMarker(path.getOrigin().getPoint(), DEFAULT_PATH_COLOR);
+            drawMarker(path.getDestination().getPoint(), DEFAULT_PATH_COLOR);
         }
     }
 
