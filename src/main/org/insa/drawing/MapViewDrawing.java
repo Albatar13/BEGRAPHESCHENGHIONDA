@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseWheelEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,8 +39,7 @@ import org.mapsforge.map.model.DisplayModel;
 import org.mapsforge.map.model.MapViewPosition;
 import org.mapsforge.map.model.Model;
 import org.mapsforge.map.reader.MapFile;
-import org.mapsforge.map.rendertheme.ExternalRenderTheme;
-import org.mapsforge.map.rendertheme.XmlRenderTheme;
+import org.mapsforge.map.rendertheme.InternalRenderTheme;
 
 public class MapViewDrawing extends MapView implements Drawing {
 
@@ -192,14 +190,7 @@ public class MapViewDrawing extends MapView implements Drawing {
                 return true;
             }
         };
-        XmlRenderTheme renderTheme = null;
-        try {
-            renderTheme = new ExternalRenderTheme("resources/assets/custom-theme.xml");
-        }
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        tileRendererLayer.setXmlRenderTheme(renderTheme);
+        tileRendererLayer.setXmlRenderTheme(InternalRenderTheme.DEFAULT);
         return tileRendererLayer;
     }
 
