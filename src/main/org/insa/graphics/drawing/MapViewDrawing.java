@@ -1,8 +1,6 @@
 package org.insa.graphics.drawing;
 
 import java.awt.Color;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseWheelEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,10 +15,9 @@ import org.insa.graph.Graph;
 import org.insa.graph.Path;
 import org.insa.graph.Point;
 import org.insa.graphics.drawing.utils.MarkerUtils;
+import org.insa.graphics.drawing.utils.PolylineAutoScaling;
 import org.mapsforge.core.graphics.Bitmap;
 import org.mapsforge.core.graphics.GraphicFactory;
-import org.mapsforge.core.graphics.Paint;
-import org.mapsforge.core.graphics.Style;
 import org.mapsforge.core.model.BoundingBox;
 import org.mapsforge.core.model.LatLong;
 import org.mapsforge.core.model.MapPosition;
@@ -60,80 +57,14 @@ public class MapViewDrawing extends MapView implements Drawing {
     // List of listeners.
     private ArrayList<DrawingClickListener> drawingClickListeners = new ArrayList<>();
 
-    // Tile size.
-    int tileSize;
-
-    // Extra layers...
-    private static class FixedStrokeWidthLayer {
-        public Paint paint;
-        public int width;
-
-        public FixedStrokeWidthLayer(Paint paint, int width) {
-            this.paint = paint;
-            this.width = width;
-        }
-
-    };
-
-    ArrayList<FixedStrokeWidthLayer> extraLayers = new ArrayList<>();
+    // Tile size
+    private int tileSize;
 
     public MapViewDrawing() {
         getMapScaleBar().setVisible(true);
-        this.tileSize = DEFAULT_TILE_SIZE;
         DisplayModel model = getModel().displayModel;
-        model.setFixedTileSize(tileSize);
-
-        addMouseWheelListener(new MouseAdapter() {
-
-            @Override
-            public void mouseWheelMoved(MouseWheelEvent e) {
-                for (FixedStrokeWidthLayer f: extraLayers) {
-                    f.paint.setStrokeWidth(getStrokeWidth(f.width));
-                }
-            }
-        });
-
-    }
-
-    /**
-     * @param color
-     * @return
-     */
-    protected int convertColor(Color color) {
-        return GRAPHIC_FACTORY.createColor(color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
-    }
-
-    /**
-     * @param width
-     * @return
-     */
-    private int getStrokeWidth(int width) {
-        byte zoomLevel = getModel().mapViewPosition.getZoomLevel();
-        int mul = 2;
-        if (zoomLevel < 8) {
-            mul = 1;
-        }
-        else {
-            mul += 2 * (zoomLevel - 8) / 3;
-        }
-        return width * mul;
-    }
-
-    /**
-     * @param width
-     * @param color
-     * @return
-     */
-    private Paint createPaintStroke(int width, Color color) {
-        Paint paintStroke = AwtGraphicFactory.INSTANCE.createPaint();
-        paintStroke.setStyle(Style.STROKE);
-        if (width != 0) {
-            paintStroke.setStrokeWidth(getStrokeWidth(width));
-        }
-        if (color != null) {
-            paintStroke.setColor(convertColor(color));
-        }
-        return paintStroke;
+        this.tileSize = DEFAULT_TILE_SIZE;
+        model.setFixedTileSize(this.tileSize);
     }
 
     /**
@@ -207,7 +138,6 @@ public class MapViewDrawing extends MapView implements Drawing {
     @Override
     public void clear() {
         getLayerManager().getLayers().clear();
-        extraLayers.clear();
         repaint();
     }
 
@@ -223,8 +153,7 @@ public class MapViewDrawing extends MapView implements Drawing {
 
     @Override
     public void drawLine(Point from, Point to, int width, Color color) {
-        Paint paintStroke = createPaintStroke(width, color);
-        Polyline line = new Polyline(paintStroke, AwtGraphicFactory.INSTANCE);
+        Polyline line = new PolylineAutoScaling(width, color);
         line.getLatLongs().add(convertPoint(from));
         line.getLatLongs().add(convertPoint(to));
         getLayerManager().getLayers().add(line);
@@ -281,16 +210,11 @@ public class MapViewDrawing extends MapView implements Drawing {
 
     @Override
     public void drawPath(Path path, Color color, boolean markers) {
-        Paint paintStroke = createPaintStroke(1, DEFAULT_PATH_COLOR);
-        Polyline line = new Polyline(paintStroke, AwtGraphicFactory.INSTANCE);
+        PolylineAutoScaling line = new PolylineAutoScaling(1, DEFAULT_PATH_COLOR);
         for (Arc arc: path.getArcs()) {
-            ArrayList<Point> points = arc.getPoints();
-            for (int i = 0; i < points.size(); ++i) {
-                line.getLatLongs().add(new LatLong(points.get(i).getLatitude(), points.get(i).getLongitude()));
-            }
+            line.add(arc.getPoints());
         }
         getLayerManager().getLayers().add(line);
-        extraLayers.add(new FixedStrokeWidthLayer(paintStroke, 1));
         if (markers) {
             drawMarker(path.getOrigin().getPoint(), DEFAULT_PATH_COLOR);
             drawMarker(path.getDestination().getPoint(), DEFAULT_PATH_COLOR);
