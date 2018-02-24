@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Path;
-import org.insa.graph.Path.CreationMode;
 
 public class BinaryPathReader extends BinaryReader implements PathReader {
 
@@ -46,7 +45,7 @@ public class BinaryPathReader extends BinaryReader implements PathReader {
             nodes.add(readNode(graph));
         }
 
-        return new Path(graph, nodes, CreationMode.SHORTEST_TIME);
+        return Path.createFastestPathFromNodes(graph, nodes);
     }
 
     /**
