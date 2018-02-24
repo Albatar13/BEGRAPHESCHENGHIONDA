@@ -1,3 +1,15 @@
+# OS specific files and folders
 .DS_Store
+
+# Java specific files and folders
 bin
-/target/
+target
+
+# Editor specific files and folders
+*~
+
+# Project speicific files and folders
+*.map
+*.path
+Maps
+Paths
