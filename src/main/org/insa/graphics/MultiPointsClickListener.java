@@ -1,22 +1,35 @@
 package org.insa.graphics;
 
 import java.awt.Color;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 
-import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Point;
-import org.insa.graphics.MainWindow.CallableWithNodes;
-import org.insa.graphics.drawing.Drawing;
 import org.insa.graphics.drawing.DrawingClickListener;
 
-public class MultiPointsClickListener implements DrawingClickListener {
+public class MultiPointsClickListener implements DrawingClickListener, RunningAction {
+
+    protected interface CallableWithNodes {
+
+        /**
+         * Function called when the given number of nodes is reached.
+         * 
+         * @param nodes
+         */
+        void call(ArrayList<Node> nodes);
+
+    };
 
     // Enable/Disable.
     private boolean enabled = false;
 
     // List of points.
     private ArrayList<Node> points = new ArrayList<Node>();
+
+    // Starting time
+    private Instant startTime;
 
     // Number of points to find before running.
     private int nTargetPoints = 0;
@@ -25,14 +38,10 @@ public class MultiPointsClickListener implements DrawingClickListener {
     CallableWithNodes callable = null;
 
     // Graph
-    private final Graph graph;
+    private final MainWindow mainWindow;
 
-    // Drawing
-    private final Drawing drawing;
-
-    public MultiPointsClickListener(Graph graph, Drawing drawing) {
-        this.graph = graph;
-        this.drawing = drawing;
+    public MultiPointsClickListener(MainWindow mainWindow) {
+        this.mainWindow = mainWindow;
     }
 
     /**
@@ -45,14 +54,14 @@ public class MultiPointsClickListener implements DrawingClickListener {
     /**
      * Enable this listener.
      * 
-     * @param nTargetPoints
-     *            Number of point to found before calling the callable.
+     * @param nTargetPoints Number of point to found before calling the callable.
      */
     public void enable(int nTargetPoints, CallableWithNodes callable) {
         this.enabled = true;
         this.nTargetPoints = nTargetPoints;
         this.points.clear();
         this.callable = callable;
+        this.startTime = Instant.now();
     }
 
     /**
@@ -67,13 +76,38 @@ public class MultiPointsClickListener implements DrawingClickListener {
         if (!isEnabled()) {
             return;
         }
-        Node node = graph.findClosestNode(lonlat);
-        drawing.drawMarker(node.getPoint(), Color.BLUE);
+        Node node = mainWindow.graph.findClosestNode(lonlat);
+        mainWindow.drawing.drawMarker(node.getPoint(), Color.BLUE);
         points.add(node);
         if (points.size() == nTargetPoints) {
             callable.call(points);
             this.disable();
         }
+    }
+
+    @Override
+    public boolean isRunning() {
+        return isEnabled();
+    }
+
+    @Override
+    public void interrupt() {
+        disable();
+    }
+
+    @Override
+    public Instant getStartingTime() {
+        return startTime;
+    }
+
+    @Override
+    public Duration getDuration() {
+        return Duration.between(getStartingTime(), Instant.now());
+    }
+
+    @Override
+    public String getInformation() {
+        return getClass().getName();
     }
 
 }

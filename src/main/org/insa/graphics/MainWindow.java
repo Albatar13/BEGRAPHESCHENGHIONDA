@@ -12,10 +12,7 @@ import java.awt.event.WindowEvent;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -44,47 +41,25 @@ import org.insa.algo.shortestpath.ShortestPathData.Mode;
 import org.insa.algo.shortestpath.ShortestPathGraphicObserver;
 import org.insa.algo.shortestpath.ShortestPathSolution;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentGraphicObserver;
+import org.insa.algo.weakconnectivity.WeaklyConnectedComponentTextObserver;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsAlgorithm;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsData;
 import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Path;
-import org.insa.graph.io.GraphReader;
 import org.insa.graph.io.BinaryGraphReader;
 import org.insa.graph.io.BinaryGraphReaderV2;
 import org.insa.graph.io.BinaryPathReader;
+import org.insa.graph.io.GraphReader;
 import org.insa.graph.io.MapMismatchException;
 import org.insa.graph.io.Openfile;
+import org.insa.graphics.MultiPointsClickListener.CallableWithNodes;
 import org.insa.graphics.drawing.BasicDrawing;
 import org.insa.graphics.drawing.BlackAndWhiteGraphPalette;
 import org.insa.graphics.drawing.Drawing;
 import org.insa.graphics.drawing.MapViewDrawing;
 
 public class MainWindow extends JFrame {
-
-    protected class JOutputStream extends OutputStream {
-        private JTextArea textArea;
-
-        public JOutputStream(JTextArea textArea) {
-            this.textArea = textArea;
-        }
-
-        @Override
-        public void write(int b) throws IOException {
-            // redirects data to the text area
-            textArea.setText(textArea.getText() + String.valueOf((char) b));
-            // scrolls the text area to the end of data
-            textArea.setCaretPosition(textArea.getDocument().getLength());
-            // keeps the textArea up to date
-            textArea.update(textArea.getGraphics());
-        }
-    }
-
-    protected interface CallableWithNodes {
-
-        void call(ArrayList<Node> nodes);
-
-    };
 
     /**
      * 
@@ -102,14 +77,13 @@ public class MainWindow extends JFrame {
     private static final int THREAD_TIMER_DELAY = 1000; // in milliseconds
 
     // Current graph.
-    private Graph graph;
+    protected Graph graph;
 
     // Current loaded path.
-    private Path currentPath;
+    // private Path currentPath;
 
     // Drawing and click adapter.
-    private Drawing drawing;
-    private MultiPointsClickListener clickAdapter = null;
+    protected Drawing drawing;
 
     // Main panel.
     private JSplitPane mainPanel;
@@ -124,23 +98,41 @@ public class MainWindow extends JFrame {
     private JLabel mapIdPanel;
 
     // Thread information
-    private Instant threadStartTime;
     private Timer threadTimer;
     private JPanel threadPanel;
 
     // Log stream and print stream
-    private JOutputStream logStream;
+    private StreamCapturer logStream;
 
     @SuppressWarnings("unused")
     private PrintStream printStream;
 
     // Current running thread
-    private Thread currentThread;
+    private ThreadWrapper currentThread;
+
+    // Multi point listener
+    private MultiPointsClickListener clickAdapter = null;
+
+    // Factory
+    private BlockingActionFactory baf;
 
     public MainWindow() {
         super(WINDOW_TITLE);
+
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setLayout(new BorderLayout());
+
+        // Create drawing and action listeners...
+        this.drawing = new BasicDrawing();
+
+        this.clickAdapter = new MultiPointsClickListener(this);
+        this.currentThread = new ThreadWrapper(this);
+        this.baf = new BlockingActionFactory(this);
+        this.baf.addAction(clickAdapter);
+        this.baf.addAction(currentThread);
+
+        // Click adapter
+        addDrawingClickListeners();
         setJMenuBar(createMenuBar());
 
         addWindowListener(new WindowAdapter() {
@@ -158,21 +150,15 @@ public class MainWindow extends JFrame {
         // Create graph area
         mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
-        this.drawing = new BasicDrawing();
-
-        // Click adapter
-        addDrawingClickListeners();
-
         JTextArea infoPanel = new JTextArea();
         infoPanel.setMinimumSize(new Dimension(200, 50));
         infoPanel.setBackground(Color.WHITE);
         infoPanel.setLineWrap(true);
         infoPanel.setEditable(false);
-        this.logStream = new JOutputStream(infoPanel);
+        this.logStream = new StreamCapturer(infoPanel);
         this.printStream = new PrintStream(this.logStream);
 
         mainPanel.setResizeWeight(0.8);
-        // sp.setEnabled(false);
         mainPanel.setDividerSize(5);
 
         mainPanel.setBackground(Color.WHITE);
@@ -183,10 +169,10 @@ public class MainWindow extends JFrame {
         // Top Panel
         this.add(createTopPanel(), BorderLayout.NORTH);
         this.add(createStatusBar(), BorderLayout.SOUTH);
+
     }
 
     private void restartThreadTimer() {
-        threadStartTime = Instant.now();
         threadTimer.restart();
     }
 
@@ -200,7 +186,7 @@ public class MainWindow extends JFrame {
      */
     private void launchThread(Runnable runnable, boolean canInterrupt) {
         if (canInterrupt) {
-            currentThread = new Thread(new Runnable() {
+            currentThread.setThread(new Thread(new Runnable() {
                 @Override
                 public void run() {
                     restartThreadTimer();
@@ -208,22 +194,22 @@ public class MainWindow extends JFrame {
                     runnable.run();
                     clearCurrentThread();
                 }
-            });
+            }));
         }
         else {
-            currentThread = new Thread(runnable);
+            currentThread.setThread(new Thread(runnable));
         }
-        currentThread.start();
+        currentThread.startThread();
     }
 
     private void launchThread(Runnable runnable) {
         launchThread(runnable, true);
     }
 
-    private void clearCurrentThread() {
+    protected void clearCurrentThread() {
         stopThreadTimer();
         threadPanel.setVisible(false);
-        currentThread = null;
+        currentThread.setThread(null);
     }
 
     private void launchShortestPathThread(ShortestPathAlgorithm spAlgorithm) {
@@ -241,7 +227,6 @@ public class MainWindow extends JFrame {
     }
 
     private void addDrawingClickListeners() {
-        this.clickAdapter = new MultiPointsClickListener(graph, drawing);
         drawing.addDrawingClickListener(this.clickAdapter);
     }
 
@@ -265,9 +250,9 @@ public class MainWindow extends JFrame {
         // Open Map item...
         openMapItem = new JMenuItem("Open Map... ", KeyEvent.VK_O);
         openMapItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.ALT_MASK));
-        openMapItem.addActionListener(new BlockingActionListener() {
+        openMapItem.addActionListener(baf.createBlockingAction(new ActionListener() {
             @Override
-            public void actionAccepted(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser();
                 FileNameExtensionFilter filter = new FileNameExtensionFilter("Map & compressed map files", "map",
                         "map2", "mapgr", "map.gz");
@@ -313,14 +298,14 @@ public class MainWindow extends JFrame {
                     }, false);
                 }
             }
-        });
+        }));
 
         // Open Path item...
         JMenuItem openPathItem = new JMenuItem("Open Path... ", KeyEvent.VK_P);
         openPathItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.ALT_MASK));
-        openPathItem.addActionListener(new BlockingActionListener() {
+        openPathItem.addActionListener(baf.createBlockingAction(new ActionListener() {
             @Override
-            public void actionAccepted(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser();
                 FileNameExtensionFilter filter = new FileNameExtensionFilter("Path & compressed path files", "path",
                         "path.gz");
@@ -336,7 +321,8 @@ public class MainWindow extends JFrame {
                         return;
                     }
                     try {
-                        currentPath = reader.readPath(graph);
+                        Path path = reader.readPath(graph);
+                        drawing.drawPath(path);
                     }
                     catch (MapMismatchException exception) {
                         JOptionPane.showMessageDialog(MainWindow.this,
@@ -347,18 +333,17 @@ public class MainWindow extends JFrame {
                         JOptionPane.showMessageDialog(MainWindow.this, "Unable to read path from the selected file.");
                         return;
                     }
-                    drawing.drawPath(currentPath);
                 }
             }
-        });
+        }));
         graphLockItems.add(openPathItem);
 
         // Close item
         JMenuItem closeItem = new JMenuItem("Quit", KeyEvent.VK_Q);
         closeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.ALT_MASK));
-        closeItem.addActionListener(new BlockingActionListener() {
+        closeItem.addActionListener(new ActionListener() {
             @Override
-            public void actionAccepted(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 MainWindow.this.dispatchEvent(new WindowEvent(MainWindow.this, WindowEvent.WINDOW_CLOSING));
             }
         });
@@ -373,9 +358,9 @@ public class MainWindow extends JFrame {
         // Second menu
         JMenuItem drawGraphItem = new JMenuItem("Redraw", KeyEvent.VK_R);
         drawGraphItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK));
-        drawGraphItem.addActionListener(new BlockingActionListener() {
+        drawGraphItem.addActionListener(baf.createBlockingAction(new ActionListener() {
             @Override
-            public void actionAccepted(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 launchThread(new Runnable() {
                     @Override
                     public void run() {
@@ -384,13 +369,13 @@ public class MainWindow extends JFrame {
                     }
                 });
             }
-        });
+        }));
         graphLockItems.add(drawGraphItem);
         JMenuItem drawGraphBWItem = new JMenuItem("Redraw (B&W)", KeyEvent.VK_B);
         drawGraphBWItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, ActionEvent.ALT_MASK));
-        drawGraphBWItem.addActionListener(new BlockingActionListener() {
+        drawGraphBWItem.addActionListener(baf.createBlockingAction(new ActionListener() {
             @Override
-            public void actionAccepted(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 launchThread(new Runnable() {
                     @Override
                     public void run() {
@@ -399,13 +384,13 @@ public class MainWindow extends JFrame {
                     }
                 });
             }
-        });
+        }));
         graphLockItems.add(drawGraphBWItem);
         JMenuItem drawGraphMapsforgeItem = new JMenuItem("Redraw (Map)", KeyEvent.VK_M);
         drawGraphMapsforgeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.ALT_MASK));
-        drawGraphMapsforgeItem.addActionListener(new BlockingActionListener() {
+        drawGraphMapsforgeItem.addActionListener(baf.createBlockingAction(new ActionListener() {
             @Override
-            public void actionAccepted(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 launchThread(new Runnable() {
                     @Override
                     public void run() {
@@ -414,7 +399,7 @@ public class MainWindow extends JFrame {
                     }
                 });
             }
-        });
+        }));
         graphLockItems.add(drawGraphMapsforgeItem);
 
         JMenu graphMenu = new JMenu("Graph");
@@ -428,13 +413,13 @@ public class MainWindow extends JFrame {
 
         // Weakly connected components
         JMenuItem wccItem = new JMenuItem("Weakly Connected Components");
-        wccItem.addActionListener(new BlockingActionListener() {
+        wccItem.addActionListener(baf.createBlockingAction(new ActionListener() {
             @Override
-            public void actionAccepted(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 WeaklyConnectedComponentsData instance = new WeaklyConnectedComponentsData(graph);
                 WeaklyConnectedComponentsAlgorithm algo = new WeaklyConnectedComponentsAlgorithm(instance);
                 algo.addObserver(new WeaklyConnectedComponentGraphicObserver(drawing));
-                // algo.addObserver(new WeaklyConnectedComponentTextObserver(printStream));
+                algo.addObserver(new WeaklyConnectedComponentTextObserver(printStream));
                 launchThread(new Runnable() {
                     @Override
                     public void run() {
@@ -442,13 +427,13 @@ public class MainWindow extends JFrame {
                     }
                 });
             }
-        });
+        }));
 
         // Shortest path
         JMenuItem bellmanItem = new JMenuItem("Shortest Path (Bellman-Ford)");
-        bellmanItem.addActionListener(new BlockingActionListener() {
+        bellmanItem.addActionListener(baf.createBlockingAction(new ActionListener() {
             @Override
-            public void actionAccepted(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 int idx = JOptionPane.showOptionDialog(MainWindow.this, "Which mode do you want?", "Mode selection",
                         JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, Mode.values(), Mode.LENGTH);
 
@@ -463,7 +448,7 @@ public class MainWindow extends JFrame {
                     });
                 }
             }
-        });
+        }));
         graphLockItems.add(wccItem);
         graphLockItems.add(bellmanItem);
 
@@ -487,14 +472,6 @@ public class MainWindow extends JFrame {
         return menuBar;
     }
 
-    @SuppressWarnings("deprecation")
-    private void stopCurrentThread() {
-        // Should not be used in production code, but here I have no idea how
-        // to do this properly... Cannot use .interrupt() because it would requires
-        // the algorithm to watch the ThreadInteruption exception.
-        currentThread.stop();
-    }
-
     private JPanel createStatusBar() {
         // create the status bar panel and shove it down the bottom of the frame
         JPanel statusPanel = new JPanel();
@@ -513,14 +490,12 @@ public class MainWindow extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (currentThread != null && currentThread.isAlive()) {
+                if (currentThread.isRunning()) {
                     int confirmed = JOptionPane.showConfirmDialog(null,
                             "Are you sure you want to kill the running thread?", "Kill Confirmation",
                             JOptionPane.YES_NO_OPTION);
                     if (confirmed == JOptionPane.YES_OPTION) {
-                        stopCurrentThread();
-                        clearCurrentThread();
-                        threadPanel.setVisible(false);
+                        currentThread.interrupt();
                     }
                 }
             }
@@ -529,8 +504,7 @@ public class MainWindow extends JFrame {
         threadTimer = new Timer(THREAD_TIMER_DELAY, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Duration elapsed = Duration.between(threadStartTime, Instant.now());
-                long seconds = elapsed.getSeconds();
+                long seconds = currentThread.getDuration().getSeconds();
                 threadTimerLabel
                         .setText(String.format("%02d:%02d:%02d", seconds / 3600, seconds / 60 % 60, seconds % 60));
             }
