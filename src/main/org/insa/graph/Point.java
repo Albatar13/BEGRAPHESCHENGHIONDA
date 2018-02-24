@@ -10,13 +10,11 @@ public class Point {
     private static final double EARTH_RADIUS = 6378137.0;
 
     /**
-     * Compute the distance between the two given points.
+     * Compute the distance in meters between the two given points.
      * 
-     * @param long1
-     * @param lat1
-     * @param long2
-     * @param lat2
-     * @return
+     * @param p1, p2
+     * 
+     * @return Distance between the two given points, in meters.
      */
     public static double distance(Point p1, Point p2) {
         double sinLat = Math.sin(Math.toRadians(p1.getLatitude())) * Math.sin(Math.toRadians(p2.getLatitude()));
@@ -57,7 +55,7 @@ public class Point {
      * 
      * @param target Target point.
      * 
-     * @return Distane between this point and the target point, in meters.
+     * @return Distance between this point and the target point, in meters.
      */
     public double distanceTo(Point target) {
         return distance(this, target);
