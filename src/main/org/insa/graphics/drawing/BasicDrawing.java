@@ -11,9 +11,9 @@ import java.awt.event.MouseListener;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JPanel;
@@ -238,14 +238,12 @@ public class BasicDrawing extends JPanel implements Drawing {
     /**
      * Draw the given arc.
      * 
-     * @param arc
-     *            Arc to draw.
-     * @param palette
-     *            Palette to use to retrieve color and width for arc, or null to use
-     *            current settings.
+     * @param arc Arc to draw.
+     * @param palette Palette to use to retrieve color and width for arc, or null to
+     *        use current settings.
      */
     public void drawArc(Arc arc, GraphPalette palette) {
-        ArrayList<Point> pts = arc.getPoints();
+        List<Point> pts = arc.getPoints();
         if (!pts.isEmpty()) {
             if (palette != null) {
                 setColor(palette.getColorForType(arc.getInfo().getType()));

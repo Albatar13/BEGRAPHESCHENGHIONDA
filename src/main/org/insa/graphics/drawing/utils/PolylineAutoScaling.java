@@ -1,7 +1,7 @@
 package org.insa.graphics.drawing.utils;
 
 import java.awt.Color;
-import java.util.ArrayList;
+import java.util.List;
 
 import org.insa.graph.Point;
 import org.mapsforge.core.graphics.Canvas;
@@ -41,7 +41,7 @@ public class PolylineAutoScaling extends Polyline {
     /**
      * @param points
      */
-    public void add(ArrayList<Point> points) {
+    public void add(List<Point> points) {
         for (Point point: points) {
             add(point);
         }
