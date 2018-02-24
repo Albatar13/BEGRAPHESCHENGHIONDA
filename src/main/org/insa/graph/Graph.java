@@ -1,6 +1,5 @@
 package org.insa.graph;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -10,15 +9,15 @@ public class Graph {
     private final int mapId;
 
     // Nodes of the graph.
-    private final ArrayList<Node> nodes;
+    private final List<Node> nodes;
 
     /**
      * @param mapId ID of this graph.
-     * @param nodes List of nodes for this graph.
+     * @param list List of nodes for this graph.
      */
-    public Graph(int mapId, ArrayList<Node> nodes) {
+    public Graph(int mapId, List<Node> list) {
         this.mapId = mapId;
-        this.nodes = nodes;
+        this.nodes = list;
     }
 
     /**
