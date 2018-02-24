@@ -222,7 +222,7 @@ public class MainWindow extends JFrame {
     }
 
     private void updateDrawing(Class<? extends Drawing> newClass) {
-
+        int oldLocation = mainPanel.getDividerLocation();
         drawing.clear();
         if (drawing == null || !newClass.isInstance(drawing)) {
             try {
@@ -232,8 +232,9 @@ public class MainWindow extends JFrame {
                 e.printStackTrace();
             }
             addDrawingClickListeners();
+            mainPanel.setLeftComponent((Component) drawing);
+            mainPanel.setDividerLocation(oldLocation);
         }
-        mainPanel.setLeftComponent((Component) drawing);
     }
 
     private JMenuBar createMenuBar() {
