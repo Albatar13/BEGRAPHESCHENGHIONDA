@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.insa.graph.Point;
 import org.mapsforge.core.graphics.Canvas;
 import org.mapsforge.core.graphics.GraphicFactory;
+import org.mapsforge.core.graphics.Style;
 import org.mapsforge.core.model.BoundingBox;
 import org.mapsforge.core.model.LatLong;
 import org.mapsforge.map.awt.graphics.AwtGraphicFactory;
@@ -26,6 +27,7 @@ public class PolylineAutoScaling extends Polyline {
     public PolylineAutoScaling(int width, Color color) {
         super(GRAPHIC_FACTORY.createPaint(), GRAPHIC_FACTORY);
         getPaintStroke().setColor(PaintUtils.convertColor(color));
+        getPaintStroke().setStyle(Style.STROKE);
         this.width = width;
     }
 

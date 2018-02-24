@@ -167,17 +167,8 @@ public class MainWindow extends JFrame {
         this.add(mainPanel, BorderLayout.CENTER);
 
         // Top Panel
-        this.add(createTopPanel(), BorderLayout.NORTH);
         this.add(createStatusBar(), BorderLayout.SOUTH);
 
-    }
-
-    private void restartThreadTimer() {
-        threadTimer.restart();
-    }
-
-    private void stopThreadTimer() {
-        threadTimer.stop();
     }
 
     /**
@@ -189,7 +180,7 @@ public class MainWindow extends JFrame {
             currentThread.setThread(new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    restartThreadTimer();
+                    threadTimer.restart();
                     threadPanel.setVisible(true);
                     runnable.run();
                     clearCurrentThread();
@@ -207,7 +198,7 @@ public class MainWindow extends JFrame {
     }
 
     protected void clearCurrentThread() {
-        stopThreadTimer();
+        threadTimer.stop();
         threadPanel.setVisible(false);
         currentThread.setThread(null);
     }
@@ -519,12 +510,6 @@ public class MainWindow extends JFrame {
         statusPanel.add(threadPanel, BorderLayout.EAST);
 
         return statusPanel;
-    }
-
-    protected JPanel createTopPanel() {
-        JPanel topPanel = new JPanel();
-
-        return topPanel;
     }
 
     public static void main(final String[] args) {
