@@ -1,4 +1,4 @@
-package org.insa.drawing;
+package org.insa.graphics.drawing;
 
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
@@ -12,11 +12,11 @@ import java.util.UUID;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.insa.drawing.utils.MarkerUtils;
 import org.insa.graph.Arc;
 import org.insa.graph.Graph;
 import org.insa.graph.Path;
 import org.insa.graph.Point;
+import org.insa.graphics.drawing.utils.MarkerUtils;
 import org.mapsforge.core.graphics.Bitmap;
 import org.mapsforge.core.graphics.GraphicFactory;
 import org.mapsforge.core.graphics.Paint;

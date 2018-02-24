@@ -1,17 +1,12 @@
-package org.insa.drawing.utils;
+package org.insa.graphics.drawing.utils;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.mapsforge.core.graphics.Bitmap;
 import org.mapsforge.map.awt.graphics.AwtBitmap;
 
 public class MarkerUtils {
-
-    // Marker
-    private static Map<Color, Bitmap> MARKER_BITMAPS = new HashMap<Color, Bitmap>();
 
     /**
      * Return a color mapping with the given color as the main color.
@@ -30,10 +25,6 @@ public class MarkerUtils {
      * @return
      */
     public static Bitmap getMarkerForColor(Color color) {
-        if (MARKER_BITMAPS.containsKey(color)) {
-            return MARKER_BITMAPS.get(color);
-        }
-
         // create image
         BufferedImage image = new BufferedImage(MARKER_MASK[0].length, MARKER_MASK.length, BufferedImage.TYPE_INT_ARGB);
 
@@ -44,10 +35,8 @@ public class MarkerUtils {
             }
         }
 
-        // Create Bitmap, add it to map and return it.
-        Bitmap bitmap = new AwtBitmap(image);
-        MARKER_BITMAPS.put(color, bitmap);
-        return bitmap;
+        // Create Bitmap and return it.
+        return new AwtBitmap(image);
     }
 
     // Mask

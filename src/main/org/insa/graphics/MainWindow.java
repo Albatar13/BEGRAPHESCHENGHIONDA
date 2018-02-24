@@ -1,4 +1,4 @@
-package org.insa.base;
+package org.insa.graphics;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -46,11 +46,6 @@ import org.insa.algo.shortestpath.ShortestPathSolution;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentGraphicObserver;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsAlgorithm;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsData;
-import org.insa.drawing.BasicDrawing;
-import org.insa.drawing.BlackAndWhiteGraphPalette;
-import org.insa.drawing.Drawing;
-import org.insa.drawing.DrawingClickListener;
-import org.insa.drawing.MapViewDrawing;
 import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Path;
@@ -61,6 +56,11 @@ import org.insa.graph.io.BinaryGraphReaderV2;
 import org.insa.graph.io.BinaryPathReader;
 import org.insa.graph.io.MapMismatchException;
 import org.insa.graph.io.Openfile;
+import org.insa.graphics.drawing.BasicDrawing;
+import org.insa.graphics.drawing.BlackAndWhiteGraphPalette;
+import org.insa.graphics.drawing.Drawing;
+import org.insa.graphics.drawing.DrawingClickListener;
+import org.insa.graphics.drawing.MapViewDrawing;
 
 public class MainWindow extends JFrame {
 

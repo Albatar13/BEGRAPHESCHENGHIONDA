@@ -3,8 +3,8 @@ package org.insa.algo.weakconnectivity;
 import java.awt.Color;
 import java.util.ArrayList;
 
-import org.insa.drawing.Drawing;
 import org.insa.graph.Node;
+import org.insa.graphics.drawing.Drawing;
 
 public class WeaklyConnectedComponentGraphicObserver implements WeaklyConnectedComponentObserver {
 
