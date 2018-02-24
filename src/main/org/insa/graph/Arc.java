@@ -19,25 +19,13 @@ public class Arc {
     private final ArrayList<Point> points;
 
     /**
-     * @param dest
-     * @param length
-     * @param roadInformation
-     * @param points
-     */
-    public Arc(Node origin, Node dest, int length, RoadInformation roadInformation) {
-        this.origin = origin;
-        this.destination = dest;
-        this.length = length;
-        this.info = roadInformation;
-        this.points = new ArrayList<Point>();
-        origin.addSuccessor(this);
-    }
-
-    /**
-     * @param dest
-     * @param length
-     * @param roadInformation
-     * @param points
+     * Create a new arc and automatically link it with the given origin.
+     * 
+     * @param origin Origin of this arc.
+     * @param dest Destination of this arc.
+     * @param length Length of this arc (in meters).
+     * @param roadInformation Road information for this arc.
+     * @param points Points representing this arc.
      */
     public Arc(Node origin, Node dest, int length, RoadInformation roadInformation, ArrayList<Point> points) {
         this.origin = origin;
@@ -84,9 +72,7 @@ public class Arc {
     }
 
     /**
-     * @return Points representing segments of this arc. This function may return an
-     *         empty ArrayList if the segments are stored in the reversed arc (for
-     *         two-ways road).
+     * @return Points representing segments of this arc.
      */
     public List<Point> getPoints() {
         return Collections.unmodifiableList(points);

@@ -13,8 +13,8 @@ public class Graph {
     private final ArrayList<Node> nodes;
 
     /**
-     * @param mapId
-     * @param nodes
+     * @param mapId ID of this graph.
+     * @param nodes List of nodes for this graph.
      */
     public Graph(int mapId, ArrayList<Node> nodes) {
         this.mapId = mapId;
@@ -22,7 +22,7 @@ public class Graph {
     }
 
     /**
-     * @return Nodes of this graph.
+     * @return Immutable list of nodes of this graph.
      */
     public List<Node> getNodes() {
         return Collections.unmodifiableList(nodes);

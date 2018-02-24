@@ -61,6 +61,11 @@ public class Point {
         return distance(this, target);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
         return String.format("Point(%f, %f)", getLongitude(), getLatitude());

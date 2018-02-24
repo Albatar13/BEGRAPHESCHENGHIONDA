@@ -57,6 +57,11 @@ public class Node implements Comparable<Node> {
         return point;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
     @Override
     public boolean equals(Object other) {
         if (other instanceof Node) {
@@ -65,6 +70,11 @@ public class Node implements Comparable<Node> {
         return false;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
     @Override
     public int compareTo(Node other) {
         return Integer.compare(getId(), other.getId());

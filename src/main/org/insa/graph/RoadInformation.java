@@ -10,7 +10,22 @@ public class RoadInformation {
      * Road type.
      */
     public enum RoadType {
-        MOTORWAY, TRUNK, PRIMARY, SECONDARY, MOTORWAY_LINK, TRUNK_LINK, PRIMARY_LINK, SECONDARY_LINK, TERTIARY, RESIDENTIAL, UNCLASSIFIED, ROAD, LIVING_STREET, SERVICE, ROUNDABOUT, COASTLINE
+        MOTORWAY,
+        TRUNK,
+        PRIMARY,
+        SECONDARY,
+        MOTORWAY_LINK,
+        TRUNK_LINK,
+        PRIMARY_LINK,
+        SECONDARY_LINK,
+        TERTIARY,
+        RESIDENTIAL,
+        UNCLASSIFIED,
+        ROAD,
+        LIVING_STREET,
+        SERVICE,
+        ROUNDABOUT,
+        COASTLINE
     }
 
     // Type of the road (see above).
@@ -47,7 +62,7 @@ public class RoadInformation {
     }
 
     /**
-     * @return Maximum speed for this road (in km/h).
+     * @return Maximum speed for this road (in kmph).
      */
     public int getMaximumSpeed() {
         return maxSpeed;
@@ -60,6 +75,11 @@ public class RoadInformation {
         return name;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
         String typeAsString = "road";
