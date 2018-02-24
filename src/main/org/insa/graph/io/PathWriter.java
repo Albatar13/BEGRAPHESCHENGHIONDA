@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.insa.graph.Path;
 
-public interface AbstractPathWriter {
+public interface PathWriter {
 
     /**
      * Write a path.

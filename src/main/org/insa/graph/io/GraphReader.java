@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.insa.graph.Graph;
 
-public interface AbstractGraphReader {
+public interface GraphReader {
 
     /**
      * Read a graph an returns it.

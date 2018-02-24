@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.insa.graph.Graph;
 import org.insa.graph.Path;
 
-public interface AbstractPathReader {
+public interface PathReader {
 
     /**
      * Read a path of the given graph and returns it.

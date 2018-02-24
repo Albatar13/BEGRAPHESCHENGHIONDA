@@ -49,7 +49,7 @@ import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsData;
 import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Path;
-import org.insa.graph.io.AbstractGraphReader;
+import org.insa.graph.io.GraphReader;
 import org.insa.graph.io.BinaryGraphReader;
 import org.insa.graph.io.BinaryGraphReaderV2;
 import org.insa.graph.io.BinaryPathReader;
@@ -286,7 +286,7 @@ public class MainWindow extends JFrame {
                                 JOptionPane.showMessageDialog(MainWindow.this, "Cannot open the selected file.");
                                 return;
                             }
-                            AbstractGraphReader reader;
+                            GraphReader reader;
                             if (path.endsWith(".map2") || path.endsWith("mapgr")) {
                                 reader = new BinaryGraphReaderV2(stream);
                             }

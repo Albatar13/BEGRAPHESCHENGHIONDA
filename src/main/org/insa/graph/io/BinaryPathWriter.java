@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.insa.graph.Arc;
 import org.insa.graph.Path;
 
-public class BinaryPathWriter extends BinaryWriter implements AbstractPathWriter {
+public class BinaryPathWriter extends BinaryWriter implements PathWriter {
 
     /**
      * @param dos

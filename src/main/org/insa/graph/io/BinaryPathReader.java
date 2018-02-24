@@ -9,7 +9,7 @@ import org.insa.graph.Node;
 import org.insa.graph.Path;
 import org.insa.graph.Path.CreationMode;
 
-public class BinaryPathReader extends BinaryReader implements AbstractPathReader {
+public class BinaryPathReader extends BinaryReader implements PathReader {
 
     // Map version and magic number targeted for this reader.
     protected static final int VERSION = 1;
