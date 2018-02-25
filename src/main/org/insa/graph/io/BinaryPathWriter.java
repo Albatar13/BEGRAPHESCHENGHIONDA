@@ -11,7 +11,7 @@ public class BinaryPathWriter extends BinaryWriter implements PathWriter {
     /**
      * @param dos
      */
-    protected BinaryPathWriter(DataOutputStream dos) {
+    public BinaryPathWriter(DataOutputStream dos) {
         super(dos);
     }
 

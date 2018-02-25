@@ -10,6 +10,11 @@ public interface Overlay {
     public void setVisible(boolean visible);
 
     /**
+     * @return true if this overlay is visible.
+     */
+    public boolean isVisible();
+
+    /**
      * Delete this marker.
      */
     public void delete();

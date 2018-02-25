@@ -41,7 +41,7 @@ public class BasicDrawing extends JPanel implements Drawing {
      */
     private static final long serialVersionUID = 96779785877771827L;
 
-    public abstract class BasicOverlay implements Overlay {
+    private abstract class BasicOverlay implements Overlay {
 
         // Visible?
         protected boolean visible;
@@ -54,6 +54,11 @@ public class BasicDrawing extends JPanel implements Drawing {
         public void setVisible(boolean visible) {
             this.visible = visible;
             BasicDrawing.this.repaint();
+        }
+
+        @Override
+        public boolean isVisible() {
+            return this.visible;
         }
 
         @Override
@@ -75,7 +80,7 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     };
 
-    public class BasicMarkerOverlay extends BasicOverlay implements MarkerOverlay {
+    private class BasicMarkerOverlay extends BasicOverlay implements MarkerOverlay {
 
         // Point of the marker.
         private Point point;
@@ -116,7 +121,7 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     };
 
-    public class BasicPathOverlay extends BasicOverlay implements PathOverlay {
+    private class BasicPathOverlay extends BasicOverlay implements PathOverlay {
 
         // List of points
         List<Point> points;

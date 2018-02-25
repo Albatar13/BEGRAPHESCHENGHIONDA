@@ -11,13 +11,18 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -34,13 +39,14 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.UIManager;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.insa.algo.shortestpath.AStarAlgorithm;
-import org.insa.algo.shortestpath.BellmanFordAlgorithm;
-import org.insa.algo.shortestpath.DijkstraAlgorithm;
 import org.insa.algo.shortestpath.ShortestPathAlgorithm;
+import org.insa.algo.shortestpath.ShortestPathAlgorithmFactory;
 import org.insa.algo.shortestpath.ShortestPathData;
+import org.insa.algo.shortestpath.ShortestPathData.Mode;
 import org.insa.algo.shortestpath.ShortestPathGraphicObserver;
 import org.insa.algo.shortestpath.ShortestPathSolution;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentGraphicObserver;
@@ -52,6 +58,7 @@ import org.insa.graph.Path;
 import org.insa.graph.io.BinaryGraphReader;
 import org.insa.graph.io.BinaryGraphReaderV2;
 import org.insa.graph.io.BinaryPathReader;
+import org.insa.graph.io.BinaryPathWriter;
 import org.insa.graph.io.GraphReader;
 import org.insa.graph.io.MapMismatchException;
 import org.insa.graph.io.Openfile;
@@ -60,6 +67,7 @@ import org.insa.graphics.drawing.BasicDrawing;
 import org.insa.graphics.drawing.BlackAndWhiteGraphPalette;
 import org.insa.graphics.drawing.Drawing;
 import org.insa.graphics.drawing.MapViewDrawing;
+import org.insa.graphics.drawing.overlays.PathOverlay;
 
 public class MainWindow extends JFrame {
 
@@ -168,7 +176,7 @@ public class MainWindow extends JFrame {
 
         GridBagConstraints c = new GridBagConstraints();
         c.gridx = 0;
-        c.gridy = 1;
+        c.gridy = 2;
         c.weightx = 1;
         c.weighty = 1;
         c.fill = GridBagConstraints.BOTH;
@@ -223,6 +231,97 @@ public class MainWindow extends JFrame {
         }
     }
 
+    private void displayShortestPathSolution(ShortestPathSolution solution) {
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.PAGE_AXIS));
+        infoPanel.setBorder(new CompoundBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK),
+                new EmptyBorder(15, 15, 15, 15)));
+
+        ShortestPathData data = (ShortestPathData) solution.getInstance();
+
+        String info = null;
+        if (solution == null || !solution.isFeasible()) {
+            info = String.format("Shortest path: No path found from node #%d to node #%d.", data.getOrigin().getId(),
+                    data.getDestination().getId());
+        }
+        else {
+            info = String.format("Shortest path: Found a path from node #%d to node #%d", data.getOrigin().getId(),
+                    data.getDestination().getId());
+            if (data.getMode() == Mode.LENGTH) {
+                info = String.format("%s, %.2f kilometers.", info, (solution.getPath().getLength() / 1000.0));
+            }
+            else {
+                info = String.format("%s, %.2f minutes.", info, (solution.getPath().getMinimumTravelTime() / 60.0));
+            }
+        }
+        infoPanel.add(new JLabel(info));
+
+        if (solution != null && solution.isFeasible()) {
+            infoPanel.add(Box.createVerticalStrut(8));
+
+            PathOverlay overlay = drawing.drawPath(solution.getPath());
+
+            JPanel buttonPanel = new JPanel();
+            buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
+            buttonPanel.add(Box.createHorizontalGlue());
+            JButton clearButton = new JButton("Hide");
+            clearButton.addActionListener(new ActionListener() {
+
+                private PathOverlay thisOverlay = overlay;
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (thisOverlay.isVisible()) {
+                        thisOverlay.setVisible(false);
+                        clearButton.setText("Show");
+                    }
+                    else {
+                        thisOverlay.setVisible(true);
+                        clearButton.setText("Hide");
+                    }
+                }
+            });
+            JButton saveButton = new JButton("Save");
+            saveButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String filepath = System.getProperty("user.dir");
+                    filepath += File.separator + String.format("path_%#x_%d_%d.path", graph.getMapId(),
+                            data.getOrigin().getId(), data.getDestination().getId());
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setSelectedFile(new File(filepath));
+                    fileChooser.setApproveButtonText("Save");
+
+                    if (fileChooser.showOpenDialog(MainWindow.this) == JFileChooser.APPROVE_OPTION) {
+                        File file = fileChooser.getSelectedFile();
+                        try {
+                            BinaryPathWriter writer = new BinaryPathWriter(
+                                    new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file))));
+                            writer.writePath(solution.getPath());
+                        }
+                        catch (IOException e1) {
+                            JOptionPane.showMessageDialog(MainWindow.this,
+                                    "Unable to write path to the selected file.");
+                            e1.printStackTrace();
+                        }
+                    }
+                }
+            });
+            buttonPanel.add(clearButton);
+            buttonPanel.add(saveButton);
+            infoPanel.add(buttonPanel);
+
+        }
+
+        // Add panel to the right side
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 1;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        ((JPanel) mainPanel.getRightComponent()).add(infoPanel, c);
+
+    }
+
     private void launchShortestPathThread(ShortestPathAlgorithm spAlgorithm) {
         spAlgorithm.addObserver(new ShortestPathGraphicObserver(drawing));
         // algo.addObserver(new ShortestPathTextObserver(printStream));
@@ -230,9 +329,7 @@ public class MainWindow extends JFrame {
             @Override
             public void run() {
                 ShortestPathSolution solution = spAlgorithm.run();
-                if (solution != null && solution.isFeasible()) {
-                    drawing.drawPath(solution.getPath());
-                }
+                displayShortestPathSolution(solution);
             }
         });
     }
@@ -463,18 +560,18 @@ public class MainWindow extends JFrame {
                         StartActionEvent evt = (StartActionEvent) e;
                         ShortestPathData data = new ShortestPathData(graph, evt.getOrigin(), evt.getDestination(),
                                 evt.getMode());
-                        ShortestPathAlgorithm spAlgorithm = null;
-                        if (evt.getAlgorithmClass() == BellmanFordAlgorithm.class) {
-                            spAlgorithm = new BellmanFordAlgorithm(data);
+                        try {
+                            ShortestPathAlgorithm spAlgorithm = ShortestPathAlgorithmFactory
+                                    .createAlgorithm(evt.getAlgorithmClass(), data);
+                            spPanel.setEnabled(false);
+                            launchShortestPathThread(spAlgorithm);
                         }
-                        else if (evt.getAlgorithmClass() == DijkstraAlgorithm.class) {
-                            spAlgorithm = new DijkstraAlgorithm(data);
+                        catch (Exception e1) {
+                            JOptionPane.showMessageDialog(MainWindow.this,
+                                    "An error occurred while creating the specified algorithm.",
+                                    "Internal error: Algorithm instantiation failure", JOptionPane.ERROR_MESSAGE);
+                            e1.printStackTrace();
                         }
-                        else if (evt.getAlgorithmClass() == AStarAlgorithm.class) {
-                            spAlgorithm = new AStarAlgorithm(data);
-                        }
-                        spPanel.setEnabled(false);
-                        launchShortestPathThread(spAlgorithm);
                     }
                 });
             }

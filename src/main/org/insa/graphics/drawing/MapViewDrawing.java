@@ -49,7 +49,7 @@ public class MapViewDrawing extends MapView implements Drawing {
      */
     private static final long serialVersionUID = 8606967833704938092L;
 
-    public class MapViewOverlay implements Overlay {
+    private class MapViewOverlay implements Overlay {
 
         // Marker associated.
         protected Layer[] layers;
@@ -69,6 +69,11 @@ public class MapViewDrawing extends MapView implements Drawing {
         }
 
         @Override
+        public boolean isVisible() {
+            return this.layers[0].isVisible();
+        }
+
+        @Override
         public void delete() {
             Layers mlayers = MapViewDrawing.this.getLayerManager().getLayers();
             for (Layer layer: layers) {
@@ -78,7 +83,7 @@ public class MapViewDrawing extends MapView implements Drawing {
 
     };
 
-    public class MapViewMarkerOverlay extends MapViewOverlay implements MarkerOverlay {
+    private class MapViewMarkerOverlay extends MapViewOverlay implements MarkerOverlay {
 
         public MapViewMarkerOverlay(Marker marker) {
             super(new Layer[] { marker });
@@ -102,7 +107,7 @@ public class MapViewDrawing extends MapView implements Drawing {
 
     };
 
-    public class MapViewPathOverlay extends MapViewOverlay implements PathOverlay {
+    private class MapViewPathOverlay extends MapViewOverlay implements PathOverlay {
 
         public MapViewPathOverlay(PolylineAutoScaling path, Marker origin, Marker destination) {
             super(new Layer[] { path, origin, destination });
