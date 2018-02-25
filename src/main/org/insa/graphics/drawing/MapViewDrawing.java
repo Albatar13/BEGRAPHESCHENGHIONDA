@@ -27,6 +27,7 @@ import org.mapsforge.map.awt.graphics.AwtGraphicFactory;
 import org.mapsforge.map.awt.util.AwtUtil;
 import org.mapsforge.map.awt.view.MapView;
 import org.mapsforge.map.datastore.MapDataStore;
+import org.mapsforge.map.layer.Layer;
 import org.mapsforge.map.layer.Layers;
 import org.mapsforge.map.layer.cache.TileCache;
 import org.mapsforge.map.layer.hills.HillsRenderConfig;
@@ -46,37 +47,47 @@ public class MapViewDrawing extends MapView implements Drawing {
      */
     private static final long serialVersionUID = 8606967833704938092L;
 
-    public class MapViewMarkerTracker implements MarkerTracker {
+    public class MapViewOverlayTracker implements OverlayTracker {
 
         // Marker associated.
-        private Marker marker;
+        protected Layer layer;
+
+        public MapViewOverlayTracker(Layer marker) {
+            this.layer = marker;
+        }
+
+        @Override
+        public void setVisible(boolean visible) {
+            this.layer.setVisible(visible);
+        }
+
+        @Override
+        public void delete() {
+            MapViewDrawing.this.getLayerManager().getLayers().remove(layer);
+        }
+
+    };
+
+    public class MapViewMarkerTracker extends MapViewOverlayTracker implements MarkerTracker {
 
         public MapViewMarkerTracker(Marker marker) {
-            this.marker = marker;
+            super(marker);
         }
 
         @Override
         public Point getPoint() {
+            Marker marker = (Marker) super.layer;
             return new Point(marker.getLatLong().getLongitude(), marker.getLatLong().getLatitude());
         }
 
         @Override
         public void moveTo(Point point) {
+            Marker marker = (Marker) this.layer;
             this.delete();
-            Marker marker = new Marker(convertPoint(point), this.marker.getBitmap(), this.marker.getHorizontalOffset(),
-                    this.marker.getVerticalOffset());
-            this.marker = marker;
-            MapViewDrawing.this.getLayerManager().getLayers().add(this.marker);
-        }
-
-        @Override
-        public void setVisible(boolean visible) {
-            this.marker.setVisible(visible);
-        }
-
-        @Override
-        public void delete() {
-            MapViewDrawing.this.getLayerManager().getLayers().remove(marker);
+            marker = new Marker(convertPoint(point), marker.getBitmap(), marker.getHorizontalOffset(),
+                    marker.getVerticalOffset());
+            this.layer = marker;
+            MapViewDrawing.this.getLayerManager().getLayers().add(this.layer);
         }
 
     };

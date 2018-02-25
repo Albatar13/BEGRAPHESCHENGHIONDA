@@ -8,9 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -25,10 +23,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JSplitPane;
 import javax.swing.border.EmptyBorder;
 
-import org.insa.algo.shortestpath.AStarAlgorithm;
-import org.insa.algo.shortestpath.BellmanFordAlgorithm;
-import org.insa.algo.shortestpath.DijkstraAlgorithm;
 import org.insa.algo.shortestpath.ShortestPathAlgorithm;
+import org.insa.algo.shortestpath.ShortestPathAlgorithmFactory;
 import org.insa.algo.shortestpath.ShortestPathData.Mode;
 import org.insa.graph.Graph;
 import org.insa.graph.Node;
@@ -100,10 +96,6 @@ public class ShortestPathPanel extends JPanel {
 
     };
 
-    // Map between algorithm names and class, see end of this class for
-    // initialization.
-    private static Map<String, Class<? extends ShortestPathAlgorithm>> SHORTEST_PATH_ALGORITHMS = new HashMap<>();
-
     // Input panels for node.
     private NodesInputPanel nodesInputPanel;
 
@@ -132,7 +124,8 @@ public class ShortestPathPanel extends JPanel {
         add(Box.createVerticalStrut(8));
 
         // Add algorithm selection
-        JComboBox<String> algoSelect = new JComboBox<>(SHORTEST_PATH_ALGORITHMS.keySet().toArray(new String[0]));
+        JComboBox<String> algoSelect = new JComboBox<>(
+                ShortestPathAlgorithmFactory.getAlgorithmNames().toArray(new String[0]));
         algoSelect.setBackground(Color.WHITE);
         algoSelect.setAlignmentX(Component.LEFT_ALIGNMENT);
         add(algoSelect);
@@ -180,7 +173,8 @@ public class ShortestPathPanel extends JPanel {
                 Mode mode = lengthModeButton.isSelected() ? Mode.LENGTH : Mode.TIME;
 
                 for (ActionListener lis: startActionListeners) {
-                    lis.actionPerformed(new StartActionEvent(SHORTEST_PATH_ALGORITHMS.get(algoSelect.getSelectedItem()),
+                    lis.actionPerformed(new StartActionEvent(
+                            ShortestPathAlgorithmFactory.getAlgorithmClass((String) algoSelect.getSelectedItem()),
                             origin, destination, mode));
                 }
             }
@@ -238,12 +232,6 @@ public class ShortestPathPanel extends JPanel {
      */
     public void addStartActionListener(ActionListener listener) {
         this.startActionListeners.add(listener);
-    }
-
-    static {
-        SHORTEST_PATH_ALGORITHMS.put("Bellman-Ford", BellmanFordAlgorithm.class);
-        SHORTEST_PATH_ALGORITHMS.put("Dijkstra", DijkstraAlgorithm.class);
-        SHORTEST_PATH_ALGORITHMS.put("A*", AStarAlgorithm.class);
     }
 
     public static void main(String[] args) throws IOException {

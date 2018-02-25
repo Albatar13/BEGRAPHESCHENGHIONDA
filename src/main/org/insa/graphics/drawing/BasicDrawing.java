@@ -38,10 +38,7 @@ public class BasicDrawing extends JPanel implements Drawing {
      */
     private static final long serialVersionUID = 96779785877771827L;
 
-    public class BasicMarkerTracker implements MarkerTracker {
-
-        // Point of the marker.
-        private Point point;
+    public class BasicOverlayTracker implements OverlayTracker {
 
         // Image of the marker
         protected BufferedImage image;
@@ -49,21 +46,9 @@ public class BasicDrawing extends JPanel implements Drawing {
         // Visible?
         protected boolean visible;
 
-        public BasicMarkerTracker(Point point, BufferedImage image) {
-            this.point = point;
+        public BasicOverlayTracker(BufferedImage image) {
             this.image = image;
             this.visible = true;
-        }
-
-        @Override
-        public Point getPoint() {
-            return point;
-        }
-
-        @Override
-        public void moveTo(Point point) {
-            this.point = point;
-            BasicDrawing.this.repaint();
         }
 
         @Override
@@ -75,6 +60,29 @@ public class BasicDrawing extends JPanel implements Drawing {
         @Override
         public void delete() {
             BasicDrawing.this.markers.remove(this);
+            BasicDrawing.this.repaint();
+        }
+
+    };
+
+    public class BasicMarkerTracker extends BasicOverlayTracker implements MarkerTracker {
+
+        // Point of the marker.
+        private Point point;
+
+        public BasicMarkerTracker(Point point, BufferedImage image) {
+            super(image);
+            this.point = point;
+        }
+
+        @Override
+        public Point getPoint() {
+            return point;
+        }
+
+        @Override
+        public void moveTo(Point point) {
+            this.point = point;
             BasicDrawing.this.repaint();
         }
 
