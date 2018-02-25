@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -34,10 +36,11 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.insa.algo.shortestpath.AStarAlgorithm;
 import org.insa.algo.shortestpath.BellmanFordAlgorithm;
+import org.insa.algo.shortestpath.DijkstraAlgorithm;
 import org.insa.algo.shortestpath.ShortestPathAlgorithm;
 import org.insa.algo.shortestpath.ShortestPathData;
-import org.insa.algo.shortestpath.ShortestPathData.Mode;
 import org.insa.algo.shortestpath.ShortestPathGraphicObserver;
 import org.insa.algo.shortestpath.ShortestPathSolution;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentGraphicObserver;
@@ -45,7 +48,6 @@ import org.insa.algo.weakconnectivity.WeaklyConnectedComponentTextObserver;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsAlgorithm;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsData;
 import org.insa.graph.Graph;
-import org.insa.graph.Node;
 import org.insa.graph.Path;
 import org.insa.graph.io.BinaryGraphReader;
 import org.insa.graph.io.BinaryGraphReaderV2;
@@ -53,7 +55,7 @@ import org.insa.graph.io.BinaryPathReader;
 import org.insa.graph.io.GraphReader;
 import org.insa.graph.io.MapMismatchException;
 import org.insa.graph.io.Openfile;
-import org.insa.graphics.MultiPointsClickListener.CallableWithNodes;
+import org.insa.graphics.ShortestPathPanel.StartActionEvent;
 import org.insa.graphics.drawing.BasicDrawing;
 import org.insa.graphics.drawing.BlackAndWhiteGraphPalette;
 import org.insa.graphics.drawing.Drawing;
@@ -87,6 +89,9 @@ public class MainWindow extends JFrame {
 
     // Main panel.
     private JSplitPane mainPanel;
+
+    // Shortest path panel
+    private ShortestPathPanel spPanel;
 
     // List of item for the top menus.
     private JMenuItem openMapItem;
@@ -158,12 +163,24 @@ public class MainWindow extends JFrame {
         this.logStream = new StreamCapturer(infoPanel);
         this.printStream = new PrintStream(this.logStream);
 
+        JPanel rightComponent = new JPanel();
+        rightComponent.setLayout(new GridBagLayout());
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 1;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.fill = GridBagConstraints.BOTH;
+        c.gridheight = GridBagConstraints.REMAINDER;
+        rightComponent.add(new JScrollPane(infoPanel), c);
+
         mainPanel.setResizeWeight(0.8);
         mainPanel.setDividerSize(5);
 
         mainPanel.setBackground(Color.WHITE);
         mainPanel.setLeftComponent((Component) this.drawing);
-        mainPanel.setRightComponent(new JScrollPane(infoPanel));
+        mainPanel.setRightComponent(rightComponent);
         this.add(mainPanel, BorderLayout.CENTER);
 
         // Top Panel
@@ -201,6 +218,7 @@ public class MainWindow extends JFrame {
         threadTimer.stop();
         threadPanel.setVisible(false);
         currentThread.setThread(null);
+        spPanel.setEnabled(true);
     }
 
     private void launchShortestPathThread(ShortestPathAlgorithm spAlgorithm) {
@@ -422,33 +440,49 @@ public class MainWindow extends JFrame {
         }));
 
         // Shortest path
-        JMenuItem bellmanItem = new JMenuItem("Shortest Path (Bellman-Ford)");
-        bellmanItem.addActionListener(baf.createBlockingAction(new ActionListener() {
+        JMenuItem spItem = new JMenuItem("Shortest Path");
+        spItem.addActionListener(baf.createBlockingAction(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int idx = JOptionPane.showOptionDialog(MainWindow.this, "Which mode do you want?", "Mode selection",
-                        JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, Mode.values(), Mode.LENGTH);
+                int dividerLocation = mainPanel.getDividerLocation();
+                spPanel = new ShortestPathPanel(drawing, graph);
 
-                if (idx != -1) {
-                    Mode mode = Mode.values()[idx];
-                    clickAdapter.enable(2, new CallableWithNodes() {
-                        @Override
-                        public void call(ArrayList<Node> nodes) {
-                            launchShortestPathThread(new BellmanFordAlgorithm(
-                                    new ShortestPathData(graph, nodes.get(0), nodes.get(1), mode)));
+                GridBagConstraints c = new GridBagConstraints();
+                c.gridx = 0;
+                c.gridy = 0;
+                c.fill = GridBagConstraints.HORIZONTAL;
+                ((JPanel) mainPanel.getRightComponent()).add(spPanel, c);
+
+                mainPanel.setDividerLocation(dividerLocation);
+
+                spPanel.addStartActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        StartActionEvent evt = (StartActionEvent) e;
+                        ShortestPathData data = new ShortestPathData(graph, evt.getOrigin(), evt.getDestination(),
+                                evt.getMode());
+                        ShortestPathAlgorithm spAlgorithm = null;
+                        if (evt.getAlgorithmClass() == BellmanFordAlgorithm.class) {
+                            spAlgorithm = new BellmanFordAlgorithm(data);
                         }
-                    });
-                }
+                        else if (evt.getAlgorithmClass() == DijkstraAlgorithm.class) {
+                            spAlgorithm = new DijkstraAlgorithm(data);
+                        }
+                        else if (evt.getAlgorithmClass() == AStarAlgorithm.class) {
+                            spAlgorithm = new AStarAlgorithm(data);
+                        }
+                        spPanel.setEnabled(false);
+                        launchShortestPathThread(spAlgorithm);
+                    }
+                });
             }
         }));
         graphLockItems.add(wccItem);
-        graphLockItems.add(bellmanItem);
+        graphLockItems.add(spItem);
 
         algoMenu.add(wccItem);
         algoMenu.addSeparator();
-        algoMenu.add(bellmanItem);
-        // algoMenu.add(djikstraItem);
-        // algoMenu.add(aStarItem);
+        algoMenu.add(spItem);
 
         // Create the menu bar.
         JMenuBar menuBar = new JMenuBar();
