@@ -132,10 +132,6 @@ public class BasicDrawing extends JPanel implements Drawing {
         // Origin / Destination markers.
         BasicMarkerOverlay origin, destination;
 
-        public BasicPathOverlay(List<Point> points, Color color) {
-            this(points, color, null, null);
-        }
-
         public BasicPathOverlay(List<Point> points, Color color, BasicMarkerOverlay origin,
                 BasicMarkerOverlay destination) {
             this.points = points;
