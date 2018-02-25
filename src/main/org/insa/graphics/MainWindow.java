@@ -113,7 +113,7 @@ public class MainWindow extends JFrame {
     private ArrayList<JMenuItem> graphLockItems = new ArrayList<JMenuItem>();
 
     // Label containing the map ID of the current graph.
-    private JLabel mapIdPanel;
+    private JLabel graphInfoPanel;
 
     // Thread information
     private Timer threadTimer;
@@ -489,12 +489,13 @@ public class MainWindow extends JFrame {
                             // Save file path.
                             graphFilePath = path;
 
+                            graphInfoPanel.setText(
+                                    String.format("Map ID: %#x, %d nodes", graph.getMapId(), graph.getNodes().size()));
                             drawGraph();
 
                             for (JMenuItem item: graphLockItems) {
                                 item.setEnabled(true);
                             }
-                            mapIdPanel.setText("Map ID: 0x" + Integer.toHexString(graph.getMapId()));
                         }
                     }, false);
                 }
@@ -662,13 +663,14 @@ public class MainWindow extends JFrame {
     private JPanel createStatusBar() {
         // create the status bar panel and shove it down the bottom of the frame
         JPanel statusPanel = new JPanel();
-        statusPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY));
+        statusPanel.setBorder(new CompoundBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY),
+                new EmptyBorder(0, 15, 0, 15)));
         statusPanel.setPreferredSize(new Dimension(getWidth(), 38));
         statusPanel.setLayout(new BorderLayout());
 
-        mapIdPanel = new JLabel();
-        mapIdPanel.setHorizontalAlignment(SwingConstants.LEFT);
-        statusPanel.add(mapIdPanel, BorderLayout.WEST);
+        graphInfoPanel = new JLabel();
+        graphInfoPanel.setHorizontalAlignment(SwingConstants.LEFT);
+        statusPanel.add(graphInfoPanel, BorderLayout.WEST);
 
         JLabel threadInfo = new JLabel("Thread running... ");
         JLabel threadTimerLabel = new JLabel("00:00:00");
