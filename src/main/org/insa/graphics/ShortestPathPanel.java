@@ -22,10 +22,8 @@ import javax.swing.border.EmptyBorder;
 import org.insa.algo.shortestpath.ShortestPathAlgorithm;
 import org.insa.algo.shortestpath.ShortestPathAlgorithmFactory;
 import org.insa.algo.shortestpath.ShortestPathData.Mode;
-import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graphics.NodesInputPanel.InputChangedEvent;
-import org.insa.graphics.drawing.Drawing;
 
 public class ShortestPathPanel extends JPanel {
 
@@ -89,7 +87,7 @@ public class ShortestPathPanel extends JPanel {
     };
 
     // Input panels for node.
-    private NodesInputPanel nodesInputPanel;
+    protected NodesInputPanel nodesInputPanel;
 
     // Component that can be enabled/disabled.
     private ArrayList<JComponent> components = new ArrayList<>();
@@ -97,7 +95,7 @@ public class ShortestPathPanel extends JPanel {
     // Start listeners
     List<ActionListener> startActionListeners = new ArrayList<>();
 
-    public ShortestPathPanel(Drawing drawing, Graph graph) {
+    public ShortestPathPanel(MainWindow mainWindow) {
         super();
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
@@ -124,7 +122,7 @@ public class ShortestPathPanel extends JPanel {
         components.add(algoSelect);
 
         // Add inputs for node.
-        this.nodesInputPanel = new NodesInputPanel(drawing, graph);
+        this.nodesInputPanel = new NodesInputPanel(mainWindow);
         this.nodesInputPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         nodesInputPanel.addTextField("Origin: ", new Color(57, 172, 115));
         nodesInputPanel.addTextField("Destination: ", new Color(255, 77, 77));

@@ -123,9 +123,6 @@ public class MainWindow extends JFrame {
     // Current running thread
     private ThreadWrapper currentThread;
 
-    // Multi point listener
-    private MultiPointsClickListener clickAdapter = null;
-
     // Factory
     private BlockingActionFactory baf;
 
@@ -138,10 +135,31 @@ public class MainWindow extends JFrame {
         // Create drawing and action listeners...
         this.drawing = new BasicDrawing();
 
-        this.clickAdapter = new MultiPointsClickListener(this);
+        spPanel = new ShortestPathPanel(MainWindow.this);
+        spPanel.addStartActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                StartActionEvent evt = (StartActionEvent) e;
+                ShortestPathData data = new ShortestPathData(graph, evt.getOrigin(), evt.getDestination(),
+                        evt.getMode());
+                try {
+                    ShortestPathAlgorithm spAlgorithm = ShortestPathAlgorithmFactory
+                            .createAlgorithm(evt.getAlgorithmClass(), data);
+                    spPanel.setEnabled(false);
+                    launchShortestPathThread(spAlgorithm);
+                }
+                catch (Exception e1) {
+                    JOptionPane.showMessageDialog(MainWindow.this,
+                            "An error occurred while creating the specified algorithm.",
+                            "Internal error: Algorithm instantiation failure", JOptionPane.ERROR_MESSAGE);
+                    e1.printStackTrace();
+                }
+            }
+        });
+        spPanel.setVisible(false);
+
         this.currentThread = new ThreadWrapper(this);
         this.baf = new BlockingActionFactory(this);
-        this.baf.addAction(clickAdapter);
         this.baf.addAction(currentThread);
 
         // Click adapter
@@ -175,6 +193,12 @@ public class MainWindow extends JFrame {
         rightComponent.setLayout(new GridBagLayout());
 
         GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        rightComponent.add(spPanel, c);
+
+        c = new GridBagConstraints();
         c.gridx = 0;
         c.gridy = 2;
         c.weightx = 1;
@@ -335,7 +359,7 @@ public class MainWindow extends JFrame {
     }
 
     private void addDrawingClickListeners() {
-        drawing.addDrawingClickListener(this.clickAdapter);
+        drawing.addDrawingClickListener(spPanel.nodesInputPanel);
     }
 
     private void updateDrawing(Class<? extends Drawing> newClass) {
@@ -544,36 +568,8 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int dividerLocation = mainPanel.getDividerLocation();
-                spPanel = new ShortestPathPanel(drawing, graph);
-
-                GridBagConstraints c = new GridBagConstraints();
-                c.gridx = 0;
-                c.gridy = 0;
-                c.fill = GridBagConstraints.HORIZONTAL;
-                ((JPanel) mainPanel.getRightComponent()).add(spPanel, c);
-
+                spPanel.setVisible(true);
                 mainPanel.setDividerLocation(dividerLocation);
-
-                spPanel.addStartActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        StartActionEvent evt = (StartActionEvent) e;
-                        ShortestPathData data = new ShortestPathData(graph, evt.getOrigin(), evt.getDestination(),
-                                evt.getMode());
-                        try {
-                            ShortestPathAlgorithm spAlgorithm = ShortestPathAlgorithmFactory
-                                    .createAlgorithm(evt.getAlgorithmClass(), data);
-                            spPanel.setEnabled(false);
-                            launchShortestPathThread(spAlgorithm);
-                        }
-                        catch (Exception e1) {
-                            JOptionPane.showMessageDialog(MainWindow.this,
-                                    "An error occurred while creating the specified algorithm.",
-                                    "Internal error: Algorithm instantiation failure", JOptionPane.ERROR_MESSAGE);
-                            e1.printStackTrace();
-                        }
-                    }
-                });
             }
         }));
         graphLockItems.add(wccItem);

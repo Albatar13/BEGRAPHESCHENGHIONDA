@@ -21,10 +21,8 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Point;
-import org.insa.graphics.drawing.Drawing;
 import org.insa.graphics.drawing.DrawingClickListener;
 import org.insa.graphics.drawing.overlays.MarkerOverlay;
 
@@ -73,16 +71,13 @@ public class NodesInputPanel extends JPanel implements DrawingClickListener {
     // ActionListener called when all inputs are filled.
     private ArrayList<ActionListener> inputChangeListeners = new ArrayList<>();
 
-    // Graph & Drawing.
-    private Graph graph;
-    private Drawing drawing;
+    // Instance of mainwindow.
+    MainWindow mainWindow;
 
-    public NodesInputPanel(Drawing drawing, Graph graph) {
+    public NodesInputPanel(MainWindow mainWindow) {
         super(new GridBagLayout());
-        this.graph = graph;
-        this.drawing = drawing;
+        this.mainWindow = mainWindow;
         initInputToFill();
-        drawing.addDrawingClickListener(this);
     }
 
     public void addInputChangedListener(ActionListener listener) {
@@ -179,7 +174,7 @@ public class NodesInputPanel extends JPanel implements DrawingClickListener {
                 MarkerOverlay tracker = markerTrackers.getOrDefault(textField, null);
                 if (curnode != null) {
                     if (tracker == null) {
-                        tracker = drawing.drawMarker(curnode.getPoint(), markerColor);
+                        tracker = mainWindow.drawing.drawMarker(curnode.getPoint(), markerColor);
                         markerTrackers.put(textField, tracker);
                     }
                     else {
@@ -228,7 +223,7 @@ public class NodesInputPanel extends JPanel implements DrawingClickListener {
      */
     protected Node getNodeForInput(JTextField textfield) {
         try {
-            Node node = graph.getNodes().get(Integer.valueOf(textfield.getText().trim()));
+            Node node = this.mainWindow.graph.getNodes().get(Integer.valueOf(textfield.getText().trim()));
             return node;
         }
         catch (IllegalArgumentException | IndexOutOfBoundsException ex) {
@@ -297,7 +292,7 @@ public class NodesInputPanel extends JPanel implements DrawingClickListener {
 
     @Override
     public void mouseClicked(Point point) {
-        Node node = graph.findClosestNode(point);
+        Node node = this.mainWindow.graph.findClosestNode(point);
         JTextField input = getInputToFill();
         if (input != null) {
             input.setText(String.valueOf(node.getId()));
