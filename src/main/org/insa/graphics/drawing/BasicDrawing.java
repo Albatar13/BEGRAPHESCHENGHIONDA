@@ -24,7 +24,9 @@ import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Path;
 import org.insa.graph.Point;
-import org.insa.graphics.drawing.utils.MarkerUtils;
+import org.insa.graphics.drawing.overlays.MarkerTracker;
+import org.insa.graphics.drawing.overlays.MarkerUtils;
+import org.insa.graphics.drawing.overlays.OverlayTracker;
 
 /**
  * Cette implementation de la classe Dessin produit vraiment un affichage (au

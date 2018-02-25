@@ -1,4 +1,4 @@
-package org.insa.graphics.drawing.utils;
+package org.insa.graphics.drawing.overlays;
 
 import java.awt.Color;
 import java.util.List;

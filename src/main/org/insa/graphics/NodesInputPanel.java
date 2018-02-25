@@ -26,7 +26,7 @@ import org.insa.graph.Node;
 import org.insa.graph.Point;
 import org.insa.graphics.drawing.Drawing;
 import org.insa.graphics.drawing.DrawingClickListener;
-import org.insa.graphics.drawing.MarkerTracker;
+import org.insa.graphics.drawing.overlays.MarkerTracker;
 
 public class NodesInputPanel extends JPanel implements DrawingClickListener {
 
