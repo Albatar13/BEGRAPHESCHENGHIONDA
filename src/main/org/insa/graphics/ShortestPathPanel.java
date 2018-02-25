@@ -1,12 +1,10 @@
 package org.insa.graphics;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,11 +14,9 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JSplitPane;
 import javax.swing.border.EmptyBorder;
 
 import org.insa.algo.shortestpath.ShortestPathAlgorithm;
@@ -28,11 +24,7 @@ import org.insa.algo.shortestpath.ShortestPathAlgorithmFactory;
 import org.insa.algo.shortestpath.ShortestPathData.Mode;
 import org.insa.graph.Graph;
 import org.insa.graph.Node;
-import org.insa.graph.io.BinaryGraphReaderV2;
-import org.insa.graph.io.GraphReader;
-import org.insa.graph.io.Openfile;
 import org.insa.graphics.NodesInputPanel.InputChangedEvent;
-import org.insa.graphics.drawing.BasicDrawing;
 import org.insa.graphics.drawing.Drawing;
 
 public class ShortestPathPanel extends JPanel {
@@ -234,26 +226,4 @@ public class ShortestPathPanel extends JPanel {
         this.startActionListeners.add(listener);
     }
 
-    public static void main(String[] args) throws IOException {
-
-        String nomcarte = "../BE_Graphe_Maps/morbihan3.mapgr";
-        GraphReader reader = new BinaryGraphReaderV2(Openfile.open(nomcarte));
-        Graph graph = reader.read();
-
-        JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new BorderLayout());
-        JSplitPane p = new JSplitPane();
-        BasicDrawing drawing = new BasicDrawing();
-        JPanel pane = new ShortestPathPanel(drawing, graph);
-        p.setLeftComponent(drawing);
-        p.setRightComponent(pane);
-        p.setResizeWeight(0.8);
-        frame.add(p, BorderLayout.CENTER);
-        frame.show();
-        frame.setSize(800, 600);
-        // pane.setSize(new Dimension(400, 0));
-
-        drawing.drawGraph(graph);
-    }
 }
