@@ -199,7 +199,6 @@ public class MapViewDrawing extends MapView implements Drawing {
             byte zoomLevel = LatLongUtils.zoomForBounds(model.mapViewDimension.getDimension(), boundingBox,
                     model.displayModel.getTileSize());
             model.mapViewPosition.setMapPosition(new MapPosition(boundingBox.getCenterPoint(), zoomLevel));
-            model.mapViewPosition.setZoomLevelMin(zoomLevel);
         }
     }
 
