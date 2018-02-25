@@ -2,7 +2,7 @@ package org.insa.graphics.drawing.overlays;
 
 import org.insa.graph.Point;
 
-public interface MarkerTracker extends OverlayTracker {
+public interface MarkerOverlay extends Overlay {
 
     /**
      * @return The point associated with this marker.

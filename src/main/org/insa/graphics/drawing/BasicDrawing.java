@@ -24,9 +24,9 @@ import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Path;
 import org.insa.graph.Point;
-import org.insa.graphics.drawing.overlays.MarkerTracker;
+import org.insa.graphics.drawing.overlays.MarkerOverlay;
 import org.insa.graphics.drawing.overlays.MarkerUtils;
-import org.insa.graphics.drawing.overlays.OverlayTracker;
+import org.insa.graphics.drawing.overlays.Overlay;
 
 /**
  * Cette implementation de la classe Dessin produit vraiment un affichage (au
@@ -40,7 +40,7 @@ public class BasicDrawing extends JPanel implements Drawing {
      */
     private static final long serialVersionUID = 96779785877771827L;
 
-    public abstract class BasicOverlay implements OverlayTracker {
+    public abstract class BasicOverlay implements Overlay {
 
         // Visible?
         protected boolean visible;
@@ -68,7 +68,7 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     };
 
-    public class BasicMarker extends BasicOverlay implements MarkerTracker {
+    public class BasicMarker extends BasicOverlay implements MarkerOverlay {
 
         // Point of the marker.
         private Point point;
@@ -296,12 +296,12 @@ public class BasicDrawing extends JPanel implements Drawing {
     }
 
     @Override
-    public MarkerTracker drawMarker(Point point) {
+    public MarkerOverlay drawMarker(Point point) {
         return drawMarker(point, this.overlayGraphics.getColor());
     }
 
     @Override
-    public MarkerTracker drawMarker(Point point, Color color) {
+    public MarkerOverlay drawMarker(Point point, Color color) {
         BasicMarker marker = new BasicMarker(point, color);
         this.overlays.add(marker);
         this.repaint();

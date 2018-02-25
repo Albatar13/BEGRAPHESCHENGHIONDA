@@ -5,7 +5,7 @@ import java.awt.Color;
 import org.insa.graph.Graph;
 import org.insa.graph.Path;
 import org.insa.graph.Point;
-import org.insa.graphics.drawing.overlays.MarkerTracker;
+import org.insa.graphics.drawing.overlays.MarkerOverlay;
 
 public interface Drawing {
 
@@ -33,14 +33,14 @@ public interface Drawing {
      * 
      * @param point
      */
-    public MarkerTracker drawMarker(Point point);
+    public MarkerOverlay drawMarker(Point point);
 
     /**
      * Draw the given point with the given color.
      * 
      * @param point
      */
-    public MarkerTracker drawMarker(Point point, Color color);
+    public MarkerOverlay drawMarker(Point point, Color color);
 
     /**
      * Draw a point width the given width and color. Do not use this to mark

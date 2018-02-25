@@ -1,6 +1,6 @@
 package org.insa.graphics.drawing.overlays;
 
-public interface OverlayTracker {
+public interface Overlay {
 
     /**
      * Show or hide this marker - A marker should be visible when created.

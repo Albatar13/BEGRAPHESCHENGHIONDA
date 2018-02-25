@@ -14,9 +14,9 @@ import org.insa.graph.Arc;
 import org.insa.graph.Graph;
 import org.insa.graph.Path;
 import org.insa.graph.Point;
-import org.insa.graphics.drawing.overlays.MarkerTracker;
+import org.insa.graphics.drawing.overlays.MarkerOverlay;
 import org.insa.graphics.drawing.overlays.MarkerUtils;
-import org.insa.graphics.drawing.overlays.OverlayTracker;
+import org.insa.graphics.drawing.overlays.Overlay;
 import org.insa.graphics.drawing.overlays.PolylineAutoScaling;
 import org.mapsforge.core.graphics.Bitmap;
 import org.mapsforge.core.graphics.GraphicFactory;
@@ -48,7 +48,7 @@ public class MapViewDrawing extends MapView implements Drawing {
      */
     private static final long serialVersionUID = 8606967833704938092L;
 
-    public class MapViewOverlayTracker implements OverlayTracker {
+    public class MapViewOverlayTracker implements Overlay {
 
         // Marker associated.
         protected Layer layer;
@@ -69,7 +69,7 @@ public class MapViewDrawing extends MapView implements Drawing {
 
     };
 
-    public class MapViewMarkerTracker extends MapViewOverlayTracker implements MarkerTracker {
+    public class MapViewMarkerTracker extends MapViewOverlayTracker implements MarkerOverlay {
 
         public MapViewMarkerTracker(Marker marker) {
             super(marker);
@@ -190,12 +190,12 @@ public class MapViewDrawing extends MapView implements Drawing {
     }
 
     @Override
-    public MarkerTracker drawMarker(Point point) {
+    public MarkerOverlay drawMarker(Point point) {
         return drawMarker(point, Color.GREEN);
     }
 
     @Override
-    public MarkerTracker drawMarker(Point point, Color color) {
+    public MarkerOverlay drawMarker(Point point, Color color) {
         Bitmap bitmap = new AwtBitmap(MarkerUtils.getMarkerForColor(color));
         Marker marker = new Marker(convertPoint(point), bitmap, 0, -bitmap.getHeight() / 2);
         getLayerManager().getLayers().add(marker);

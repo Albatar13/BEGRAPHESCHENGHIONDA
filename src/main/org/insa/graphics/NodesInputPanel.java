@@ -26,7 +26,7 @@ import org.insa.graph.Node;
 import org.insa.graph.Point;
 import org.insa.graphics.drawing.Drawing;
 import org.insa.graphics.drawing.DrawingClickListener;
-import org.insa.graphics.drawing.overlays.MarkerTracker;
+import org.insa.graphics.drawing.overlays.MarkerOverlay;
 
 public class NodesInputPanel extends JPanel implements DrawingClickListener {
 
@@ -64,7 +64,7 @@ public class NodesInputPanel extends JPanel implements DrawingClickListener {
 
     // Node inputs and markers.
     private ArrayList<JTextField> nodeInputs = new ArrayList<>();
-    private Map<JTextField, MarkerTracker> markerTrackers = new IdentityHashMap<JTextField, MarkerTracker>();
+    private Map<JTextField, MarkerOverlay> markerTrackers = new IdentityHashMap<JTextField, MarkerOverlay>();
 
     // Component that can be enabled/disabled.
     private ArrayList<JComponent> components = new ArrayList<>();
@@ -176,7 +176,7 @@ public class NodesInputPanel extends JPanel implements DrawingClickListener {
 
                 // Draw marker if possible
                 Node curnode = getNodeForInput(textField);
-                MarkerTracker tracker = markerTrackers.getOrDefault(textField, null);
+                MarkerOverlay tracker = markerTrackers.getOrDefault(textField, null);
                 if (curnode != null) {
                     if (tracker == null) {
                         tracker = drawing.drawMarker(curnode.getPoint(), markerColor);
