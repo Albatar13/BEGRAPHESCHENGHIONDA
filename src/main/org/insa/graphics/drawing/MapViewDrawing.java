@@ -34,7 +34,6 @@ import org.mapsforge.map.layer.Layers;
 import org.mapsforge.map.layer.cache.TileCache;
 import org.mapsforge.map.layer.hills.HillsRenderConfig;
 import org.mapsforge.map.layer.overlay.Marker;
-import org.mapsforge.map.layer.overlay.Polyline;
 import org.mapsforge.map.layer.renderer.TileRendererLayer;
 import org.mapsforge.map.model.DisplayModel;
 import org.mapsforge.map.model.MapViewPosition;
@@ -188,24 +187,6 @@ public class MapViewDrawing extends MapView implements Drawing {
     public void clear() {
         getLayerManager().getLayers().clear();
         repaint();
-    }
-
-    @Override
-    public void drawLine(Point from, Point to) {
-        drawLine(from, to, 0, null);
-    }
-
-    @Override
-    public void drawLine(Point from, Point to, int width) {
-        drawLine(from, to, width, null);
-    }
-
-    @Override
-    public void drawLine(Point from, Point to, int width, Color color) {
-        Polyline line = new PolylineAutoScaling(width, color);
-        line.getLatLongs().add(convertPoint(from));
-        line.getLatLongs().add(convertPoint(to));
-        getLayerManager().getLayers().add(line);
     }
 
     @Override

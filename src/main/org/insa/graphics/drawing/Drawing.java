@@ -29,35 +29,6 @@ public interface Drawing {
     public void clear();
 
     /**
-     * Draw a line between the two given points with the default color and width.
-     * 
-     * @param from
-     * @param to
-     */
-    public void drawLine(Point from, Point to);
-
-    /**
-     * Draw a line between the two given points with the default color and the given
-     * width.
-     * 
-     * @param from
-     * @param to
-     * @param width
-     */
-    public void drawLine(Point from, Point to, int width);
-
-    /**
-     * Draw a line between the two given points with the given color and the given
-     * width.
-     * 
-     * @param from
-     * @param to
-     * @param width
-     * @param color
-     */
-    public void drawLine(Point from, Point to, int width, Color color);
-
-    /**
      * Draw a marker at the given point with the default color.
      * 
      * @param point
