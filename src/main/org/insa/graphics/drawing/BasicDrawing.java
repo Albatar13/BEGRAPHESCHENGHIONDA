@@ -36,6 +36,35 @@ public class BasicDrawing extends JPanel implements Drawing {
      */
     private static final long serialVersionUID = 96779785877771827L;
 
+    public class BasicMarkerTracker implements MarkerTracker {
+
+        // Point of the marker.
+        private Point point;
+
+        // Color of the "marker".
+        private Color color;
+
+        public BasicMarkerTracker(Point point, Color color) {
+            this.point = point;
+            this.color = color;
+        }
+
+        @Override
+        public Point getPoint() {
+            return point;
+        }
+
+        @Override
+        public void moveTo(Point point) {
+            BasicDrawing.this.drawMarker(point, color);
+        }
+
+        @Override
+        public void delete() {
+        }
+
+    };
+
     // Default path color.
     public static final Color DEFAULT_PATH_COLOR = new Color(255, 0, 255);
 
@@ -215,14 +244,15 @@ public class BasicDrawing extends JPanel implements Drawing {
     }
 
     @Override
-    public void drawMarker(Point point) {
+    public MarkerTracker drawMarker(Point point) {
         drawPoint(point, DEFAULT_MARKER_WIDTH, this.gr.getColor());
+        return new BasicMarkerTracker(point, this.gr.getColor());
     }
 
     @Override
-    public void drawMarker(Point point, Color color) {
+    public MarkerTracker drawMarker(Point point, Color color) {
         setColor(color);
-        drawMarker(point);
+        return drawMarker(point);
     }
 
     @Override

@@ -45,6 +45,36 @@ public class MapViewDrawing extends MapView implements Drawing {
      */
     private static final long serialVersionUID = 8606967833704938092L;
 
+    public class MapViewMarkerTracker implements MarkerTracker {
+
+        // Marker associated.
+        private Marker marker;
+
+        public MapViewMarkerTracker(Marker marker) {
+            this.marker = marker;
+        }
+
+        @Override
+        public Point getPoint() {
+            return new Point(marker.getLatLong().getLongitude(), marker.getLatLong().getLatitude());
+        }
+
+        @Override
+        public void moveTo(Point point) {
+            this.delete();
+            Marker marker = new Marker(convertPoint(point), this.marker.getBitmap(), this.marker.getHorizontalOffset(),
+                    this.marker.getVerticalOffset());
+            this.marker = marker;
+            MapViewDrawing.this.getLayerManager().getLayers().add(this.marker);
+        }
+
+        @Override
+        public void delete() {
+            MapViewDrawing.this.getLayerManager().getLayers().remove(marker);
+        }
+
+    };
+
     // Default path color.
     public static final Color DEFAULT_PATH_COLOR = new Color(66, 134, 244);
 
@@ -160,15 +190,16 @@ public class MapViewDrawing extends MapView implements Drawing {
     }
 
     @Override
-    public void drawMarker(Point point) {
-        drawMarker(point, Color.GREEN);
+    public MarkerTracker drawMarker(Point point) {
+        return drawMarker(point, Color.GREEN);
     }
 
     @Override
-    public void drawMarker(Point point, Color color) {
+    public MarkerTracker drawMarker(Point point, Color color) {
         Bitmap bitmap = MarkerUtils.getMarkerForColor(color);
         Marker marker = new Marker(convertPoint(point), bitmap, 0, -bitmap.getHeight() / 2);
         getLayerManager().getLayers().add(marker);
+        return new MapViewMarkerTracker(marker);
     }
 
     @Override

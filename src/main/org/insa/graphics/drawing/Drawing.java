@@ -61,14 +61,14 @@ public interface Drawing {
      * 
      * @param point
      */
-    public void drawMarker(Point point);
+    public MarkerTracker drawMarker(Point point);
 
     /**
      * Draw the given point with the given color.
      * 
      * @param point
      */
-    public void drawMarker(Point point, Color color);
+    public MarkerTracker drawMarker(Point point, Color color);
 
     /**
      * Draw a point width the given width and color. Do not use this to mark
@@ -100,8 +100,7 @@ public interface Drawing {
      * 
      * @param path
      * @param color
-     * @param markers
-     *            Show origin and destination markers.
+     * @param markers Show origin and destination markers.
      */
     public void drawPath(Path path, Color color, boolean markers);
 
@@ -118,8 +117,7 @@ public interface Drawing {
      * 
      * 
      * @param path
-     * @param markers
-     *            Show origin and destination markers.
+     * @param markers Show origin and destination markers.
      */
     public void drawPath(Path path, boolean markers);
 
