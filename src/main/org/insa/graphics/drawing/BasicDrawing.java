@@ -76,8 +76,9 @@ public class BasicDrawing extends JPanel implements Drawing {
     // Default palette.
     public static final GraphPalette DEFAULT_PALETTE = new BasicGraphPalette();
 
-    // Default marker width
-    private static final int DEFAULT_MARKER_WIDTH = 10;
+    // Default marker and point width
+    private static final int DEFAULT_MARKER_WIDTH = 20;
+    private static final int DEFAULT_POINT_WIDTH = 5;
 
     private double long1, long2, lat1, lat2;
 
@@ -287,7 +288,8 @@ public class BasicDrawing extends JPanel implements Drawing {
          */
         BufferedImage img = MarkerUtils.getMarkerForColor(color);
         Graphics2D gr = img.createGraphics();
-        gr.scale(0.3, 0.3);
+        double scale = DEFAULT_MARKER_WIDTH / (double) img.getHeight();
+        gr.scale(scale, scale);
         BasicMarkerTracker marker = new BasicMarkerTracker(point, img);
         this.markers.add(marker);
         this.repaint();
@@ -298,9 +300,9 @@ public class BasicDrawing extends JPanel implements Drawing {
     public void drawPoint(Point point, int width, Color color) {
         setWidth(width);
         setColor(color);
-        int x = this.projx(point.getLongitude()) - DEFAULT_MARKER_WIDTH / 2;
-        int y = this.projy(point.getLatitude()) - DEFAULT_MARKER_WIDTH / 2;
-        overlayGraphics.fillOval(x, y, DEFAULT_MARKER_WIDTH, DEFAULT_MARKER_WIDTH);
+        int x = this.projx(point.getLongitude()) - DEFAULT_POINT_WIDTH / 2;
+        int y = this.projy(point.getLatitude()) - DEFAULT_POINT_WIDTH / 2;
+        overlayGraphics.fillOval(x, y, DEFAULT_POINT_WIDTH, DEFAULT_POINT_WIDTH);
         this.repaint();
     }
 
