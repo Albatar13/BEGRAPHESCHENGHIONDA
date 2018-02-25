@@ -70,6 +70,11 @@ public class MapViewDrawing extends MapView implements Drawing {
         }
 
         @Override
+        public void setVisible(boolean visible) {
+            this.marker.setVisible(visible);
+        }
+
+        @Override
         public void delete() {
             MapViewDrawing.this.getLayerManager().getLayers().remove(marker);
         }

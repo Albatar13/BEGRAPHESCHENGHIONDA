@@ -46,9 +46,13 @@ public class BasicDrawing extends JPanel implements Drawing {
         // Image of the marker
         protected BufferedImage image;
 
+        // Visible?
+        protected boolean visible;
+
         public BasicMarkerTracker(Point point, BufferedImage image) {
             this.point = point;
             this.image = image;
+            this.visible = true;
         }
 
         @Override
@@ -59,6 +63,12 @@ public class BasicDrawing extends JPanel implements Drawing {
         @Override
         public void moveTo(Point point) {
             this.point = point;
+            BasicDrawing.this.repaint();
+        }
+
+        @Override
+        public void setVisible(boolean visible) {
+            this.visible = visible;
             BasicDrawing.this.repaint();
         }
 
@@ -151,10 +161,12 @@ public class BasicDrawing extends JPanel implements Drawing {
 
         // Draw markers
         for (BasicMarkerTracker mtracker: markers) {
-            BufferedImage img = mtracker.image;
-            int px = this.projx(mtracker.getPoint().getLongitude());
-            int py = this.projy(mtracker.getPoint().getLatitude());
-            g.drawImage(img, px - img.getWidth() / 2, py - img.getHeight(), this);
+            if (mtracker.visible) {
+                BufferedImage img = mtracker.image;
+                int px = this.projx(mtracker.getPoint().getLongitude());
+                int py = this.projy(mtracker.getPoint().getLatitude());
+                g.drawImage(img, px - img.getWidth() / 2, py - img.getHeight(), this);
+            }
         }
     }
 
