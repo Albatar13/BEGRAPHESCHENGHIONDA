@@ -23,7 +23,8 @@ public class MarkerUtils {
      */
     public static BufferedImage getMarkerForColor(Color color) {
         // create image
-        BufferedImage image = new BufferedImage(MARKER_MASK[0].length, MARKER_MASK.length, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage image = new BufferedImage(MARKER_MASK[0].length, MARKER_MASK.length,
+                BufferedImage.TYPE_4BYTE_ABGR);
 
         Color[] map = getColorMapping(color);
         for (int i = 0; i < image.getHeight(); ++i) {
