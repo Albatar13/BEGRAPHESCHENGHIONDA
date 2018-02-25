@@ -216,7 +216,6 @@ public class BasicDrawing extends JPanel implements Drawing {
         MouseListener mListener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent evt) {
-                System.out.println(evt);
                 try {
                     listener.mouseClicked(getLongitudeLatitude(evt));
                 }
