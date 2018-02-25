@@ -11,6 +11,7 @@ import java.awt.event.MouseListener;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -23,6 +24,7 @@ import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Path;
 import org.insa.graph.Point;
+import org.insa.graphics.drawing.utils.MarkerUtils;
 
 /**
  * Cette implementation de la classe Dessin produit vraiment un affichage (au
@@ -41,12 +43,12 @@ public class BasicDrawing extends JPanel implements Drawing {
         // Point of the marker.
         private Point point;
 
-        // Color of the "marker".
-        private Color color;
+        // Image of the marker
+        protected BufferedImage image;
 
-        public BasicMarkerTracker(Point point, Color color) {
+        public BasicMarkerTracker(Point point, BufferedImage image) {
             this.point = point;
-            this.color = color;
+            this.image = image;
         }
 
         @Override
@@ -56,11 +58,14 @@ public class BasicDrawing extends JPanel implements Drawing {
 
         @Override
         public void moveTo(Point point) {
-            BasicDrawing.this.drawMarker(point, color);
+            this.point = point;
+            BasicDrawing.this.repaint();
         }
 
         @Override
         public void delete() {
+            BasicDrawing.this.markers.remove(this);
+            BasicDrawing.this.repaint();
         }
 
     };
@@ -74,17 +79,23 @@ public class BasicDrawing extends JPanel implements Drawing {
     // Default marker width
     private static final int DEFAULT_MARKER_WIDTH = 10;
 
-    //
-    private final Graphics2D gr;
-
     private double long1, long2, lat1, lat2;
 
     // Width and height of the image
     private final int width, height;
 
-    //
-    private Image image;
     private ZoomAndPanListener zoomAndPanListener;
+
+    //
+    private Image graphImage;
+    private final Graphics2D graphGraphics;
+
+    // Image for path / points
+    private Image overlayImage;
+    private Graphics2D overlayGraphics;
+
+    // List of image for markers
+    private List<BasicMarkerTracker> markers = new ArrayList<>();
 
     // Mapping DrawingClickListener -> MouseEventListener
     private Map<DrawingClickListener, MouseListener> listenerMapping = new IdentityHashMap<>();
@@ -104,11 +115,16 @@ public class BasicDrawing extends JPanel implements Drawing {
         this.height = 1600;
 
         BufferedImage img = new BufferedImage(this.width, this.height, BufferedImage.TYPE_3BYTE_BGR);
+        this.graphImage = img;
+        this.graphGraphics = img.createGraphics();
+        this.graphGraphics.setBackground(Color.WHITE);
 
-        this.image = img;
-        this.gr = img.createGraphics();
+        img = new BufferedImage(this.width, this.height, BufferedImage.TYPE_4BYTE_ABGR);
+        this.overlayImage = img;
+        this.overlayGraphics = img.createGraphics();
+        this.overlayGraphics.setBackground(new Color(0, 0, 0, 0));
 
-        this.zoomAndPanListener.setCoordTransform(this.gr.getTransform());
+        this.zoomAndPanListener.setCoordTransform(this.graphGraphics.getTransform());
 
         this.long1 = -180;
         this.long2 = 180;
@@ -125,7 +141,20 @@ public class BasicDrawing extends JPanel implements Drawing {
         Graphics2D g = (Graphics2D) g1;
         g.clearRect(0, 0, getWidth(), getHeight());
         g.setTransform(zoomAndPanListener.getCoordTransform());
-        g.drawImage(image, 0, 0, this);
+
+        // Draw graph
+        g.drawImage(graphImage, 0, 0, this);
+
+        // Draw overlays (path, etc.)
+        g.drawImage(overlayImage, 0, 0, this);
+
+        // Draw markers
+        for (BasicMarkerTracker mtracker: markers) {
+            BufferedImage img = mtracker.image;
+            int px = this.projx(mtracker.getPoint().getLongitude());
+            int py = this.projy(mtracker.getPoint().getLatitude());
+            g.drawImage(img, px - img.getWidth() / 2, py - img.getHeight(), this);
+        }
     }
 
     protected void setBB(double long1, double long2, double lat1, double lat2) {
@@ -206,17 +235,18 @@ public class BasicDrawing extends JPanel implements Drawing {
     }
 
     protected void setWidth(int width) {
-        this.gr.setStroke(new BasicStroke(width));
+        this.overlayGraphics.setStroke(new BasicStroke(width));
     }
 
     protected void setColor(Color col) {
-        this.gr.setColor(col);
+        this.overlayGraphics.setColor(col);
     }
 
     @Override
     public void clear() {
-        this.gr.setColor(Color.WHITE);
-        this.gr.fillRect(0, 0, this.width, this.height);
+        this.graphGraphics.clearRect(0, 0, this.width, this.height);
+        this.overlayGraphics.clearRect(0, 0, this.width, this.height);
+        this.markers.clear();
     }
 
     @Override
@@ -226,7 +256,7 @@ public class BasicDrawing extends JPanel implements Drawing {
         int y1 = this.projy(from.getLatitude());
         int y2 = this.projy(to.getLatitude());
 
-        gr.drawLine(x1, y1, x2, y2);
+        overlayGraphics.drawLine(x1, y1, x2, y2);
         this.repaint();
     }
 
@@ -245,14 +275,24 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     @Override
     public MarkerTracker drawMarker(Point point) {
-        drawPoint(point, DEFAULT_MARKER_WIDTH, this.gr.getColor());
-        return new BasicMarkerTracker(point, this.gr.getColor());
+        return drawMarker(point, this.overlayGraphics.getColor());
     }
 
     @Override
     public MarkerTracker drawMarker(Point point, Color color) {
-        setColor(color);
-        return drawMarker(point);
+        /*
+         * BufferedImage img = new BufferedImage(DEFAULT_MARKER_WIDTH,
+         * DEFAULT_MARKER_WIDTH, BufferedImage.TYPE_4BYTE_ABGR); Graphics2D gr =
+         * img.createGraphics(); gr.setColor(color); gr.fillOval(0, 0,
+         * DEFAULT_MARKER_WIDTH, DEFAULT_MARKER_WIDTH);
+         */
+        BufferedImage img = MarkerUtils.getMarkerForColor(color);
+        Graphics2D gr = img.createGraphics();
+        gr.scale(0.3, 0.3);
+        BasicMarkerTracker marker = new BasicMarkerTracker(point, img);
+        this.markers.add(marker);
+        this.repaint();
+        return marker;
     }
 
     @Override
@@ -261,7 +301,7 @@ public class BasicDrawing extends JPanel implements Drawing {
         setColor(color);
         int x = this.projx(point.getLongitude()) - DEFAULT_MARKER_WIDTH / 2;
         int y = this.projy(point.getLatitude()) - DEFAULT_MARKER_WIDTH / 2;
-        gr.fillOval(x, y, DEFAULT_MARKER_WIDTH, DEFAULT_MARKER_WIDTH);
+        overlayGraphics.fillOval(x, y, DEFAULT_MARKER_WIDTH, DEFAULT_MARKER_WIDTH);
         this.repaint();
     }
 
@@ -321,12 +361,15 @@ public class BasicDrawing extends JPanel implements Drawing {
     @Override
     public void drawGraph(Graph graph, GraphPalette palette) {
         clear();
+        Graphics2D oldOverlayGraphics = this.overlayGraphics;
+        this.overlayGraphics = this.graphGraphics;
         initialize(graph);
         for (Node node: graph.getNodes()) {
             for (Arc arc: node.getSuccessors()) {
                 drawArc(arc, palette);
             }
         }
+        this.overlayGraphics = oldOverlayGraphics;
     }
 
     @Override
@@ -366,7 +409,7 @@ public class BasicDrawing extends JPanel implements Drawing {
     private void putText(Point point, String txt) {
         int x = this.projx(point.getLongitude());
         int y = this.projy(point.getLatitude());
-        gr.drawString(txt, x, y);
+        graphGraphics.drawString(txt, x, y);
         this.repaint();
     }
 

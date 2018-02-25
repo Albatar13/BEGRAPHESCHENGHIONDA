@@ -22,6 +22,7 @@ import org.mapsforge.core.model.BoundingBox;
 import org.mapsforge.core.model.LatLong;
 import org.mapsforge.core.model.MapPosition;
 import org.mapsforge.core.util.LatLongUtils;
+import org.mapsforge.map.awt.graphics.AwtBitmap;
 import org.mapsforge.map.awt.graphics.AwtGraphicFactory;
 import org.mapsforge.map.awt.util.AwtUtil;
 import org.mapsforge.map.awt.view.MapView;
@@ -196,7 +197,7 @@ public class MapViewDrawing extends MapView implements Drawing {
 
     @Override
     public MarkerTracker drawMarker(Point point, Color color) {
-        Bitmap bitmap = MarkerUtils.getMarkerForColor(color);
+        Bitmap bitmap = new AwtBitmap(MarkerUtils.getMarkerForColor(color));
         Marker marker = new Marker(convertPoint(point), bitmap, 0, -bitmap.getHeight() / 2);
         getLayerManager().getLayers().add(marker);
         return new MapViewMarkerTracker(marker);

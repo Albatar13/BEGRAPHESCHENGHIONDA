@@ -3,9 +3,6 @@ package org.insa.graphics.drawing.utils;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
-import org.mapsforge.core.graphics.Bitmap;
-import org.mapsforge.map.awt.graphics.AwtBitmap;
-
 public class MarkerUtils {
 
     /**
@@ -24,7 +21,7 @@ public class MarkerUtils {
      * @param color
      * @return
      */
-    public static Bitmap getMarkerForColor(Color color) {
+    public static BufferedImage getMarkerForColor(Color color) {
         // create image
         BufferedImage image = new BufferedImage(MARKER_MASK[0].length, MARKER_MASK.length, BufferedImage.TYPE_INT_ARGB);
 
@@ -36,7 +33,7 @@ public class MarkerUtils {
         }
 
         // Create Bitmap and return it.
-        return new AwtBitmap(image);
+        return image;
     }
 
     // Mask
