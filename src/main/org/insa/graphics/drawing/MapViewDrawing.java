@@ -3,12 +3,7 @@ package org.insa.graphics.drawing;
 import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
-
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.insa.graph.Arc;
 import org.insa.graph.Graph;
@@ -141,41 +136,6 @@ public class MapViewDrawing extends MapView implements Drawing {
         model.setFixedTileSize(this.tileSize);
     }
 
-    /**
-     * 
-     * @param color
-     * @return
-     */
-    private File getMapsforgeFileFromGraph(Graph graph) {
-        // TODO: Find a way to change this...
-        Map<Integer, String> idToNames = new HashMap<Integer, String>();
-        idToNames.put(0x100, "insa");
-        idToNames.put(0x110, "paris");
-        idToNames.put(0x200, "mayotte");
-        idToNames.put(0x250, "newzealand");
-        idToNames.put(0x300, "reunion");
-        idToNames.put(0x400, "midip");
-        idToNames.put(0x410, "morbihan");
-
-        File file = null;
-        if (idToNames.containsKey(graph.getMapId())) {
-            file = new File("Maps/" + idToNames.get(graph.getMapId()) + ".mapfg");
-            if (!file.exists()) {
-                file = new File("Maps/new/" + idToNames.get(graph.getMapId()) + ".mapfg");
-            }
-        }
-
-        if (file == null || !file.exists()) {
-            JFileChooser fileChooser = new JFileChooser("Maps/");
-            fileChooser.setFileFilter(new FileNameExtensionFilter("mapsforge files", "" + "mapfg"));
-            if (fileChooser.showOpenDialog(this.getParent()) == JFileChooser.APPROVE_OPTION) {
-                file = fileChooser.getSelectedFile();
-            }
-        }
-
-        return file;
-    }
-
     protected LatLong convertPoint(Point point) {
         return new LatLong(point.getLatitude(), point.getLongitude());
     }
@@ -235,10 +195,7 @@ public class MapViewDrawing extends MapView implements Drawing {
         // TODO:
     }
 
-    @Override
-    public void drawGraph(Graph graph, GraphPalette palette) {
-
-        File graphFile = getMapsforgeFileFromGraph(graph);
+    public void drawGraph(File file) {
 
         // Tile cache
         TileCache tileCache = AwtUtil.createTileCache(tileSize, getModel().frameBufferModel.getOverdrawFactor(), 1024,
@@ -247,7 +204,7 @@ public class MapViewDrawing extends MapView implements Drawing {
         // Layers
         Layers layers = getLayerManager().getLayers();
 
-        MapDataStore mapDataStore = new MapFile(graphFile);
+        MapDataStore mapDataStore = new MapFile(file);
         TileRendererLayer tileRendererLayer = createTileRendererLayer(tileCache, mapDataStore,
                 getModel().mapViewPosition, null);
         layers.add(tileRendererLayer);
@@ -259,6 +216,11 @@ public class MapViewDrawing extends MapView implements Drawing {
                     model.displayModel.getTileSize());
             model.mapViewPosition.setMapPosition(new MapPosition(boundingBox.getCenterPoint(), zoomLevel));
         }
+    }
+
+    @Override
+    public void drawGraph(Graph graph, GraphPalette palette) {
+        // TODO: Unimplemented for now...
     }
 
     @Override

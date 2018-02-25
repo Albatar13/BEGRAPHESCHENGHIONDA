@@ -2,6 +2,9 @@ package org.insa.graph.io;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -20,7 +23,8 @@ public class BinaryGraphReaderTest {
 
     @BeforeAll
     static void initAll() throws IOException {
-        BinaryGraphReader reader = new BinaryGraphReader(Openfile.open("midip"));
+        BinaryGraphReader reader = new BinaryGraphReader(
+                new DataInputStream(new BufferedInputStream(new FileInputStream("Maps/midip.map"))));
         midip = reader.read();
     }
 

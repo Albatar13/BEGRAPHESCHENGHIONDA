@@ -11,10 +11,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -61,11 +63,12 @@ import org.insa.graph.io.BinaryPathReader;
 import org.insa.graph.io.BinaryPathWriter;
 import org.insa.graph.io.GraphReader;
 import org.insa.graph.io.MapMismatchException;
-import org.insa.graph.io.Openfile;
 import org.insa.graphics.ShortestPathPanel.StartActionEvent;
 import org.insa.graphics.drawing.BasicDrawing;
+import org.insa.graphics.drawing.BasicGraphPalette;
 import org.insa.graphics.drawing.BlackAndWhiteGraphPalette;
 import org.insa.graphics.drawing.Drawing;
+import org.insa.graphics.drawing.GraphPalette;
 import org.insa.graphics.drawing.MapViewDrawing;
 import org.insa.graphics.drawing.overlays.PathOverlay;
 
@@ -89,11 +92,13 @@ public class MainWindow extends JFrame {
     // Current graph.
     protected Graph graph;
 
-    // Current loaded path.
-    // private Path currentPath;
+    // Path to the last opened graph file.
+    private String graphFilePath;
 
     // Drawing and click adapter.
     protected Drawing drawing;
+    private MapViewDrawing mapViewDrawing;
+    private BasicDrawing basicDrawing;
 
     // Main panel.
     private JSplitPane mainPanel;
@@ -133,7 +138,10 @@ public class MainWindow extends JFrame {
         setLayout(new BorderLayout());
 
         // Create drawing and action listeners...
-        this.drawing = new BasicDrawing();
+        this.basicDrawing = new BasicDrawing();
+        this.mapViewDrawing = new MapViewDrawing();
+
+        this.drawing = this.basicDrawing;
 
         spPanel = new ShortestPathPanel(MainWindow.this);
         spPanel.addStartActionListener(new ActionListener() {
@@ -157,6 +165,9 @@ public class MainWindow extends JFrame {
             }
         });
         spPanel.setVisible(false);
+
+        basicDrawing.addDrawingClickListener(spPanel.nodesInputPanel);
+        mapViewDrawing.addDrawingClickListener(spPanel.nodesInputPanel);
 
         this.currentThread = new ThreadWrapper(this);
         this.baf = new BlockingActionFactory(this);
@@ -359,23 +370,76 @@ public class MainWindow extends JFrame {
     }
 
     private void addDrawingClickListeners() {
-        drawing.addDrawingClickListener(spPanel.nodesInputPanel);
     }
 
-    private void updateDrawing(Class<? extends Drawing> newClass) {
+    /**
+     * Draw the stored graph on the drawing.
+     */
+    private void drawGraph(Class<? extends Drawing> newClass, GraphPalette palette) {
+        // Save old divider location
         int oldLocation = mainPanel.getDividerLocation();
-        drawing.clear();
-        if (drawing == null || !newClass.isInstance(drawing)) {
-            try {
-                drawing = newClass.newInstance();
+
+        boolean isNewGraph = newClass == null;
+        boolean isMapView = (isNewGraph && drawing == mapViewDrawing)
+                || (!isNewGraph && newClass.equals(MapViewDrawing.class));
+
+        // We need to draw MapView, we have to check if the file exists.
+        File mfile = null;
+        if (isMapView) {
+            String mfpath = graphFilePath.substring(0, graphFilePath.lastIndexOf(".map")) + ".mapfg";
+            mfile = new File(mfpath);
+            if (!mfile.exists()) {
+                if (JOptionPane.showConfirmDialog(this,
+                        "The associated mapsforge (.mapfg) file has not been found, do you want to specify it manually?",
+                        "File not found", JOptionPane.YES_NO_CANCEL_OPTION) == JOptionPane.YES_OPTION) {
+                    JFileChooser chooser = new JFileChooser(mfile.getParentFile());
+                    if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                        mfile = chooser.getSelectedFile();
+                    }
+                    else {
+                        mfile = null;
+                    }
+                }
+                else {
+                    mfile = null;
+                }
             }
-            catch (InstantiationException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-            addDrawingClickListeners();
-            mainPanel.setLeftComponent((Component) drawing);
-            mainPanel.setDividerLocation(oldLocation);
         }
+
+        if (isMapView && mfile != null) {
+            // It is a mapview drawing and the file was found, so:
+            // 1. We create the drawing if necessary.
+            if (drawing != mapViewDrawing) {
+                drawing.clear();
+                drawing = mapViewDrawing;
+                mainPanel.setLeftComponent(mapViewDrawing);
+                mainPanel.setDividerLocation(oldLocation);
+            }
+
+            // 2. We draw the graph.
+            drawing.clear();
+            ((MapViewDrawing) drawing).drawGraph(mfile);
+        }
+        else if (!isMapView || (isMapView && mfile == null && isNewGraph)) {
+            if (drawing == mapViewDrawing) {
+                mapViewDrawing.clear();
+                drawing = basicDrawing;
+                addDrawingClickListeners();
+                mainPanel.setLeftComponent(basicDrawing);
+                mainPanel.setDividerLocation(oldLocation);
+            }
+            drawing.clear();
+            drawing.drawGraph(graph, palette);
+        }
+
+    }
+
+    private void drawGraph(Class<? extends Drawing> newClass) {
+        drawGraph(newClass, new BasicGraphPalette());
+    }
+
+    private void drawGraph() {
+        drawGraph(null, new BasicGraphPalette());
     }
 
     private JMenuBar createMenuBar() {
@@ -398,7 +462,8 @@ public class MainWindow extends JFrame {
                             String path = chooser.getSelectedFile().getAbsolutePath();
                             DataInputStream stream;
                             try {
-                                stream = Openfile.open(path);
+                                stream = new DataInputStream(
+                                        new BufferedInputStream(new FileInputStream(chooser.getSelectedFile())));
                             }
                             catch (IOException e1) {
                                 JOptionPane.showMessageDialog(MainWindow.this, "Cannot open the selected file.");
@@ -420,8 +485,11 @@ public class MainWindow extends JFrame {
                                 exception.printStackTrace(System.out);
                                 return;
                             }
-                            drawing.clear();
-                            drawing.drawGraph(graph);
+
+                            // Save file path.
+                            graphFilePath = path;
+
+                            drawGraph();
 
                             for (JMenuItem item: graphLockItems) {
                                 item.setEnabled(true);
@@ -447,7 +515,8 @@ public class MainWindow extends JFrame {
                 if (chooser.showOpenDialog(MainWindow.this) == JFileChooser.APPROVE_OPTION) {
                     BinaryPathReader reader;
                     try {
-                        reader = new BinaryPathReader(Openfile.open(chooser.getSelectedFile().getAbsolutePath()));
+                        reader = new BinaryPathReader(new DataInputStream(
+                                new BufferedInputStream(new FileInputStream(chooser.getSelectedFile()))));
                     }
                     catch (IOException e1) {
                         JOptionPane.showMessageDialog(MainWindow.this, "Cannot open the selected file.");
@@ -497,8 +566,7 @@ public class MainWindow extends JFrame {
                 launchThread(new Runnable() {
                     @Override
                     public void run() {
-                        updateDrawing(BasicDrawing.class);
-                        drawing.drawGraph(graph);
+                        drawGraph(BasicDrawing.class);
                     }
                 });
             }
@@ -512,8 +580,7 @@ public class MainWindow extends JFrame {
                 launchThread(new Runnable() {
                     @Override
                     public void run() {
-                        updateDrawing(BasicDrawing.class);
-                        drawing.drawGraph(graph, new BlackAndWhiteGraphPalette());
+                        drawGraph(BasicDrawing.class, new BlackAndWhiteGraphPalette());
                     }
                 });
             }
@@ -527,8 +594,7 @@ public class MainWindow extends JFrame {
                 launchThread(new Runnable() {
                     @Override
                     public void run() {
-                        updateDrawing(MapViewDrawing.class);
-                        drawing.drawGraph(graph);
+                        drawGraph(MapViewDrawing.class);
                     }
                 });
             }
