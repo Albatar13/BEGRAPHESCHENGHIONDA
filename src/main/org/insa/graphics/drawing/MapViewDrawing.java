@@ -17,6 +17,7 @@ import org.insa.graph.Point;
 import org.insa.graphics.drawing.overlays.MarkerOverlay;
 import org.insa.graphics.drawing.overlays.MarkerUtils;
 import org.insa.graphics.drawing.overlays.Overlay;
+import org.insa.graphics.drawing.overlays.PathOverlay;
 import org.insa.graphics.drawing.overlays.PolylineAutoScaling;
 import org.mapsforge.core.graphics.Bitmap;
 import org.mapsforge.core.graphics.GraphicFactory;
@@ -48,50 +49,70 @@ public class MapViewDrawing extends MapView implements Drawing {
      */
     private static final long serialVersionUID = 8606967833704938092L;
 
-    public class MapViewOverlayTracker implements Overlay {
+    public class MapViewOverlay implements Overlay {
 
         // Marker associated.
-        protected Layer layer;
+        protected Layer[] layers;
 
-        public MapViewOverlayTracker(Layer marker) {
-            this.layer = marker;
+        public MapViewOverlay(Layer[] layers) {
+            this.layers = layers;
+            for (Layer layer: this.layers) {
+                MapViewDrawing.this.getLayerManager().getLayers().add(layer);
+            }
         }
 
         @Override
         public void setVisible(boolean visible) {
-            this.layer.setVisible(visible);
+            for (Layer layer: layers) {
+                layer.setVisible(visible);
+            }
         }
 
         @Override
         public void delete() {
-            MapViewDrawing.this.getLayerManager().getLayers().remove(layer);
+            Layers mlayers = MapViewDrawing.this.getLayerManager().getLayers();
+            for (Layer layer: layers) {
+                mlayers.remove(layer);
+            }
         }
 
     };
 
-    public class MapViewMarkerTracker extends MapViewOverlayTracker implements MarkerOverlay {
+    public class MapViewMarkerOverlay extends MapViewOverlay implements MarkerOverlay {
 
-        public MapViewMarkerTracker(Marker marker) {
-            super(marker);
+        public MapViewMarkerOverlay(Marker marker) {
+            super(new Layer[] { marker });
         }
 
         @Override
         public Point getPoint() {
-            Marker marker = (Marker) super.layer;
+            Marker marker = (Marker) super.layers[0];
             return new Point(marker.getLatLong().getLongitude(), marker.getLatLong().getLatitude());
         }
 
         @Override
         public void moveTo(Point point) {
-            Marker marker = (Marker) this.layer;
+            Marker marker = (Marker) this.layers[0];
             this.delete();
             marker = new Marker(convertPoint(point), marker.getBitmap(), marker.getHorizontalOffset(),
                     marker.getVerticalOffset());
-            this.layer = marker;
-            MapViewDrawing.this.getLayerManager().getLayers().add(this.layer);
+            this.layers[0] = marker;
+            MapViewDrawing.this.getLayerManager().getLayers().add(marker);
         }
 
     };
+
+    public class MapViewPathOverlay extends MapViewOverlay implements PathOverlay {
+
+        public MapViewPathOverlay(PolylineAutoScaling path, Marker origin, Marker destination) {
+            super(new Layer[] { path, origin, destination });
+        }
+
+        public MapViewPathOverlay(PolylineAutoScaling path) {
+            super(new Layer[] { path });
+        }
+
+    }
 
     // Default path color.
     public static final Color DEFAULT_PATH_COLOR = new Color(66, 134, 244);
@@ -189,6 +210,11 @@ public class MapViewDrawing extends MapView implements Drawing {
         repaint();
     }
 
+    protected Marker createMarker(Point point, Color color) {
+        Bitmap bitmap = new AwtBitmap(MarkerUtils.getMarkerForColor(color));
+        return new Marker(convertPoint(point), bitmap, 0, -bitmap.getHeight() / 2);
+    }
+
     @Override
     public MarkerOverlay drawMarker(Point point) {
         return drawMarker(point, Color.GREEN);
@@ -196,10 +222,7 @@ public class MapViewDrawing extends MapView implements Drawing {
 
     @Override
     public MarkerOverlay drawMarker(Point point, Color color) {
-        Bitmap bitmap = new AwtBitmap(MarkerUtils.getMarkerForColor(color));
-        Marker marker = new Marker(convertPoint(point), bitmap, 0, -bitmap.getHeight() / 2);
-        getLayerManager().getLayers().add(marker);
-        return new MapViewMarkerTracker(marker);
+        return new MapViewMarkerOverlay(createMarker(point, color));
     }
 
     @Override
@@ -239,31 +262,36 @@ public class MapViewDrawing extends MapView implements Drawing {
     }
 
     @Override
-    public void drawPath(Path path, Color color, boolean markers) {
+    public PathOverlay drawPath(Path path, Color color, boolean markers) {
         PolylineAutoScaling line = new PolylineAutoScaling(1, DEFAULT_PATH_COLOR);
         for (Arc arc: path.getArcs()) {
             line.add(arc.getPoints());
         }
-        getLayerManager().getLayers().add(line);
+        PathOverlay overlay = null;
         if (markers) {
-            drawMarker(path.getOrigin().getPoint(), DEFAULT_PATH_COLOR);
-            drawMarker(path.getDestination().getPoint(), DEFAULT_PATH_COLOR);
+            Marker origin = createMarker(path.getOrigin().getPoint(), DEFAULT_PATH_COLOR),
+                    destination = createMarker(path.getDestination().getPoint(), DEFAULT_PATH_COLOR);
+            overlay = new MapViewPathOverlay(line, origin, destination);
         }
+        else {
+            overlay = new MapViewPathOverlay(line);
+        }
+        return overlay;
     }
 
     @Override
-    public void drawPath(Path path, Color color) {
-        drawPath(path, color, true);
+    public PathOverlay drawPath(Path path, Color color) {
+        return drawPath(path, color, true);
     }
 
     @Override
-    public void drawPath(Path path) {
-        drawPath(path, DEFAULT_PATH_COLOR, true);
+    public PathOverlay drawPath(Path path) {
+        return drawPath(path, DEFAULT_PATH_COLOR, true);
     }
 
     @Override
-    public void drawPath(Path path, boolean markers) {
-        drawPath(path, DEFAULT_PATH_COLOR, markers);
+    public PathOverlay drawPath(Path path, boolean markers) {
+        return drawPath(path, DEFAULT_PATH_COLOR, markers);
     }
 
 }

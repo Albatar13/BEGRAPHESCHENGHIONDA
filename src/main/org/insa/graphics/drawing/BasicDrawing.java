@@ -27,6 +27,7 @@ import org.insa.graph.Point;
 import org.insa.graphics.drawing.overlays.MarkerOverlay;
 import org.insa.graphics.drawing.overlays.MarkerUtils;
 import org.insa.graphics.drawing.overlays.Overlay;
+import org.insa.graphics.drawing.overlays.PathOverlay;
 
 /**
  * Cette implementation de la classe Dessin produit vraiment un affichage (au
@@ -64,11 +65,17 @@ public class BasicDrawing extends JPanel implements Drawing {
         /**
          * Draw the given overlay.
          */
-        public abstract void draw(Graphics2D g);
+        public void draw(Graphics2D g) {
+            if (this.visible) {
+                drawImpl(g);
+            }
+        }
+
+        public abstract void drawImpl(Graphics2D g);
 
     };
 
-    public class BasicMarker extends BasicOverlay implements MarkerOverlay {
+    public class BasicMarkerOverlay extends BasicOverlay implements MarkerOverlay {
 
         // Point of the marker.
         private Point point;
@@ -76,7 +83,7 @@ public class BasicDrawing extends JPanel implements Drawing {
         // Color of the marker.
         private Color color;
 
-        public BasicMarker(Point point, Color color) {
+        public BasicMarkerOverlay(Point point, Color color) {
             super();
             this.point = point;
             this.color = color;
@@ -94,7 +101,7 @@ public class BasicDrawing extends JPanel implements Drawing {
         }
 
         @Override
-        public void draw(Graphics2D graphics) {
+        public void drawImpl(Graphics2D graphics) {
 
             int px = BasicDrawing.this.projx(getPoint().getLongitude());
             int py = BasicDrawing.this.projy(getPoint().getLatitude());
@@ -105,6 +112,64 @@ public class BasicDrawing extends JPanel implements Drawing {
             gr.scale(scale, scale);
 
             graphics.drawImage(img, px - img.getWidth() / 2, py - img.getHeight(), BasicDrawing.this);
+        }
+
+    };
+
+    public class BasicPathOverlay extends BasicOverlay implements PathOverlay {
+
+        // List of points
+        List<Point> points;
+
+        // Color for the path
+        Color color;
+
+        // Origin / Destination markers.
+        BasicMarkerOverlay origin, destination;
+
+        public BasicPathOverlay(List<Point> points, Color color) {
+            this(points, color, null, null);
+        }
+
+        public BasicPathOverlay(List<Point> points, Color color, BasicMarkerOverlay origin,
+                BasicMarkerOverlay destination) {
+            this.points = points;
+            this.origin = origin;
+            this.destination = destination;
+        }
+
+        @Override
+        public void drawImpl(Graphics2D graphics) {
+
+            if (!points.isEmpty()) {
+
+                graphics.setStroke(new BasicStroke(2));
+                graphics.setColor(color);
+
+                Iterator<Point> itPoint = points.iterator();
+                Point prev = itPoint.next();
+
+                while (itPoint.hasNext()) {
+                    Point curr = itPoint.next();
+
+                    int x1 = BasicDrawing.this.projx(prev.getLongitude());
+                    int x2 = BasicDrawing.this.projx(curr.getLongitude());
+                    int y1 = BasicDrawing.this.projy(prev.getLatitude());
+                    int y2 = BasicDrawing.this.projy(curr.getLatitude());
+
+                    graphics.drawLine(x1, y1, x2, y2);
+
+                    prev = curr;
+                }
+
+            }
+
+            if (this.origin != null) {
+                this.origin.draw(graphics);
+            }
+            if (this.destination != null) {
+                this.destination.draw(graphics);
+            }
         }
 
     };
@@ -285,14 +350,8 @@ public class BasicDrawing extends JPanel implements Drawing {
         this.overlays.clear();
     }
 
-    public void drawLine(Point from, Point to) {
-        int x1 = this.projx(from.getLongitude());
-        int x2 = this.projx(to.getLongitude());
-        int y1 = this.projy(from.getLatitude());
-        int y2 = this.projy(to.getLatitude());
-
-        overlayGraphics.drawLine(x1, y1, x2, y2);
-        this.repaint();
+    public BasicMarkerOverlay createMarker(Point point, Color color) {
+        return new BasicMarkerOverlay(point, color);
     }
 
     @Override
@@ -302,7 +361,7 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     @Override
     public MarkerOverlay drawMarker(Point point, Color color) {
-        BasicMarker marker = new BasicMarker(point, color);
+        BasicMarkerOverlay marker = createMarker(point, color);
         this.overlays.add(marker);
         this.repaint();
         return marker;
@@ -325,21 +384,28 @@ public class BasicDrawing extends JPanel implements Drawing {
      * @param palette Palette to use to retrieve color and width for arc, or null to
      *        use current settings.
      */
-    public void drawArc(Arc arc, GraphPalette palette) {
+    protected void drawArc(Arc arc, GraphPalette palette) {
         List<Point> pts = arc.getPoints();
         if (!pts.isEmpty()) {
             if (palette != null) {
-                setColor(palette.getColorForType(arc.getInfo().getType()));
-                setWidth(palette.getWidthForType(arc.getInfo().getType()));
+                this.graphGraphics.setColor(palette.getColorForType(arc.getInfo().getType()));
+                this.graphGraphics.setStroke(new BasicStroke(palette.getWidthForType(arc.getInfo().getType())));
             }
             Iterator<Point> it1 = pts.iterator();
             Point prev = it1.next();
             while (it1.hasNext()) {
                 Point curr = it1.next();
-                drawLine(prev, curr);
+
+                int x1 = this.projx(prev.getLongitude());
+                int x2 = this.projx(curr.getLongitude());
+                int y1 = this.projy(prev.getLatitude());
+                int y2 = this.projy(curr.getLatitude());
+
+                graphGraphics.drawLine(x1, y1, x2, y2);
                 prev = curr;
             }
         }
+        this.repaint();
     }
 
     /**
@@ -347,7 +413,7 @@ public class BasicDrawing extends JPanel implements Drawing {
      * 
      * @param graph
      */
-    public void initialize(Graph graph) {
+    protected void initialize(Graph graph) {
         double minLon = Double.POSITIVE_INFINITY, minLat = Double.POSITIVE_INFINITY, maxLon = Double.NEGATIVE_INFINITY,
                 maxLat = Double.NEGATIVE_INFINITY;
         for (Node node: graph.getNodes()) {
@@ -374,15 +440,12 @@ public class BasicDrawing extends JPanel implements Drawing {
     @Override
     public void drawGraph(Graph graph, GraphPalette palette) {
         clear();
-        Graphics2D oldOverlayGraphics = this.overlayGraphics;
-        this.overlayGraphics = this.graphGraphics;
         initialize(graph);
         for (Node node: graph.getNodes()) {
             for (Arc arc: node.getSuccessors()) {
                 drawArc(arc, palette);
             }
         }
-        this.overlayGraphics = oldOverlayGraphics;
     }
 
     @Override
@@ -391,31 +454,43 @@ public class BasicDrawing extends JPanel implements Drawing {
     }
 
     @Override
-    public void drawPath(Path path, Color color, boolean markers) {
-        setColor(color);
-        setWidth(2);
-        for (Arc arc: path.getArcs()) {
-            drawArc(arc, null);
+    public PathOverlay drawPath(Path path, Color color, boolean markers) {
+        List<Point> points = new ArrayList<Point>();
+        if (!path.isEmpty()) {
+            points.add(path.getOrigin().getPoint());
+            for (Arc arc: path.getArcs()) {
+                Iterator<Point> itPoint = arc.getPoints().iterator();
+                // Discard origin each time
+                itPoint.next();
+                while (itPoint.hasNext()) {
+                    points.add(itPoint.next());
+                }
+            }
         }
-        if (markers) {
-            drawMarker(path.getOrigin().getPoint(), color);
-            drawMarker(path.getDestination().getPoint(), color);
+        BasicMarkerOverlay origin = null, destination = null;
+        if (markers && !path.isEmpty()) {
+            origin = createMarker(path.getOrigin().getPoint(), color);
+            destination = createMarker(path.getDestination().getPoint(), color);
         }
+        BasicPathOverlay overlay = new BasicPathOverlay(points, color, origin, destination);
+        this.overlays.add(overlay);
+        this.repaint();
+        return overlay;
     }
 
     @Override
-    public void drawPath(Path path, Color color) {
-        drawPath(path, color, true);
+    public PathOverlay drawPath(Path path, Color color) {
+        return drawPath(path, color, true);
     }
 
     @Override
-    public void drawPath(Path path) {
-        drawPath(path, DEFAULT_PATH_COLOR);
+    public PathOverlay drawPath(Path path) {
+        return drawPath(path, DEFAULT_PATH_COLOR);
     }
 
     @Override
-    public void drawPath(Path path, boolean markers) {
-        drawPath(path, DEFAULT_PATH_COLOR, markers);
+    public PathOverlay drawPath(Path path, boolean markers) {
+        return drawPath(path, DEFAULT_PATH_COLOR, markers);
     }
 
     @SuppressWarnings("unused")

@@ -6,6 +6,7 @@ import org.insa.graph.Graph;
 import org.insa.graph.Path;
 import org.insa.graph.Point;
 import org.insa.graphics.drawing.overlays.MarkerOverlay;
+import org.insa.graphics.drawing.overlays.PathOverlay;
 
 public interface Drawing {
 
@@ -73,8 +74,9 @@ public interface Drawing {
      * @param path
      * @param color
      * @param markers Show origin and destination markers.
+     * @return
      */
-    public void drawPath(Path path, Color color, boolean markers);
+    public PathOverlay drawPath(Path path, Color color, boolean markers);
 
     /**
      * Draw a path using the given color with markers.
@@ -82,7 +84,7 @@ public interface Drawing {
      * @param path
      * @param color
      */
-    public void drawPath(Path path, Color color);
+    public PathOverlay drawPath(Path path, Color color);
 
     /**
      * Draw a path using a default color specific to the implementation
@@ -91,7 +93,7 @@ public interface Drawing {
      * @param path
      * @param markers Show origin and destination markers.
      */
-    public void drawPath(Path path, boolean markers);
+    public PathOverlay drawPath(Path path, boolean markers);
 
     /**
      * Draw a path using a default color specific to the implementation
@@ -99,6 +101,6 @@ public interface Drawing {
      * 
      * @param path
      */
-    public void drawPath(Path path);
+    public PathOverlay drawPath(Path path);
 
 }

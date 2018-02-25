@@ -218,7 +218,9 @@ public class MainWindow extends JFrame {
         threadTimer.stop();
         threadPanel.setVisible(false);
         currentThread.setThread(null);
-        spPanel.setEnabled(true);
+        if (spPanel != null) {
+            spPanel.setEnabled(true);
+        }
     }
 
     private void launchShortestPathThread(ShortestPathAlgorithm spAlgorithm) {
