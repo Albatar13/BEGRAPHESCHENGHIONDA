@@ -21,12 +21,15 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Point;
+import org.insa.graphics.drawing.Drawing;
 import org.insa.graphics.drawing.DrawingClickListener;
 import org.insa.graphics.drawing.overlays.MarkerOverlay;
 
-public class NodesInputPanel extends JPanel implements DrawingClickListener {
+public class NodesInputPanel extends JPanel
+        implements DrawingClickListener, DrawingChangeListener, GraphChangeListener {
 
     /**
      * 
@@ -61,8 +64,8 @@ public class NodesInputPanel extends JPanel implements DrawingClickListener {
     };
 
     // Node inputs and markers.
-    private ArrayList<JTextField> nodeInputs = new ArrayList<>();
-    private Map<JTextField, MarkerOverlay> markerTrackers = new IdentityHashMap<JTextField, MarkerOverlay>();
+    private final ArrayList<JTextField> nodeInputs = new ArrayList<>();
+    private final Map<JTextField, MarkerOverlay> markerTrackers = new IdentityHashMap<JTextField, MarkerOverlay>();
 
     // Component that can be enabled/disabled.
     private ArrayList<JComponent> components = new ArrayList<>();
@@ -71,12 +74,16 @@ public class NodesInputPanel extends JPanel implements DrawingClickListener {
     // ActionListener called when all inputs are filled.
     private ArrayList<ActionListener> inputChangeListeners = new ArrayList<>();
 
-    // Instance of mainwindow.
-    MainWindow mainWindow;
+    // Drawing and graph
+    private Drawing drawing;
+    private Graph graph;
 
-    public NodesInputPanel(MainWindow mainWindow) {
+    /**
+     * @param drawing Original drawing used (see {@link:newDrawingLoaded}).
+     * @param graph Original graph used (see {@link:newGraphLoaded});
+     */
+    public NodesInputPanel() {
         super(new GridBagLayout());
-        this.mainWindow = mainWindow;
         initInputToFill();
     }
 
@@ -105,6 +112,7 @@ public class NodesInputPanel extends JPanel implements DrawingClickListener {
     public void clear() {
         for (JTextField field: nodeInputs) {
             field.setText("");
+            markerTrackers.put(field, null);
         }
         initInputToFill();
     }
@@ -174,7 +182,7 @@ public class NodesInputPanel extends JPanel implements DrawingClickListener {
                 MarkerOverlay tracker = markerTrackers.getOrDefault(textField, null);
                 if (curnode != null) {
                     if (tracker == null) {
-                        tracker = mainWindow.drawing.drawMarker(curnode.getPoint(), markerColor);
+                        tracker = drawing.drawMarker(curnode.getPoint(), markerColor);
                         markerTrackers.put(textField, tracker);
                     }
                     else {
@@ -223,7 +231,7 @@ public class NodesInputPanel extends JPanel implements DrawingClickListener {
      */
     protected Node getNodeForInput(JTextField textfield) {
         try {
-            Node node = this.mainWindow.graph.getNodes().get(Integer.valueOf(textfield.getText().trim()));
+            Node node = graph.getNodes().get(Integer.valueOf(textfield.getText().trim()));
             return node;
         }
         catch (IllegalArgumentException | IndexOutOfBoundsException ex) {
@@ -292,11 +300,38 @@ public class NodesInputPanel extends JPanel implements DrawingClickListener {
 
     @Override
     public void mouseClicked(Point point) {
-        Node node = this.mainWindow.graph.findClosestNode(point);
+        Node node = graph.findClosestNode(point);
         JTextField input = getInputToFill();
         if (input != null) {
             input.setText(String.valueOf(node.getId()));
             nextInputToFill();
+        }
+    }
+
+    @Override
+    public void newGraphLoaded(Graph graph) {
+        if (graph != this.graph) {
+            this.clear();
+            this.graph = graph;
+        }
+    }
+
+    @Override
+    public void onDrawingLoaded(Drawing oldDrawing, Drawing newDrawing) {
+        if (newDrawing != drawing) {
+            this.drawing = newDrawing;
+
+        }
+    }
+
+    @Override
+    public void onRedrawRequest() {
+        for (JTextField input: nodeInputs) {
+            MarkerOverlay tracker = markerTrackers.getOrDefault(input, null);
+            if (tracker != null) {
+                markerTrackers.put(input, this.drawing.drawMarker(tracker.getPoint(), tracker.getColor()));
+                tracker.delete();
+            }
         }
     }
 }

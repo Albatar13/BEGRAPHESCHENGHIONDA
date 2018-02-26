@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -131,6 +132,10 @@ public class MainWindow extends JFrame {
     // Factory
     private BlockingActionFactory baf;
 
+    // Observers
+    private List<DrawingChangeListener> drawingChangeListeners = new ArrayList<>();
+    private List<GraphChangeListener> graphChangeListeneres = new ArrayList<>();
+
     public MainWindow() {
         super(WINDOW_TITLE);
 
@@ -143,7 +148,7 @@ public class MainWindow extends JFrame {
 
         this.drawing = this.basicDrawing;
 
-        spPanel = new ShortestPathPanel(MainWindow.this);
+        spPanel = new ShortestPathPanel();
         spPanel.addStartActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -166,15 +171,19 @@ public class MainWindow extends JFrame {
         });
         spPanel.setVisible(false);
 
+        // Add click listeners to both drawing.
         basicDrawing.addDrawingClickListener(spPanel.nodesInputPanel);
         mapViewDrawing.addDrawingClickListener(spPanel.nodesInputPanel);
 
+        this.graphChangeListeneres.add(spPanel.nodesInputPanel);
+        this.drawingChangeListeners.add(spPanel.nodesInputPanel);
+
+        // Create action factory.
         this.currentThread = new ThreadWrapper(this);
         this.baf = new BlockingActionFactory(this);
         this.baf.addAction(currentThread);
 
         // Click adapter
-        addDrawingClickListeners();
         setJMenuBar(createMenuBar());
 
         addWindowListener(new WindowAdapter() {
@@ -229,6 +238,8 @@ public class MainWindow extends JFrame {
         // Top Panel
         this.add(createStatusBar(), BorderLayout.SOUTH);
 
+        // Notify everythin
+        notifyDrawingLoaded(null, drawing);
     }
 
     /**
@@ -369,7 +380,34 @@ public class MainWindow extends JFrame {
         });
     }
 
-    private void addDrawingClickListeners() {
+    /**
+     * Notify all listeners that a new graph has been loaded.
+     */
+    private void notifyNewGraphLoaded() {
+        for (GraphChangeListener listener: graphChangeListeneres) {
+            listener.newGraphLoaded(graph);
+        }
+    }
+
+    /**
+     * Notify all listeners that a new drawing has been set up.
+     * 
+     * @param oldDrawing
+     * @param newDrawing
+     */
+    private void notifyDrawingLoaded(Drawing oldDrawing, Drawing newDrawing) {
+        for (DrawingChangeListener listener: drawingChangeListeners) {
+            listener.onDrawingLoaded(oldDrawing, newDrawing);
+        }
+    }
+
+    /**
+     * Notify all listeners that a redraw request is emitted.
+     */
+    private void notifyRedrawRequest() {
+        for (DrawingChangeListener listener: drawingChangeListeners) {
+            listener.onRedrawRequest();
+        }
     }
 
     /**
@@ -414,22 +452,26 @@ public class MainWindow extends JFrame {
                 drawing = mapViewDrawing;
                 mainPanel.setLeftComponent(mapViewDrawing);
                 mainPanel.setDividerLocation(oldLocation);
+                notifyDrawingLoaded(basicDrawing, mapViewDrawing);
             }
 
             // 2. We draw the graph.
             drawing.clear();
             ((MapViewDrawing) drawing).drawGraph(mfile);
+            notifyRedrawRequest();
+
         }
         else if (!isMapView || (isMapView && mfile == null && isNewGraph)) {
             if (drawing == mapViewDrawing) {
                 mapViewDrawing.clear();
                 drawing = basicDrawing;
-                addDrawingClickListeners();
                 mainPanel.setLeftComponent(basicDrawing);
                 mainPanel.setDividerLocation(oldLocation);
+                notifyDrawingLoaded(mapViewDrawing, basicDrawing);
             }
             drawing.clear();
             drawing.drawGraph(graph, palette);
+            notifyRedrawRequest();
         }
 
     }
@@ -485,6 +527,7 @@ public class MainWindow extends JFrame {
                                 exception.printStackTrace(System.out);
                                 return;
                             }
+                            notifyNewGraphLoaded();
 
                             // Save file path.
                             graphFilePath = path;

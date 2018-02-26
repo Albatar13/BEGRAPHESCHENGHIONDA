@@ -95,7 +95,9 @@ public class ShortestPathPanel extends JPanel {
     // Start listeners
     List<ActionListener> startActionListeners = new ArrayList<>();
 
-    public ShortestPathPanel(MainWindow mainWindow) {
+    /**
+     */
+    public ShortestPathPanel() {
         super();
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
@@ -122,7 +124,7 @@ public class ShortestPathPanel extends JPanel {
         components.add(algoSelect);
 
         // Add inputs for node.
-        this.nodesInputPanel = new NodesInputPanel(mainWindow);
+        this.nodesInputPanel = new NodesInputPanel();
         this.nodesInputPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         nodesInputPanel.addTextField("Origin: ", new Color(57, 172, 115));
         nodesInputPanel.addTextField("Destination: ", new Color(255, 77, 77));

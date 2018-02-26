@@ -100,6 +100,11 @@ public class BasicDrawing extends JPanel implements Drawing {
         }
 
         @Override
+        public Color getColor() {
+            return color;
+        }
+
+        @Override
         public void moveTo(Point point) {
             this.point = point;
             BasicDrawing.this.repaint();
@@ -440,7 +445,7 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     @Override
     public void drawGraph(Graph graph, GraphPalette palette) {
-        clear();
+        this.clear();
         initialize(graph);
         for (Node node: graph.getNodes()) {
             for (Arc arc: node.getSuccessors()) {

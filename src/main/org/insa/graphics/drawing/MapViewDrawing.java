@@ -80,14 +80,23 @@ public class MapViewDrawing extends MapView implements Drawing {
 
     private class MapViewMarkerOverlay extends MapViewOverlay implements MarkerOverlay {
 
-        public MapViewMarkerOverlay(Marker marker) {
+        // Color of this marker
+        Color color;
+
+        public MapViewMarkerOverlay(Marker marker, Color color) {
             super(new Layer[] { marker });
+            this.color = color;
         }
 
         @Override
         public Point getPoint() {
             Marker marker = (Marker) super.layers[0];
             return new Point(marker.getLatLong().getLongitude(), marker.getLatLong().getLatitude());
+        }
+
+        @Override
+        public Color getColor() {
+            return color;
         }
 
         @Override
@@ -187,7 +196,7 @@ public class MapViewDrawing extends MapView implements Drawing {
 
     @Override
     public MarkerOverlay drawMarker(Point point, Color color) {
-        return new MapViewMarkerOverlay(createMarker(point, color));
+        return new MapViewMarkerOverlay(createMarker(point, color), color);
     }
 
     @Override
