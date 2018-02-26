@@ -5,6 +5,8 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -206,6 +208,24 @@ public class ShortestPathPanel extends JPanel {
                 startAlgoButton.setEnabled(allNotNull);
             }
         });
+
+        addComponentListener(new ComponentAdapter() {
+
+            @Override
+            public void componentShown(ComponentEvent e) {
+                setEnabled(true);
+                nodesInputPanel.setVisible(true);
+            }
+
+            @Override
+            public void componentHidden(ComponentEvent e) {
+                setEnabled(false);
+                nodesInputPanel.setVisible(false);
+            }
+
+        });
+
+        setEnabled(false);
     }
 
     @Override

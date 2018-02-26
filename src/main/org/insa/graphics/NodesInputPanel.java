@@ -92,6 +92,17 @@ public class NodesInputPanel extends JPanel
     }
 
     @Override
+    public void setVisible(boolean visible) {
+        super.setVisible(visible);
+        for (JTextField input: nodeInputs) {
+            MarkerOverlay marker = markerTrackers.getOrDefault(input, null);
+            if (marker != null) {
+                marker.setVisible(visible && !input.getText().trim().isEmpty());
+            }
+        }
+    }
+
+    @Override
     public void setEnabled(boolean enabled) {
         for (JComponent component: components) {
             component.setEnabled(enabled);
@@ -285,7 +296,10 @@ public class NodesInputPanel extends JPanel
      */
     protected void nextInputToFill() {
         boolean found = false;
-        for (int i = 1; i < nodeInputs.size() && !found; ++i) {
+        if (inputToFillIndex == -1) {
+            inputToFillIndex = 0;
+        }
+        for (int i = 0; i < nodeInputs.size() && !found; ++i) {
             int nextIndex = (i + inputToFillIndex) % nodeInputs.size();
             JTextField input = nodeInputs.get(nextIndex);
             if (input.getText().trim().isEmpty()) {
@@ -300,9 +314,9 @@ public class NodesInputPanel extends JPanel
 
     @Override
     public void mouseClicked(Point point) {
-        Node node = graph.findClosestNode(point);
         JTextField input = getInputToFill();
         if (input != null) {
+            Node node = graph.findClosestNode(point);
             input.setText(String.valueOf(node.getId()));
             nextInputToFill();
         }
@@ -313,6 +327,9 @@ public class NodesInputPanel extends JPanel
         if (graph != this.graph) {
             this.clear();
             this.graph = graph;
+
+            // Disable if previously disabled...
+            setEnabled(this.isEnabled());
         }
     }
 
