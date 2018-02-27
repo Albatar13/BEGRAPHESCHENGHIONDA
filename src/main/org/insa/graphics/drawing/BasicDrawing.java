@@ -261,16 +261,19 @@ public class BasicDrawing extends JPanel implements Drawing {
     // Default palette.
     public static final GraphPalette DEFAULT_PALETTE = new BasicGraphPalette();
 
+    // Maximum width for the drawing (in pixels).
+    private static final int MAXIMUM_DRAWING_WIDTH = 2000;
+
     private double long1, long2, lat1, lat2;
 
     // Width and height of the image
-    private final int width, height;
+    private int width, height;
 
     private ZoomAndPanListener zoomAndPanListener;
 
     //
-    private Image graphImage;
-    private final Graphics2D graphGraphics;
+    private Image graphImage = null;
+    private Graphics2D graphGraphics = null;
 
     // List of image for markers
     private List<BasicOverlay> overlays = new ArrayList<>();
@@ -283,30 +286,10 @@ public class BasicDrawing extends JPanel implements Drawing {
      * 
      */
     public BasicDrawing() {
-
         this.zoomAndPanListener = new ZoomAndPanListener(this, ZoomAndPanListener.DEFAULT_MIN_ZOOM_LEVEL, 20, 1.2);
         this.addMouseListener(zoomAndPanListener);
         this.addMouseMotionListener(zoomAndPanListener);
         this.addMouseWheelListener(zoomAndPanListener);
-
-        this.width = 2000;
-        this.height = 1600;
-
-        BufferedImage img = new BufferedImage(this.width, this.height, BufferedImage.TYPE_3BYTE_BGR);
-        this.graphImage = img;
-        this.graphGraphics = img.createGraphics();
-        this.graphGraphics.setBackground(Color.WHITE);
-
-        this.zoomAndPanListener.setCoordTransform(this.graphGraphics.getTransform());
-
-        this.long1 = -180;
-        this.long2 = 180;
-        this.lat1 = -90;
-        this.lat2 = 90;
-
-        this.clear();
-        this.repaint();
-
     }
 
     @Override
@@ -315,8 +298,10 @@ public class BasicDrawing extends JPanel implements Drawing {
         g.clearRect(0, 0, getWidth(), getHeight());
         g.setTransform(zoomAndPanListener.getCoordTransform());
 
-        // Draw graph
-        g.drawImage(graphImage, 0, 0, this);
+        if (graphImage != null) {
+            // Draw graph
+            g.drawImage(graphImage, 0, 0, this);
+        }
 
         // Draw markers
         for (BasicOverlay overlay: overlays) {
@@ -324,32 +309,18 @@ public class BasicDrawing extends JPanel implements Drawing {
         }
     }
 
-    protected void setBB(double long1, double long2, double lat1, double lat2) {
-
-        if (long1 > long2 || lat1 > lat2) {
-            throw new Error("DessinVisible.setBB : mauvaises coordonnees.");
-        }
-
-        this.long1 = long1;
-        this.long2 = long2;
-        this.lat1 = lat1;
-        this.lat2 = lat2;
-
-        double scale = 1 / Math.max(this.width / (double) this.getWidth(), this.height / (double) this.getHeight());
-
-        this.zoomAndPanListener.getCoordTransform().setToIdentity();
-        this.zoomAndPanListener.getCoordTransform().translate((this.getWidth() - this.width * scale) / 2,
-                (this.getHeight() - this.height * scale) / 2);
-        this.zoomAndPanListener.getCoordTransform().scale(scale, scale);
-        this.zoomAndPanListener.setZoomLevel(0);
-        this.repaint();
-
-    }
-
+    /**
+     * @param lon
+     * @return
+     */
     private int projx(double lon) {
         return (int) (width * (lon - this.long1) / (this.long2 - this.long1));
     }
 
+    /**
+     * @param lat
+     * @return
+     */
     private int projy(double lat) {
         return (int) (height * (1 - (lat - this.lat1) / (this.lat2 - this.lat1)));
     }
@@ -402,7 +373,9 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     @Override
     public void clear() {
-        this.graphGraphics.clearRect(0, 0, this.width, this.height);
+        if (this.graphGraphics != null) {
+            this.graphGraphics.clearRect(0, 0, this.width, this.height);
+        }
         this.overlays.clear();
     }
 
@@ -469,6 +442,11 @@ public class BasicDrawing extends JPanel implements Drawing {
      * @param graph
      */
     protected void initialize(Graph graph) {
+
+        // Clear everything.
+        this.clear();
+
+        // Find minimum/maximum longitude and latitude.
         double minLon = Double.POSITIVE_INFINITY, minLat = Double.POSITIVE_INFINITY, maxLon = Double.NEGATIVE_INFINITY,
                 maxLat = Double.NEGATIVE_INFINITY;
         for (Node node: graph.getNodes()) {
@@ -487,15 +465,50 @@ public class BasicDrawing extends JPanel implements Drawing {
             }
         }
 
-        double deltaLon = 0.02 * (maxLon - minLon), deltaLat = 0.02 * (maxLat - minLat);
+        // Add a little delta to avoid drawing on the edge...
+        double diffLon = maxLon - minLon, diffLat = maxLat - minLat;
+        double deltaLon = 0.01 * diffLon, deltaLat = 0.01 * diffLat;
 
-        setBB(minLon - deltaLon, maxLon + deltaLon, minLat - deltaLat, maxLat + deltaLat);
+        this.long1 = minLon - deltaLon;
+        this.long2 = maxLon + deltaLon;
+        this.lat1 = minLat - deltaLat;
+        this.lat2 = maxLat + deltaLat;
+
+        // Compute width/height for the image
+
+        if (diffLat < diffLon) {
+            this.width = MAXIMUM_DRAWING_WIDTH;
+            this.height = (int) (this.width * diffLat / diffLon);
+        }
+        else {
+            this.height = MAXIMUM_DRAWING_WIDTH;
+            this.width = (int) (this.height * diffLon / diffLat);
+        }
+
+        // Create the image
+        BufferedImage img = new BufferedImage(this.width, this.height, BufferedImage.TYPE_3BYTE_BGR);
+        this.graphImage = img;
+        this.graphGraphics = img.createGraphics();
+        this.graphGraphics.setBackground(Color.WHITE);
+        this.graphGraphics.clearRect(0, 0, this.width, this.height);
+
+        // Set the zoom and pan listener
+
+        double scale = 1 / Math.max(this.width / (double) this.getWidth(), this.height / (double) this.getHeight());
+
+        this.zoomAndPanListener.setCoordTransform(this.graphGraphics.getTransform());
+        this.zoomAndPanListener.getCoordTransform().translate((this.getWidth() - this.width * scale) / 2,
+                (this.getHeight() - this.height * scale) / 2);
+        this.zoomAndPanListener.getCoordTransform().scale(scale, scale);
+        this.zoomAndPanListener.setZoomLevel(0);
+
+        // Repaint
+        this.repaint();
     }
 
     @Override
     public void drawGraph(Graph graph, GraphPalette palette) {
-        this.clear();
-        initialize(graph);
+        this.initialize(graph);
         for (Node node: graph.getNodes()) {
             for (Arc arc: node.getSuccessors()) {
                 drawArc(arc, palette);
@@ -546,14 +559,6 @@ public class BasicDrawing extends JPanel implements Drawing {
     @Override
     public PathOverlay drawPath(Path path, boolean markers) {
         return drawPath(path, DEFAULT_PATH_COLOR, markers);
-    }
-
-    @SuppressWarnings("unused")
-    private void putText(Point point, String txt) {
-        int x = this.projx(point.getLongitude());
-        int y = this.projy(point.getLatitude());
-        graphGraphics.drawString(txt, x, y);
-        this.repaint();
     }
 
 }
