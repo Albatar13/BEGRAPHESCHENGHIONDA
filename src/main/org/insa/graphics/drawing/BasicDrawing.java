@@ -221,7 +221,6 @@ public class BasicDrawing extends JPanel implements Drawing {
         @Override
         public void addPoint(Point point) {
             this.width = 5;
-            System.out.println("Add point!");
             int x = BasicDrawing.this.projx(point.getLongitude()) - this.width / 2;
             int y = BasicDrawing.this.projy(point.getLatitude()) - this.width / 2;
             this.graphics.fillOval(x, y, this.width, this.width);
@@ -249,7 +248,6 @@ public class BasicDrawing extends JPanel implements Drawing {
 
         @Override
         public void drawImpl(Graphics2D g) {
-            System.out.println("Draw?");
             g.drawImage(this.image, 0, 0, BasicDrawing.this);
         }
 
