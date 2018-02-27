@@ -94,6 +94,8 @@ public class ShortestPathPanel extends JPanel {
     // Component that can be enabled/disabled.
     private ArrayList<JComponent> components = new ArrayList<>();
 
+    private JButton startAlgoButton;
+
     // Start listeners
     List<ActionListener> startActionListeners = new ArrayList<>();
 
@@ -157,7 +159,8 @@ public class ShortestPathPanel extends JPanel {
         // Bottom panel
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.LINE_AXIS));
-        JButton startAlgoButton = new JButton("Start");
+
+        startAlgoButton = new JButton("Start");
         startAlgoButton.setEnabled(false);
         startAlgoButton.addActionListener(new ActionListener() {
             @Override
@@ -187,7 +190,6 @@ public class ShortestPathPanel extends JPanel {
         bottomPanel.add(Box.createHorizontalGlue());
         bottomPanel.add(hideButton);
 
-        components.add(startAlgoButton);
         components.add(hideButton);
 
         bottomPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -199,13 +201,7 @@ public class ShortestPathPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 InputChangedEvent evt = (InputChangedEvent) e;
-                boolean allNotNull = true;
-                for (Node node: evt.getNodes()) {
-                    if (node == null) {
-                        allNotNull = false;
-                    }
-                }
-                startAlgoButton.setEnabled(allNotNull);
+                startAlgoButton.setEnabled(allNotNull(evt.getNodes()));
             }
         });
 
@@ -228,6 +224,14 @@ public class ShortestPathPanel extends JPanel {
         setEnabled(false);
     }
 
+    protected boolean allNotNull(List<Node> nodes) {
+        boolean allNotNull = true;
+        for (Node node: nodes) {
+            allNotNull = allNotNull && node != null;
+        }
+        return allNotNull;
+    }
+
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
@@ -235,6 +239,8 @@ public class ShortestPathPanel extends JPanel {
         for (JComponent component: components) {
             component.setEnabled(enabled);
         }
+        enabled = enabled && allNotNull(this.nodesInputPanel.getNodeForInputs());
+        startAlgoButton.setEnabled(enabled);
     }
 
     /**
