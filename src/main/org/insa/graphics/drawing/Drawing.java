@@ -7,6 +7,7 @@ import org.insa.graph.Path;
 import org.insa.graph.Point;
 import org.insa.graphics.drawing.overlays.MarkerOverlay;
 import org.insa.graphics.drawing.overlays.PathOverlay;
+import org.insa.graphics.drawing.overlays.PointSetOverlay;
 
 public interface Drawing {
 
@@ -30,13 +31,6 @@ public interface Drawing {
     public void clear();
 
     /**
-     * Draw a marker at the given point with the default color.
-     * 
-     * @param point
-     */
-    public MarkerOverlay drawMarker(Point point);
-
-    /**
      * Draw the given point with the given color.
      * 
      * @param point
@@ -44,14 +38,22 @@ public interface Drawing {
     public MarkerOverlay drawMarker(Point point, Color color);
 
     /**
-     * Draw a point width the given width and color. Do not use this to mark
-     * location, use drawMarker.
+     * Create a new PointSetOverlay that can be used to add overlay points to this
+     * drawing.
      * 
-     * @param point
-     * @param width
-     * @param color
+     * PointSetOverlay are heavy memory resources, do not use one for each point!
+     * 
      */
-    public void drawPoint(Point point, int width, Color color);
+    public PointSetOverlay createPointSetOverlay();
+
+    /**
+     * Create a new PointSetOverlay with the original width and color that can be
+     * used to add overlay points to this drawing.
+     * 
+     * PointSetOverlay are heavy memory resources, do not use one for each point!
+     * 
+     */
+    public PointSetOverlay createPointSetOverlay(int width, Color color);
 
     /**
      * Draw the given graph using the given palette.

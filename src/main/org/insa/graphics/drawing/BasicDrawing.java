@@ -28,6 +28,7 @@ import org.insa.graphics.drawing.overlays.MarkerOverlay;
 import org.insa.graphics.drawing.overlays.MarkerUtils;
 import org.insa.graphics.drawing.overlays.Overlay;
 import org.insa.graphics.drawing.overlays.PathOverlay;
+import org.insa.graphics.drawing.overlays.PointSetOverlay;
 
 /**
  * Cette implementation de la classe Dessin produit vraiment un affichage (au
@@ -82,11 +83,14 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     private class BasicMarkerOverlay extends BasicOverlay implements MarkerOverlay {
 
+        // Default marker width
+        private static final int DEFAULT_MARKER_WIDTH = 20;
+
         // Point of the marker.
         private Point point;
 
         // Color of the marker.
-        private Color color;
+        private final Color color;
 
         public BasicMarkerOverlay(Point point, Color color) {
             super();
@@ -129,13 +133,13 @@ public class BasicDrawing extends JPanel implements Drawing {
     private class BasicPathOverlay extends BasicOverlay implements PathOverlay {
 
         // List of points
-        List<Point> points;
+        private final List<Point> points;
 
         // Color for the path
-        Color color;
+        private Color color;
 
         // Origin / Destination markers.
-        BasicMarkerOverlay origin, destination;
+        private BasicMarkerOverlay origin, destination;
 
         public BasicPathOverlay(List<Point> points, Color color, BasicMarkerOverlay origin,
                 BasicMarkerOverlay destination) {
@@ -180,15 +184,82 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     };
 
+    private class BasicPointSetOverlay extends BasicOverlay implements PointSetOverlay {
+
+        // Default point width
+        private static final int DEFAULT_POINT_WIDTH = 5;
+
+        // Image for path / points
+        private final BufferedImage image;
+        private final Graphics2D graphics;
+
+        private int width = DEFAULT_POINT_WIDTH;
+
+        public BasicPointSetOverlay() {
+            this.image = new BufferedImage(BasicDrawing.this.width, BasicDrawing.this.height,
+                    BufferedImage.TYPE_4BYTE_ABGR);
+            this.graphics = image.createGraphics();
+            this.graphics.setBackground(new Color(0, 0, 0, 0));
+        }
+
+        @Override
+        public void setColor(Color color) {
+            this.graphics.setColor(color);
+        }
+
+        @Override
+        public void setWidth(int width) {
+            this.width = width;
+        }
+
+        @Override
+        public void setWidthAndColor(int width, Color color) {
+            setWidth(width);
+            setColor(color);
+        }
+
+        @Override
+        public void addPoint(Point point) {
+            this.width = 5;
+            System.out.println("Add point!");
+            int x = BasicDrawing.this.projx(point.getLongitude()) - this.width / 2;
+            int y = BasicDrawing.this.projy(point.getLatitude()) - this.width / 2;
+            this.graphics.fillOval(x, y, this.width, this.width);
+            BasicDrawing.this.repaint();
+        }
+
+        @Override
+        public void addPoint(Point point, int width) {
+            setWidth(width);
+            addPoint(point);
+        }
+
+        @Override
+        public void addPoint(Point point, Color color) {
+            setColor(color);
+            addPoint(point);
+        }
+
+        @Override
+        public void addPoint(Point point, int width, Color color) {
+            setWidth(width);
+            setColor(color);
+            addPoint(point);
+        }
+
+        @Override
+        public void drawImpl(Graphics2D g) {
+            System.out.println("Draw?");
+            g.drawImage(this.image, 0, 0, BasicDrawing.this);
+        }
+
+    }
+
     // Default path color.
     public static final Color DEFAULT_PATH_COLOR = new Color(255, 0, 255);
 
     // Default palette.
     public static final GraphPalette DEFAULT_PALETTE = new BasicGraphPalette();
-
-    // Default marker and point width
-    private static final int DEFAULT_MARKER_WIDTH = 20;
-    private static final int DEFAULT_POINT_WIDTH = 5;
 
     private double long1, long2, lat1, lat2;
 
@@ -200,10 +271,6 @@ public class BasicDrawing extends JPanel implements Drawing {
     //
     private Image graphImage;
     private final Graphics2D graphGraphics;
-
-    // Image for path / points
-    private Image overlayImage;
-    private Graphics2D overlayGraphics;
 
     // List of image for markers
     private List<BasicOverlay> overlays = new ArrayList<>();
@@ -230,11 +297,6 @@ public class BasicDrawing extends JPanel implements Drawing {
         this.graphGraphics = img.createGraphics();
         this.graphGraphics.setBackground(Color.WHITE);
 
-        img = new BufferedImage(this.width, this.height, BufferedImage.TYPE_4BYTE_ABGR);
-        this.overlayImage = img;
-        this.overlayGraphics = img.createGraphics();
-        this.overlayGraphics.setBackground(new Color(0, 0, 0, 0));
-
         this.zoomAndPanListener.setCoordTransform(this.graphGraphics.getTransform());
 
         this.long1 = -180;
@@ -255,9 +317,6 @@ public class BasicDrawing extends JPanel implements Drawing {
 
         // Draw graph
         g.drawImage(graphImage, 0, 0, this);
-
-        // Draw overlays (path, etc.)
-        g.drawImage(overlayImage, 0, 0, this);
 
         // Draw markers
         for (BasicOverlay overlay: overlays) {
@@ -341,28 +400,14 @@ public class BasicDrawing extends JPanel implements Drawing {
         this.removeMouseListener(this.listenerMapping.get(listener));
     }
 
-    protected void setWidth(int width) {
-        this.overlayGraphics.setStroke(new BasicStroke(width));
-    }
-
-    protected void setColor(Color col) {
-        this.overlayGraphics.setColor(col);
-    }
-
     @Override
     public void clear() {
         this.graphGraphics.clearRect(0, 0, this.width, this.height);
-        this.overlayGraphics.clearRect(0, 0, this.width, this.height);
         this.overlays.clear();
     }
 
     public BasicMarkerOverlay createMarker(Point point, Color color) {
         return new BasicMarkerOverlay(point, color);
-    }
-
-    @Override
-    public MarkerOverlay drawMarker(Point point) {
-        return drawMarker(point, this.overlayGraphics.getColor());
     }
 
     @Override
@@ -374,13 +419,17 @@ public class BasicDrawing extends JPanel implements Drawing {
     }
 
     @Override
-    public void drawPoint(Point point, int width, Color color) {
-        setWidth(width);
-        setColor(color);
-        int x = this.projx(point.getLongitude()) - DEFAULT_POINT_WIDTH / 2;
-        int y = this.projy(point.getLatitude()) - DEFAULT_POINT_WIDTH / 2;
-        overlayGraphics.fillOval(x, y, DEFAULT_POINT_WIDTH, DEFAULT_POINT_WIDTH);
-        this.repaint();
+    public PointSetOverlay createPointSetOverlay() {
+        BasicPointSetOverlay ps = new BasicPointSetOverlay();
+        this.overlays.add(ps);
+        return ps;
+    }
+
+    @Override
+    public PointSetOverlay createPointSetOverlay(int width, Color color) {
+        PointSetOverlay ps = createPointSetOverlay();
+        ps.setWidthAndColor(width, color);
+        return ps;
     }
 
     /**

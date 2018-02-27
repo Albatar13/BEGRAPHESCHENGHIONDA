@@ -13,6 +13,7 @@ import org.insa.graphics.drawing.overlays.MarkerOverlay;
 import org.insa.graphics.drawing.overlays.MarkerUtils;
 import org.insa.graphics.drawing.overlays.Overlay;
 import org.insa.graphics.drawing.overlays.PathOverlay;
+import org.insa.graphics.drawing.overlays.PointSetOverlay;
 import org.insa.graphics.drawing.overlays.PolylineAutoScaling;
 import org.mapsforge.core.graphics.Bitmap;
 import org.mapsforge.core.graphics.GraphicFactory;
@@ -65,6 +66,9 @@ public class MapViewDrawing extends MapView implements Drawing {
 
         @Override
         public boolean isVisible() {
+            if (this.layers.length == 0) {
+                return true;
+            }
             return this.layers[0].isVisible();
         }
 
@@ -122,6 +126,51 @@ public class MapViewDrawing extends MapView implements Drawing {
         }
 
     }
+
+    private class MapViewPointSetOverlay extends MapViewOverlay implements PointSetOverlay {
+
+        public MapViewPointSetOverlay() {
+            super(new Layer[0]);
+        }
+
+        @Override
+        public void setColor(Color color) {
+        }
+
+        @Override
+        public void setWidth(int width) {
+        }
+
+        @Override
+        public void setWidthAndColor(int width, Color color) {
+            setWidth(width);
+            setColor(color);
+        }
+
+        @Override
+        public void addPoint(Point point) {
+        }
+
+        @Override
+        public void addPoint(Point point, int width) {
+            setWidth(width);
+            addPoint(point);
+        }
+
+        @Override
+        public void addPoint(Point point, Color color) {
+            setColor(color);
+            addPoint(point);
+        }
+
+        @Override
+        public void addPoint(Point point, int width, Color color) {
+            setWidth(width);
+            setColor(color);
+            addPoint(point);
+        }
+
+    };
 
     // Default path color.
     public static final Color DEFAULT_PATH_COLOR = new Color(66, 134, 244);
@@ -190,18 +239,20 @@ public class MapViewDrawing extends MapView implements Drawing {
     }
 
     @Override
-    public MarkerOverlay drawMarker(Point point) {
-        return drawMarker(point, Color.GREEN);
-    }
-
-    @Override
     public MarkerOverlay drawMarker(Point point, Color color) {
         return new MapViewMarkerOverlay(createMarker(point, color), color);
     }
 
     @Override
-    public void drawPoint(Point point, int width, Color color) {
-        // TODO:
+    public PointSetOverlay createPointSetOverlay() {
+        return new MapViewPointSetOverlay();
+    }
+
+    @Override
+    public PointSetOverlay createPointSetOverlay(int width, Color color) {
+        PointSetOverlay ps = new MapViewPointSetOverlay();
+        ps.setWidthAndColor(width, color);
+        return ps;
     }
 
     public void drawGraph(File file) {
@@ -229,12 +280,12 @@ public class MapViewDrawing extends MapView implements Drawing {
 
     @Override
     public void drawGraph(Graph graph, GraphPalette palette) {
-        // TODO: Unimplemented for now...
+        // drawGraph(graph, null);
     }
 
     @Override
     public void drawGraph(Graph graph) {
-        drawGraph(graph, null);
+        // drawGraph(graph, null);
     }
 
     @Override

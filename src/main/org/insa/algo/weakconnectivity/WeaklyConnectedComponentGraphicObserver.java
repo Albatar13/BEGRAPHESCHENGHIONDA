@@ -5,33 +5,36 @@ import java.util.ArrayList;
 
 import org.insa.graph.Node;
 import org.insa.graphics.drawing.Drawing;
+import org.insa.graphics.drawing.overlays.PointSetOverlay;
 
 public class WeaklyConnectedComponentGraphicObserver implements WeaklyConnectedComponentObserver {
 
     private static final Color[] COLORS = { Color.BLUE, Color.ORANGE, Color.GREEN, Color.YELLOW, Color.RED };
 
     // Drawing + Graph drawing
-    private Drawing drawing;
+    private PointSetOverlay grPoints;
 
     // Current index color
-    private int cindex = -1;
+    private int cindex = 0;
 
     public WeaklyConnectedComponentGraphicObserver(Drawing drawing) {
-        this.drawing = drawing;
+        this.grPoints = drawing.createPointSetOverlay();
+        this.grPoints.setWidth(1);
     }
 
     @Override
     public void notifyStartComponent(Node curNode) {
-        cindex = (cindex + 1) % COLORS.length;
+        this.grPoints.setColor(COLORS[cindex]);
     }
 
     @Override
     public void notifyNewNodeInComponent(Node node) {
-        this.drawing.drawPoint(node.getPoint(), 1, COLORS[cindex]);
+        this.grPoints.addPoint(node.getPoint());
     }
 
     @Override
     public void notifyEndComponent(ArrayList<Node> nodes) {
+        cindex = (cindex + 1) % COLORS.length;
     }
 
 }
