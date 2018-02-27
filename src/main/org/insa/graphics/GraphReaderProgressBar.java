@@ -68,9 +68,6 @@ public class GraphReaderProgressBar extends JDialog implements GraphReaderObserv
 
         setContentPane(pane);
 
-        // setModal(true);
-        setLocationRelativeTo(owner);
-
         pack();
 
     }

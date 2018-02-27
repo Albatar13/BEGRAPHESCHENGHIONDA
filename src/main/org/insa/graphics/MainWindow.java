@@ -518,7 +518,9 @@ public class MainWindow extends JFrame {
                             else {
                                 reader = new BinaryGraphReader(stream);
                             }
-                            reader.addObserver(new GraphReaderProgressBar(MainWindow.this));
+                            GraphReaderProgressBar progressBar = new GraphReaderProgressBar(MainWindow.this);
+                            progressBar.setLocationRelativeTo(mainPanel.getLeftComponent());
+                            reader.addObserver(progressBar);
                             try {
                                 graph = reader.read();
                             }
