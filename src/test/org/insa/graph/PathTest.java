@@ -3,16 +3,14 @@ package org.insa.graph;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.insa.graph.RoadInformation.RoadType;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class PathTest {
 
@@ -29,8 +27,8 @@ public class PathTest {
     // Some paths...
     private static Path emptyPath, shortPath, longPath, loopPath, longLoopPath, invalidPath;
 
-    @BeforeAll
-    static void initAll() throws IOException {
+    @BeforeClass
+    public static void initAll() throws IOException {
 
         // 10 and 20 meters per seconds
         RoadInformation speed10 = new RoadInformation(RoadType.ROAD, true, 36, ""),
@@ -66,7 +64,7 @@ public class PathTest {
     }
 
     @Test
-    void testConstructor() {
+    public void testConstructor() {
         assertEquals(graph, emptyPath.getGraph());
         assertEquals(graph, shortPath.getGraph());
         assertEquals(graph, longPath.getGraph());
@@ -75,24 +73,13 @@ public class PathTest {
         assertEquals(graph, invalidPath.getGraph());
     }
 
-    @Test
-    void testImmutability() {
-        assertThrows(UnsupportedOperationException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                emptyPath.getArcs().add(a2b);
-            }
-        });
-        assertThrows(UnsupportedOperationException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                shortPath.getArcs().add(d2e);
-            }
-        });
+    @Test(expected = UnsupportedOperationException.class)
+    public void testImmutability() {
+        emptyPath.getArcs().add(a2b);
     }
 
     @Test
-    void testIsEmpty() {
+    public void testIsEmpty() {
         assertTrue(emptyPath.isEmpty());
 
         assertFalse(shortPath.isEmpty());
@@ -103,7 +90,7 @@ public class PathTest {
     }
 
     @Test
-    void testIsValid() {
+    public void testIsValid() {
         assertTrue(emptyPath.isValid());
         assertTrue(shortPath.isValid());
         assertTrue(longPath.isValid());
@@ -114,7 +101,7 @@ public class PathTest {
     }
 
     @Test
-    void testGetLength() {
+    public void testGetLength() {
         assertEquals(emptyPath.getLength(), 0);
         assertEquals(shortPath.getLength(), 40);
         assertEquals(longPath.getLength(), 60);
@@ -123,7 +110,7 @@ public class PathTest {
     }
 
     @Test
-    void testGetMinimumTravelTime() {
+    public void testGetMinimumTravelTime() {
         assertEquals(emptyPath.getMinimumTravelTime(), 0, 1e-4);
         assertEquals(shortPath.getMinimumTravelTime(), 4, 1e-4);
         assertEquals(longPath.getMinimumTravelTime(), 5, 1e-4);
@@ -132,7 +119,7 @@ public class PathTest {
     }
 
     @Test
-    void testCreateFastestPathFromNodes() {
+    public void testCreateFastestPathFromNodes() {
         Path path;
         Arc[] expected;
 
@@ -152,18 +139,10 @@ public class PathTest {
         for (int i = 0; i < expected.length; ++i) {
             assertEquals(expected[i], path.getArcs().get(i));
         }
-
-        // Wrong construction
-        assertThrows(IllegalArgumentException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                Path.createFastestPathFromNodes(graph, Arrays.asList(new Node[] { nodes[1], nodes[0] }));
-            }
-        });
     }
 
     @Test
-    void testCreateShortestPathFromNodes() {
+    public void testCreateShortestPathFromNodes() {
         Path path;
         Arc[] expected;
 
@@ -183,13 +162,16 @@ public class PathTest {
         for (int i = 0; i < expected.length; ++i) {
             assertEquals(expected[i], path.getArcs().get(i));
         }
-
-        // Wrong construction
-        assertThrows(IllegalArgumentException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                Path.createShortestPathFromNodes(graph, Arrays.asList(new Node[] { nodes[1], nodes[0] }));
-            }
-        });
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateFastestPathFromNodesException() {
+        Path.createFastestPathFromNodes(graph, Arrays.asList(new Node[] { nodes[1], nodes[0] }));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateShortestPathFromNodesException() {
+        Path.createShortestPathFromNodes(graph, Arrays.asList(new Node[] { nodes[1], nodes[0] }));
+    }
+
 }

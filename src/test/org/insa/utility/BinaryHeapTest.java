@@ -1,13 +1,13 @@
 package org.insa.utility;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 public class BinaryHeapTest {
 
@@ -16,8 +16,8 @@ public class BinaryHeapTest {
 
     private BinaryHeap<Integer> heap1, heap2;
 
-    @BeforeEach
-    void init() {
+    @Before
+    public void init() {
         // Create the range heap
         this.heap1 = new BinaryHeap<Integer>();
         this.heap2 = new BinaryHeap<Integer>();
@@ -29,7 +29,7 @@ public class BinaryHeapTest {
     }
 
     @Test
-    void testInsert() {
+    public void testInsert() {
         BinaryHeap<Integer> heap = new BinaryHeap<Integer>();
         int size = 0;
         for (int x: data1) {
@@ -50,7 +50,7 @@ public class BinaryHeapTest {
     }
 
     @Test
-    void testDeleteMin() {
+    public void testDeleteMin() {
         // range 1 (sorted)
         int[] range1 = data1;
         int size = range1.length;

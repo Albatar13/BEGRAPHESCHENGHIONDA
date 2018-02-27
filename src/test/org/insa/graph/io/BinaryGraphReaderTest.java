@@ -1,6 +1,6 @@
 package org.insa.graph.io;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -11,8 +11,8 @@ import java.util.List;
 import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Point;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class BinaryGraphReaderTest {
 
@@ -21,20 +21,20 @@ public class BinaryGraphReaderTest {
 
     private static Graph midip;
 
-    @BeforeAll
-    static void initAll() throws IOException {
+    @BeforeClass
+    public static void initAll() throws IOException {
         BinaryGraphReader reader = new BinaryGraphReader(
                 new DataInputStream(new BufferedInputStream(new FileInputStream("Maps/midip.map"))));
         midip = reader.read();
     }
 
-    void assertPointAt(Point p1, double longitude, double latitude) {
+    public void assertPointAt(Point p1, double longitude, double latitude) {
         assertEquals(p1.getLongitude(), longitude, EPS);
         assertEquals(p1.getLatitude(), latitude, EPS);
     }
 
     @Test
-    void testMidipNodes() {
+    public void testMidipNodes() {
         List<Node> nodes = midip.getNodes();
 
         assertEquals(nodes.size(), 150827);
@@ -49,7 +49,7 @@ public class BinaryGraphReaderTest {
     }
 
     @Test
-    void testMidipArcs() {
+    public void testMidipArcs() {
         // TODO: Check the number of edges.
         // TODO: Check information for some edges.
     }
