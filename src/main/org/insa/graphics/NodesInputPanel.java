@@ -337,7 +337,6 @@ public class NodesInputPanel extends JPanel
     public void onDrawingLoaded(Drawing oldDrawing, Drawing newDrawing) {
         if (newDrawing != drawing) {
             this.drawing = newDrawing;
-
         }
     }
 

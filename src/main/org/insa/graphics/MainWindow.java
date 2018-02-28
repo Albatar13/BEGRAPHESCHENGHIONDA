@@ -123,7 +123,6 @@ public class MainWindow extends JFrame {
     // Log stream and print stream
     private StreamCapturer logStream;
 
-    @SuppressWarnings("unused")
     private PrintStream printStream;
 
     // Current running thread
@@ -141,6 +140,8 @@ public class MainWindow extends JFrame {
 
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setLayout(new BorderLayout());
+
+        setMinimumSize(new Dimension(800, 600));
 
         // Create drawing and action listeners...
         this.basicDrawing = new BasicDrawing();
@@ -272,9 +273,6 @@ public class MainWindow extends JFrame {
         threadTimer.stop();
         threadPanel.setVisible(false);
         currentThread.setThread(null);
-        if (spPanel != null) {
-            spPanel.setEnabled(true);
-        }
     }
 
     private void displayShortestPathSolution(ShortestPathSolution solution) {
@@ -376,6 +374,7 @@ public class MainWindow extends JFrame {
             public void run() {
                 ShortestPathSolution solution = spAlgorithm.run();
                 displayShortestPathSolution(solution);
+                spPanel.setEnabled(true);
             }
         });
     }
