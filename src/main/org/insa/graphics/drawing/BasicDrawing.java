@@ -8,6 +8,7 @@ import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -288,6 +289,9 @@ public class BasicDrawing extends JPanel implements Drawing {
         this.addMouseListener(zoomAndPanListener);
         this.addMouseMotionListener(zoomAndPanListener);
         this.addMouseWheelListener(zoomAndPanListener);
+
+        // Avoid bunch of NullPointerException
+        this.zoomAndPanListener.setCoordTransform(new AffineTransform());
     }
 
     @Override
