@@ -38,7 +38,7 @@ public class GraphReaderProgressBar extends JDialog implements GraphReaderObserv
     private final JProgressBar[] progressBars = new JProgressBar[3];
 
     // Current element read, and modulo.
-    private int[] counters = new int[] { 0, 0, 0 };
+    private int[] counters = new int[]{ 0, 0, 0 };
     private int[] modulos = new int[3];
 
     public GraphReaderProgressBar(JFrame owner) {
@@ -85,7 +85,7 @@ public class GraphReaderProgressBar extends JDialog implements GraphReaderObserv
 
     protected void initProgressBar(int index, int max) {
         progressBars[index].setMaximum(max);
-        modulos[index] = max / 100;
+        modulos[index] = Math.max(max / 100, 1);
     }
 
     protected void incCounter(int index) {
