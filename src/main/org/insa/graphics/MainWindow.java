@@ -58,8 +58,8 @@ import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsAlgorithm;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsData;
 import org.insa.graph.Graph;
 import org.insa.graph.Path;
-import org.insa.graph.io.BinaryGraphReader;
-import org.insa.graph.io.BinaryGraphReaderV2;
+import org.insa.graph.io.BinaryGraphReaderInsa2016;
+import org.insa.graph.io.BinaryGraphReaderInsa2018;
 import org.insa.graph.io.BinaryPathReader;
 import org.insa.graph.io.BinaryPathWriter;
 import org.insa.graph.io.GraphReader;
@@ -106,9 +106,6 @@ public class MainWindow extends JFrame {
 
     // Shortest path panel
     private ShortestPathPanel spPanel;
-
-    // List of item for the top menus.
-    private JMenuItem openMapItem;
 
     // List of items that cannot be used without a graph
     private ArrayList<JMenuItem> graphLockItems = new ArrayList<JMenuItem>();
@@ -475,74 +472,98 @@ public class MainWindow extends JFrame {
 
     }
 
+    /**
+     * @param newClass
+     */
     private void drawGraph(Class<? extends Drawing> newClass) {
         drawGraph(newClass, new BasicGraphPalette());
     }
 
+    /**
+     * 
+     */
     private void drawGraph() {
         drawGraph(null, new BasicGraphPalette());
+    }
+
+    private void loadGraph(GraphReader reader) {
+        launchThread(new Runnable() {
+            @Override
+            public void run() {
+                GraphReaderProgressBar progressBar = new GraphReaderProgressBar(MainWindow.this);
+                progressBar.setLocationRelativeTo(mainPanel.getLeftComponent());
+                reader.addObserver(progressBar);
+                try {
+                    graph = reader.read();
+                }
+                catch (Exception exception) {
+                    JOptionPane.showMessageDialog(MainWindow.this, "Unable to read graph from the selected file.");
+                    exception.printStackTrace(System.out);
+                    return;
+                }
+                notifyNewGraphLoaded();
+
+                graphInfoPanel
+                        .setText(String.format("Map ID: %#x, %d nodes", graph.getMapId(), graph.getNodes().size()));
+                drawGraph();
+
+                for (JMenuItem item: graphLockItems) {
+                    item.setEnabled(true);
+                }
+            }
+        }, false);
     }
 
     private JMenuBar createMenuBar() {
 
         // Open Map item...
-        openMapItem = new JMenuItem("Open Map... ", KeyEvent.VK_O);
+        JMenuItem openMapItem = new JMenuItem("Open Map... ", KeyEvent.VK_O);
         openMapItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.ALT_MASK));
         openMapItem.addActionListener(baf.createBlockingAction(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser();
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("Map & compressed map files", "map",
-                        "map2", "mapgr", "map.gz");
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("Graph files", "mapgr");
                 chooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
                 chooser.setFileFilter(filter);
                 if (chooser.showOpenDialog(MainWindow.this) == JFileChooser.APPROVE_OPTION) {
-                    launchThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            String path = chooser.getSelectedFile().getAbsolutePath();
-                            DataInputStream stream;
-                            try {
-                                stream = new DataInputStream(
-                                        new BufferedInputStream(new FileInputStream(chooser.getSelectedFile())));
-                            }
-                            catch (IOException e1) {
-                                JOptionPane.showMessageDialog(MainWindow.this, "Cannot open the selected file.");
-                                return;
-                            }
-                            GraphReader reader;
-                            if (path.endsWith(".map2") || path.endsWith("mapgr")) {
-                                reader = new BinaryGraphReaderV2(stream);
-                            }
-                            else {
-                                reader = new BinaryGraphReader(stream);
-                            }
-                            GraphReaderProgressBar progressBar = new GraphReaderProgressBar(MainWindow.this);
-                            progressBar.setLocationRelativeTo(mainPanel.getLeftComponent());
-                            reader.addObserver(progressBar);
-                            try {
-                                graph = reader.read();
-                            }
-                            catch (Exception exception) {
-                                JOptionPane.showMessageDialog(MainWindow.this,
-                                        "Unable to read graph from the selected file.");
-                                exception.printStackTrace(System.out);
-                                return;
-                            }
-                            notifyNewGraphLoaded();
+                    graphFilePath = chooser.getSelectedFile().getAbsolutePath();
 
-                            // Save file path.
-                            graphFilePath = path;
+                    DataInputStream stream;
+                    try {
+                        stream = new DataInputStream(
+                                new BufferedInputStream(new FileInputStream(chooser.getSelectedFile())));
+                    }
+                    catch (IOException e1) {
+                        JOptionPane.showMessageDialog(MainWindow.this, "Cannot open the selected file.");
+                        return;
+                    }
+                    loadGraph(new BinaryGraphReaderInsa2018(stream));
+                }
+            }
+        }));
 
-                            graphInfoPanel.setText(
-                                    String.format("Map ID: %#x, %d nodes", graph.getMapId(), graph.getNodes().size()));
-                            drawGraph();
+        JMenuItem openOldMapItem = new JMenuItem("Open Map (Old version)... ");
+        openOldMapItem.addActionListener(baf.createBlockingAction(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser chooser = new JFileChooser();
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("Map & compressed map files", "map");
+                chooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+                chooser.setFileFilter(filter);
+                if (chooser.showOpenDialog(MainWindow.this) == JFileChooser.APPROVE_OPTION) {
+                    graphFilePath = chooser.getSelectedFile().getAbsolutePath();
 
-                            for (JMenuItem item: graphLockItems) {
-                                item.setEnabled(true);
-                            }
-                        }
-                    }, false);
+                    DataInputStream stream;
+                    try {
+                        stream = new DataInputStream(
+                                new BufferedInputStream(new FileInputStream(chooser.getSelectedFile())));
+                    }
+                    catch (IOException e1) {
+                        JOptionPane.showMessageDialog(MainWindow.this, "Cannot open the selected file.");
+                        return;
+                    }
+                    loadGraph(new BinaryGraphReaderInsa2016(stream));
                 }
             }
         }));
@@ -551,6 +572,7 @@ public class MainWindow extends JFrame {
         JMenuItem openPathItem = new JMenuItem("Open Path... ", KeyEvent.VK_P);
         openPathItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.ALT_MASK));
         openPathItem.addActionListener(baf.createBlockingAction(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser();
@@ -599,6 +621,7 @@ public class MainWindow extends JFrame {
         // Build the first menu.
         JMenu fileMenu = new JMenu("File");
         fileMenu.add(openMapItem);
+        fileMenu.add(openOldMapItem); // TODO: Remove this for Students.
         fileMenu.add(openPathItem);
         fileMenu.addSeparator();
         fileMenu.add(closeItem);

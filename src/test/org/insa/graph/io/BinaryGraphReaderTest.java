@@ -23,7 +23,7 @@ public class BinaryGraphReaderTest {
 
     @BeforeClass
     public static void initAll() throws IOException {
-        BinaryGraphReader reader = new BinaryGraphReader(
+        BinaryGraphReaderInsa2016 reader = new BinaryGraphReaderInsa2016(
                 new DataInputStream(new BufferedInputStream(new FileInputStream("Maps/midip.map"))));
         midip = reader.read();
     }

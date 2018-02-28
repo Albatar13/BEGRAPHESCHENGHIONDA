@@ -12,7 +12,7 @@ import org.insa.graph.Point;
 import org.insa.graph.RoadInformation;
 import org.insa.graph.RoadInformation.RoadType;
 
-public class BinaryGraphReader extends BinaryReader implements GraphReader {
+public class BinaryGraphReaderInsa2016 extends BinaryReader implements GraphReader {
 
     // Map version and magic number targeted for this reader.
     private static final int VERSION = 4;
@@ -70,7 +70,7 @@ public class BinaryGraphReader extends BinaryReader implements GraphReader {
      * 
      * @param dis
      */
-    public BinaryGraphReader(DataInputStream dis) {
+    public BinaryGraphReaderInsa2016(DataInputStream dis) {
         super(MAGIC_NUMBER, VERSION, dis);
     }
 
