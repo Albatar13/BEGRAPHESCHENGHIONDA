@@ -509,7 +509,9 @@ public class BasicDrawing extends JPanel implements Drawing {
         this.initialize(graph);
         for (Node node: graph.getNodes()) {
             for (Arc arc: node.getSuccessors()) {
-                drawArc(arc, palette);
+                if (arc.getInfo().isOneWay() || arc.getOrigin().compareTo(arc.getDestination()) < 0) {
+                    drawArc(arc, palette);
+                }
             }
         }
     }
