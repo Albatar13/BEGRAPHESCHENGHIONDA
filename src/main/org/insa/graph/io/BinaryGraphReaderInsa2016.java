@@ -10,6 +10,7 @@ import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Point;
 import org.insa.graph.RoadInformation;
+import org.insa.graph.RoadInformation.AccessRestriction;
 import org.insa.graph.RoadInformation.RoadType;
 
 public class BinaryGraphReaderInsa2016 extends BinaryReader implements GraphReader {
@@ -189,8 +190,8 @@ public class BinaryGraphReaderInsa2016 extends BinaryReader implements GraphRead
     private RoadInformation readRoadInformation() throws IOException {
         char type = (char) dis.readUnsignedByte();
         int x = dis.readUnsignedByte();
-        return new RoadInformation(toRoadType(type), 0, (x & 0x80) > 0, (x & 0x7F) * 5,
-                dis.readUTF());
+        return new RoadInformation(toRoadType(type), new AccessRestriction(), (x & 0x80) > 0,
+                (x & 0x7F) * 5, dis.readUTF());
     }
 
 }

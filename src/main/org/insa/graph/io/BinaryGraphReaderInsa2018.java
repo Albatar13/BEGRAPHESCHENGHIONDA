@@ -4,12 +4,16 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
 
 import org.insa.graph.Arc;
 import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Point;
 import org.insa.graph.RoadInformation;
+import org.insa.graph.RoadInformation.AccessRestriction;
+import org.insa.graph.RoadInformation.AccessMode;
 import org.insa.graph.RoadInformation.RoadType;
 
 public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphReader {
@@ -17,6 +21,48 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
     // Map version and magic number targeted for this reader.
     private static final int VERSION = 5;
     private static final int MAGIC_NUMBER = 0x208BC3B3;
+
+    // Some masks...
+    private static final int MASK_UNKNOWN = 0x01;
+    private static final int MASK_PRIVATE = 0x02;
+    @SuppressWarnings("unused")
+    private static final int MASK_AGRICULTURAL = 0x04;
+    @SuppressWarnings("unused")
+    private static final int MASK_SERVICE = 0x08;
+    private static final int MASK_PUBLIC_TRANSPORT = 0x10;
+
+    private static final int MASK_FOOT = 0x01 << 8;
+    private static final int MASK_BICYCLE = 0x02 << 8;
+    private static final int MASK_MOTORCYCLE = 0x0C << 8;
+    private static final int MASK_SMALL_MOTORCYCLE = 0x08 << 8;
+    private static final int MASK_MOTORCAR = 0x10 << 8;
+    private static final int MASK_BUS = 0x20 << 8;
+
+    /**
+     * Create a new access information by parsing the given value.
+     * 
+     * @param access
+     * @return
+     */
+    protected static AccessRestriction toAccessInformation(int access) {
+
+        // Unknown -> Return default access information.
+        if ((access & MASK_UNKNOWN) != 0) {
+            return new AccessRestriction();
+        }
+
+        Map<AccessMode, Boolean> allowedModes = new EnumMap<>(AccessMode.class);
+
+        allowedModes.put(AccessMode.FOOT, (access & MASK_FOOT) != 0);
+        allowedModes.put(AccessMode.BICYCLE, (access & MASK_BICYCLE) != 0);
+        allowedModes.put(AccessMode.SMALL_MOTORCYCLE, (access & MASK_SMALL_MOTORCYCLE) != 0);
+        allowedModes.put(AccessMode.MOTORCYCLE, (access & MASK_MOTORCYCLE) != 0);
+        allowedModes.put(AccessMode.MOTORCAR, (access & MASK_MOTORCAR) != 0);
+        allowedModes.put(AccessMode.BUS, (access & MASK_BUS) != 0);
+
+        return new AccessRestriction((access & MASK_PRIVATE) != 0,
+                (access & MASK_PUBLIC_TRANSPORT) != 0, allowedModes);
+    }
 
     /**
      * Convert a character to its corresponding road type.
@@ -27,7 +73,7 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
      * 
      * @see http://wiki.openstreetmap.org/wiki/Highway_tag_usage.
      */
-    public static RoadType toRoadType(char ch) {
+    protected static RoadType toRoadType(char ch) {
         switch (ch) {
         case 'a':
             return RoadType.MOTORWAY;
@@ -194,9 +240,9 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
     private RoadInformation readRoadInformation() throws IOException {
         char type = (char) dis.readUnsignedByte();
         int x = dis.readUnsignedByte();
-        int access = 0xFF00;
+        AccessRestriction access = new AccessRestriction();
         if (getCurrentVersion() >= 6) {
-            access = dis.readUnsignedShort();
+            access = toAccessInformation(dis.readUnsignedShort());
         }
         return new RoadInformation(toRoadType(type), access, (x & 0x80) > 0, (x & 0x7F) * 5,
                 dis.readUTF());
