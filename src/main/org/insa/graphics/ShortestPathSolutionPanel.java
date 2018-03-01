@@ -92,6 +92,17 @@ public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeLi
                 oldOverlay.delete();
             }
         }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.Object#toString()
+         */
+        public String toString() {
+            return "Shortest-path from #" + this.getData().getOrigin().getId() + " to #"
+                    + this.getData().getDestination().getId() + " [" + this.getData().getMode().toString().toLowerCase()
+                    + "]";
+        }
     }
 
     // Solution
@@ -186,10 +197,11 @@ public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeLi
 
                 ShortestPathBundle bundle = (ShortestPathBundle) solutionSelect.getSelectedItem();
 
-                if (currentBundle.getOverlay() != null) {
+                if (currentBundle != null && currentBundle.getOverlay() != null) {
                     currentBundle.getOverlay().setVisible(false);
                 }
 
+                updateInformationLabel(bundle);
                 buttonPanel.setVisible(bundle.getSolution().isFeasible());
                 clearButton.setText(bundle.getSolution().isFeasible() ? "Hide" : "Show");
 
