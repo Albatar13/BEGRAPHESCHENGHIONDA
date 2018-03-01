@@ -8,7 +8,8 @@ import java.util.List;
 public abstract class BinaryReader {
 
     // Map version and magic number targeted for this reader.
-    private int version;
+    private int minVersion;
+    private int curVersion;
     private int magicNumber;
 
     // InputStream
@@ -17,9 +18,9 @@ public abstract class BinaryReader {
     // List of observers
     protected List<GraphReaderObserver> observers = new ArrayList<>();
 
-    protected BinaryReader(int magicNumber, int version, DataInputStream dis) {
+    protected BinaryReader(int magicNumber, int minVersion, DataInputStream dis) {
         this.magicNumber = magicNumber;
-        this.version = version;
+        this.minVersion = minVersion;
         this.dis = dis;
     }
 
@@ -31,20 +32,31 @@ public abstract class BinaryReader {
     }
 
     /**
+     * Check if the given version is greater than the minimum version, and update
+     * the current version if it is.
+     * 
      * @param version
      * @throws BadVersionException
      */
-    public void checkVersionOrThrow(int version) throws BadVersionException {
-        if (this.version != version) {
-            throw new BadVersionException(version, this.version);
+    protected void checkVersionOrThrow(int version) throws BadVersionException {
+        if (version < this.minVersion) {
+            throw new BadVersionException(version, this.minVersion);
         }
+        this.curVersion = version;
+    }
+
+    /**
+     * @return the current version.
+     */
+    protected int getCurrentVersion() {
+        return this.curVersion;
     }
 
     /**
      * @param magicNumber
      * @throws BadMagicNumberException
      */
-    public void checkMagicNumberOrThrow(int magicNumber) throws BadMagicNumberException {
+    protected void checkMagicNumberOrThrow(int magicNumber) throws BadMagicNumberException {
         if (this.magicNumber != magicNumber) {
             throw new BadMagicNumberException(magicNumber, this.magicNumber);
         }
@@ -58,7 +70,7 @@ public abstract class BinaryReader {
      * 
      * @throws IOException
      */
-    public void checkByteOrThrow(int i) throws IOException {
+    protected void checkByteOrThrow(int i) throws IOException {
         if (dis.readUnsignedByte() != i) {
             throw new BadFormatException();
         }

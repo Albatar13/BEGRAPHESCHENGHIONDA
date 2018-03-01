@@ -31,8 +31,8 @@ public class PathTest {
     public static void initAll() throws IOException {
 
         // 10 and 20 meters per seconds
-        RoadInformation speed10 = new RoadInformation(RoadType.ROAD, true, 36, ""),
-                speed20 = new RoadInformation(RoadType.ROAD, true, 72, "");
+        RoadInformation speed10 = new RoadInformation(RoadType.ROAD, 0, true, 36, ""),
+                speed20 = new RoadInformation(RoadType.ROAD, 0, true, 72, "");
 
         // Create nodes
         nodes = new Node[5];
@@ -55,11 +55,12 @@ public class PathTest {
         graph = new Graph(0, Arrays.asList(nodes));
 
         emptyPath = new Path(graph, new ArrayList<Arc>());
-        shortPath = new Path(graph, Arrays.asList(new Arc[] { a2b, b2c, c2d_1 }));
-        longPath = new Path(graph, Arrays.asList(new Arc[] { a2b, b2c, c2d_1, d2e }));
-        loopPath = new Path(graph, Arrays.asList(new Arc[] { a2b, b2c, c2d_1, d2a }));
-        longLoopPath = new Path(graph, Arrays.asList(new Arc[] { a2b, b2c, c2d_1, d2a, a2c, c2d_3, d2a, a2b, b2c }));
-        invalidPath = new Path(graph, Arrays.asList(new Arc[] { a2b, c2d_1, d2e }));
+        shortPath = new Path(graph, Arrays.asList(new Arc[]{ a2b, b2c, c2d_1 }));
+        longPath = new Path(graph, Arrays.asList(new Arc[]{ a2b, b2c, c2d_1, d2e }));
+        loopPath = new Path(graph, Arrays.asList(new Arc[]{ a2b, b2c, c2d_1, d2a }));
+        longLoopPath = new Path(graph,
+                Arrays.asList(new Arc[]{ a2b, b2c, c2d_1, d2a, a2c, c2d_3, d2a, a2b, b2c }));
+        invalidPath = new Path(graph, Arrays.asList(new Arc[]{ a2b, c2d_1, d2e }));
 
     }
 
@@ -124,8 +125,9 @@ public class PathTest {
         Arc[] expected;
 
         // Simple construction
-        path = Path.createFastestPathFromNodes(graph, Arrays.asList(new Node[] { nodes[0], nodes[1], nodes[2] }));
-        expected = new Arc[] { a2b, b2c };
+        path = Path.createFastestPathFromNodes(graph,
+                Arrays.asList(new Node[]{ nodes[0], nodes[1], nodes[2] }));
+        expected = new Arc[]{ a2b, b2c };
         assertEquals(expected.length, path.getArcs().size());
         for (int i = 0; i < expected.length; ++i) {
             assertEquals(expected[i], path.getArcs().get(i));
@@ -133,8 +135,8 @@ public class PathTest {
 
         // Not so simple construction
         path = Path.createFastestPathFromNodes(graph,
-                Arrays.asList(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }));
-        expected = new Arc[] { a2b, b2c, c2d_3 };
+                Arrays.asList(new Node[]{ nodes[0], nodes[1], nodes[2], nodes[3] }));
+        expected = new Arc[]{ a2b, b2c, c2d_3 };
         assertEquals(expected.length, path.getArcs().size());
         for (int i = 0; i < expected.length; ++i) {
             assertEquals(expected[i], path.getArcs().get(i));
@@ -147,8 +149,9 @@ public class PathTest {
         Arc[] expected;
 
         // Simple construction
-        path = Path.createShortestPathFromNodes(graph, Arrays.asList(new Node[] { nodes[0], nodes[1], nodes[2] }));
-        expected = new Arc[] { a2b, b2c };
+        path = Path.createShortestPathFromNodes(graph,
+                Arrays.asList(new Node[]{ nodes[0], nodes[1], nodes[2] }));
+        expected = new Arc[]{ a2b, b2c };
         assertEquals(expected.length, path.getArcs().size());
         for (int i = 0; i < expected.length; ++i) {
             assertEquals(expected[i], path.getArcs().get(i));
@@ -156,8 +159,8 @@ public class PathTest {
 
         // Not so simple construction
         path = Path.createShortestPathFromNodes(graph,
-                Arrays.asList(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }));
-        expected = new Arc[] { a2b, b2c, c2d_2 };
+                Arrays.asList(new Node[]{ nodes[0], nodes[1], nodes[2], nodes[3] }));
+        expected = new Arc[]{ a2b, b2c, c2d_2 };
         assertEquals(expected.length, path.getArcs().size());
         for (int i = 0; i < expected.length; ++i) {
             assertEquals(expected[i], path.getArcs().get(i));
@@ -166,12 +169,12 @@ public class PathTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateFastestPathFromNodesException() {
-        Path.createFastestPathFromNodes(graph, Arrays.asList(new Node[] { nodes[1], nodes[0] }));
+        Path.createFastestPathFromNodes(graph, Arrays.asList(new Node[]{ nodes[1], nodes[0] }));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateShortestPathFromNodesException() {
-        Path.createShortestPathFromNodes(graph, Arrays.asList(new Node[] { nodes[1], nodes[0] }));
+        Path.createShortestPathFromNodes(graph, Arrays.asList(new Node[]{ nodes[1], nodes[0] }));
     }
 
 }

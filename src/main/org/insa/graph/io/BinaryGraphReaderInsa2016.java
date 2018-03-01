@@ -148,7 +148,8 @@ public class BinaryGraphReaderInsa2016 extends BinaryReader implements GraphRead
                     float dlon = (dis.readShort()) / 2.0e5f;
                     float dlat = (dis.readShort()) / 2.0e5f;
 
-                    points.add(new Point(lastPoint.getLongitude() + dlon, lastPoint.getLatitude() + dlat));
+                    points.add(new Point(lastPoint.getLongitude() + dlon,
+                            lastPoint.getLatitude() + dlat));
                 }
 
                 points.add(nodes.get(destNode).getPoint());
@@ -188,7 +189,8 @@ public class BinaryGraphReaderInsa2016 extends BinaryReader implements GraphRead
     private RoadInformation readRoadInformation() throws IOException {
         char type = (char) dis.readUnsignedByte();
         int x = dis.readUnsignedByte();
-        return new RoadInformation(toRoadType(type), (x & 0x80) > 0, (x & 0x7F) * 5, dis.readUTF());
+        return new RoadInformation(toRoadType(type), 0, (x & 0x80) > 0, (x & 0x7F) * 5,
+                dis.readUTF());
     }
 
 }
