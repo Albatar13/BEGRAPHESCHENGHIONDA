@@ -82,7 +82,7 @@ public class WeaklyConnectedComponentsAlgorithm extends AbstractAlgorithm<Weakly
         for (Node node: getInstance().getGraph().getNodes()) {
             for (Arc arc: node.getSuccessors()) {
                 res.get(node.getId()).add(arc.getDestination().getId());
-                if (arc.getInfo().isOneWay()) {
+                if (arc.getRoadInformation().isOneWay()) {
                     res.get(arc.getDestination().getId()).add(node.getId());
                 }
             }

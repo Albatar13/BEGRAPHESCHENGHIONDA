@@ -34,7 +34,7 @@ public class BasicGraphPalette implements GraphPalette {
 
     @Override
     public Color getColorForArc(Arc arc) {
-        RoadType type = arc.getInfo().getType();
+        RoadType type = arc.getRoadInformation().getType();
         Color color = Color.BLACK;
         switch (type) {
         case MOTORWAY:
@@ -68,7 +68,7 @@ public class BasicGraphPalette implements GraphPalette {
 
     @Override
     public int getWidthForArc(Arc arc) {
-        RoadType type = arc.getInfo().getType();
+        RoadType type = arc.getRoadInformation().getType();
         int width = 1;
         switch (type) {
         case MOTORWAY:

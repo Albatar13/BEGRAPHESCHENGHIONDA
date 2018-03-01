@@ -67,7 +67,7 @@ public class Arc {
     /**
      * @return Road information for this arc.
      */
-    public RoadInformation getInfo() {
+    public RoadInformation getRoadInformation() {
         return info;
     }
 
