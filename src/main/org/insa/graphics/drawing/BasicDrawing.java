@@ -13,6 +13,7 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -65,7 +66,9 @@ public class BasicDrawing extends JPanel implements Drawing {
 
         @Override
         public void delete() {
-            BasicDrawing.this.overlays.remove(this);
+            synchronized (overlays) {
+                BasicDrawing.this.overlays.remove(this);
+            }
             BasicDrawing.this.repaint();
         }
 
@@ -276,7 +279,8 @@ public class BasicDrawing extends JPanel implements Drawing {
     private Graphics2D graphGraphics = null;
 
     // List of image for markers
-    private List<BasicOverlay> overlays = new ArrayList<>();
+    private List<BasicOverlay> overlays = Collections
+            .synchronizedList(new ArrayList<BasicOverlay>());
 
     // Mapping DrawingClickListener -> MouseEventListener
     private Map<DrawingClickListener, MouseListener> listenerMapping = new IdentityHashMap<>();
@@ -308,8 +312,10 @@ public class BasicDrawing extends JPanel implements Drawing {
         }
 
         // Draw markers
-        for (BasicOverlay overlay: overlays) {
-            overlay.draw(g);
+        synchronized (overlays) {
+            for (BasicOverlay overlay: overlays) {
+                overlay.draw(g);
+            }
         }
     }
 
@@ -381,7 +387,9 @@ public class BasicDrawing extends JPanel implements Drawing {
         if (this.graphGraphics != null) {
             this.graphGraphics.clearRect(0, 0, this.width, this.height);
         }
-        this.overlays.clear();
+        synchronized (overlays) {
+            this.overlays.clear();
+        }
     }
 
     public BasicMarkerOverlay createMarker(Point point, Color color) {
@@ -391,7 +399,9 @@ public class BasicDrawing extends JPanel implements Drawing {
     @Override
     public MarkerOverlay drawMarker(Point point, Color color) {
         BasicMarkerOverlay marker = createMarker(point, color);
-        this.overlays.add(marker);
+        synchronized (overlays) {
+            this.overlays.add(marker);
+        }
         this.repaint();
         return marker;
     }
@@ -399,7 +409,9 @@ public class BasicDrawing extends JPanel implements Drawing {
     @Override
     public PointSetOverlay createPointSetOverlay() {
         BasicPointSetOverlay ps = new BasicPointSetOverlay();
-        this.overlays.add(ps);
+        synchronized (overlays) {
+            this.overlays.add(ps);
+        }
         return ps;
     }
 
@@ -552,7 +564,9 @@ public class BasicDrawing extends JPanel implements Drawing {
             destination = createMarker(path.getDestination().getPoint(), color);
         }
         BasicPathOverlay overlay = new BasicPathOverlay(points, color, origin, destination);
-        this.overlays.add(overlay);
+        synchronized (overlays) {
+            this.overlays.add(overlay);
+        }
         this.repaint();
         return overlay;
     }
