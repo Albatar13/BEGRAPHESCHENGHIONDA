@@ -114,7 +114,7 @@ public class TarjanAlgorithm extends StronglyConnectedComponentsAlgorithm {
 
 	@Override
 	protected StronglyConnectedComponentsSolution doRun() {
-		Graph graph = getInstance().getGraph();
+		Graph graph = getInputData().getGraph();
 		
 		components = new ArrayList<ArrayList<Node>>();
 		
@@ -138,7 +138,7 @@ public class TarjanAlgorithm extends StronglyConnectedComponentsAlgorithm {
 			}
 		}
 		
-		return new StronglyConnectedComponentsSolution(getInstance(), Status.OPTIMAL, components);
+		return new StronglyConnectedComponentsSolution(getInputData(), Status.OPTIMAL, components);
 	}
 
 }

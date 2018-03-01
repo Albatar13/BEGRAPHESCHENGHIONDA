@@ -19,8 +19,8 @@ public abstract class StronglyConnectedComponentsAlgorithm extends AbstractAlgor
 	}
 	
 	@Override
-	public StronglyConnectedComponentsData getInstance() {
-		return (StronglyConnectedComponentsData)super.getInstance();
+	public StronglyConnectedComponentsData getInputData() {
+		return (StronglyConnectedComponentsData)super.getInputData();
 	}
 
 }

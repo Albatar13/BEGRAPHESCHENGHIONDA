@@ -70,7 +70,7 @@ public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeLi
          * @return Data assocaited with this bundle.
          */
         public ShortestPathData getData() {
-            return (ShortestPathData) this.solution.getInstance();
+            return this.solution.getInputData();
         }
 
         /**

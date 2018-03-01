@@ -43,7 +43,7 @@ public abstract class AbstractSolution {
 	/**
 	 * @return Original instance for this solution.
 	 */
-	public AbstractData getInstance() { return instance; }
+	public AbstractData getInputData() { return instance; }
 	
 	/**
 	 * @return Status of this solution.

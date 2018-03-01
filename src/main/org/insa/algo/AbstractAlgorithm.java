@@ -38,7 +38,7 @@ public abstract class AbstractAlgorithm<Observer> {
     /**
      * @return Instance corresponding to this algorithm.
      */
-    public AbstractData getInstance() { return instance; }
+    public AbstractData getInputData() { return instance; }
         
     /**
      * Run the algorithm and update the current solution.

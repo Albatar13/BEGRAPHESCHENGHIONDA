@@ -30,8 +30,8 @@ public class WeaklyConnectedComponentsAlgorithm extends AbstractAlgorithm<Weakly
     }
 
     @Override
-    public WeaklyConnectedComponentsData getInstance() {
-        return (WeaklyConnectedComponentsData) super.getInstance();
+    public WeaklyConnectedComponentsData getInputData() {
+        return (WeaklyConnectedComponentsData) super.getInputData();
     }
 
     /**
@@ -73,13 +73,13 @@ public class WeaklyConnectedComponentsAlgorithm extends AbstractAlgorithm<Weakly
      *         graph.
      */
     protected ArrayList<HashSet<Integer>> createUndirectedGraph() {
-        int nNodes = getInstance().getGraph().getNodes().size();
+        int nNodes = getInputData().getGraph().getNodes().size();
         ArrayList<HashSet<Integer>> res = new ArrayList<HashSet<Integer>>(nNodes);
         for (int i = 0; i < nNodes; ++i) {
             res.add(new HashSet<Integer>());
         }
 
-        for (Node node: getInstance().getGraph().getNodes()) {
+        for (Node node: getInputData().getGraph().getNodes()) {
             for (Arc arc: node.getSuccessors()) {
                 res.get(node.getId()).add(arc.getDestination().getId());
                 if (arc.getRoadInformation().isOneWay()) {
@@ -101,7 +101,7 @@ public class WeaklyConnectedComponentsAlgorithm extends AbstractAlgorithm<Weakly
      * @return
      */
     protected ArrayList<Node> bfs(ArrayList<HashSet<Integer>> ugraph, boolean[] marked, int cur) {
-        List<Node> nodes = getInstance().getGraph().getNodes();
+        List<Node> nodes = getInputData().getGraph().getNodes();
         ArrayList<Node> component = new ArrayList<Node>();
 
         // Using a queue because we are doing a BFS
@@ -137,7 +137,7 @@ public class WeaklyConnectedComponentsAlgorithm extends AbstractAlgorithm<Weakly
     @Override
     protected WeaklyConnectedComponentsSolution doRun() {
 
-        Graph graph = getInstance().getGraph();
+        Graph graph = getInputData().getGraph();
         ArrayList<HashSet<Integer>> ugraph = createUndirectedGraph();
         boolean[] marked = new boolean[graph.getNodes().size()];
         Arrays.fill(marked, false);
@@ -155,7 +155,7 @@ public class WeaklyConnectedComponentsAlgorithm extends AbstractAlgorithm<Weakly
                 ;
         }
 
-        return new WeaklyConnectedComponentsSolution(getInstance(), Status.OPTIMAL, components);
+        return new WeaklyConnectedComponentsSolution(getInputData(), Status.OPTIMAL, components);
     }
 
 }
