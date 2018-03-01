@@ -12,20 +12,15 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -49,7 +44,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.insa.algo.shortestpath.ShortestPathAlgorithm;
 import org.insa.algo.shortestpath.ShortestPathAlgorithmFactory;
 import org.insa.algo.shortestpath.ShortestPathData;
-import org.insa.algo.shortestpath.ShortestPathData.Mode;
 import org.insa.algo.shortestpath.ShortestPathGraphicObserver;
 import org.insa.algo.shortestpath.ShortestPathSolution;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentGraphicObserver;
@@ -61,7 +55,6 @@ import org.insa.graph.Path;
 import org.insa.graph.io.BinaryGraphReaderInsa2016;
 import org.insa.graph.io.BinaryGraphReaderInsa2018;
 import org.insa.graph.io.BinaryPathReader;
-import org.insa.graph.io.BinaryPathWriter;
 import org.insa.graph.io.GraphReader;
 import org.insa.graph.io.MapMismatchException;
 import org.insa.graphics.ShortestPathPanel.StartActionEvent;
@@ -71,7 +64,6 @@ import org.insa.graphics.drawing.BlackAndWhiteGraphPalette;
 import org.insa.graphics.drawing.Drawing;
 import org.insa.graphics.drawing.GraphPalette;
 import org.insa.graphics.drawing.MapViewDrawing;
-import org.insa.graphics.drawing.overlays.PathOverlay;
 
 public class MainWindow extends JFrame {
 
@@ -106,6 +98,7 @@ public class MainWindow extends JFrame {
 
     // Shortest path panel
     private ShortestPathPanel spPanel;
+    private ShortestPathSolutionPanel spSolPanel;
 
     // List of items that cannot be used without a graph
     private ArrayList<JMenuItem> graphLockItems = new ArrayList<JMenuItem>();
@@ -170,12 +163,17 @@ public class MainWindow extends JFrame {
         });
         spPanel.setVisible(false);
 
+        spSolPanel = new ShortestPathSolutionPanel(this, drawing);
+        spSolPanel.setVisible(false);
+
         // Add click listeners to both drawing.
         basicDrawing.addDrawingClickListener(spPanel.nodesInputPanel);
         mapViewDrawing.addDrawingClickListener(spPanel.nodesInputPanel);
 
         this.graphChangeListeneres.add(spPanel.nodesInputPanel);
+        this.graphChangeListeneres.add(spSolPanel);
         this.drawingChangeListeners.add(spPanel.nodesInputPanel);
+        this.drawingChangeListeners.add(spSolPanel);
 
         // Create action factory.
         this.currentThread = new ThreadWrapper(this);
@@ -217,6 +215,12 @@ public class MainWindow extends JFrame {
         c.gridy = 0;
         c.fill = GridBagConstraints.HORIZONTAL;
         rightComponent.add(spPanel, c);
+
+        c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 1;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        rightComponent.add(spSolPanel, c);
 
         c = new GridBagConstraints();
         c.gridx = 0;
@@ -275,99 +279,8 @@ public class MainWindow extends JFrame {
     }
 
     private void displayShortestPathSolution(ShortestPathSolution solution) {
-        JPanel infoPanel = new JPanel();
-        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.PAGE_AXIS));
-        infoPanel.setBorder(
-                new CompoundBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK),
-                        new EmptyBorder(15, 15, 15, 15)));
-
-        ShortestPathData data = (ShortestPathData) solution.getInstance();
-
-        String info = null;
-        if (solution == null || !solution.isFeasible()) {
-            info = String.format("Shortest path: No path found from node #%d to node #%d.",
-                    data.getOrigin().getId(), data.getDestination().getId());
-        }
-        else {
-            info = String.format("Shortest path: Found a path from node #%d to node #%d",
-                    data.getOrigin().getId(), data.getDestination().getId());
-            if (data.getMode() == Mode.LENGTH) {
-                info = String.format("%s, %.2f kilometers.", info,
-                        (solution.getPath().getLength() / 1000.0));
-            }
-            else {
-                info = String.format("%s, %.2f minutes.", info,
-                        (solution.getPath().getMinimumTravelTime() / 60.0));
-            }
-        }
-        infoPanel.add(new JLabel(info));
-
-        if (solution != null && solution.isFeasible()) {
-            infoPanel.add(Box.createVerticalStrut(8));
-
-            PathOverlay overlay = drawing.drawPath(solution.getPath());
-
-            JPanel buttonPanel = new JPanel();
-            buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
-            buttonPanel.add(Box.createHorizontalGlue());
-            JButton clearButton = new JButton("Hide");
-            clearButton.addActionListener(new ActionListener() {
-
-                private PathOverlay thisOverlay = overlay;
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (thisOverlay.isVisible()) {
-                        thisOverlay.setVisible(false);
-                        clearButton.setText("Show");
-                    }
-                    else {
-                        thisOverlay.setVisible(true);
-                        clearButton.setText("Hide");
-                    }
-                }
-            });
-            JButton saveButton = new JButton("Save");
-            saveButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String filepath = System.getProperty("user.dir");
-                    filepath += File.separator
-                            + String.format("path_%#x_%d_%d.path", graph.getMapId(),
-                                    data.getOrigin().getId(), data.getDestination().getId());
-                    JFileChooser fileChooser = new JFileChooser();
-                    fileChooser.setSelectedFile(new File(filepath));
-                    fileChooser.setApproveButtonText("Save");
-
-                    if (fileChooser
-                            .showOpenDialog(MainWindow.this) == JFileChooser.APPROVE_OPTION) {
-                        File file = fileChooser.getSelectedFile();
-                        try {
-                            BinaryPathWriter writer = new BinaryPathWriter(new DataOutputStream(
-                                    new BufferedOutputStream(new FileOutputStream(file))));
-                            writer.writePath(solution.getPath());
-                        }
-                        catch (IOException e1) {
-                            JOptionPane.showMessageDialog(MainWindow.this,
-                                    "Unable to write path to the selected file.");
-                            e1.printStackTrace();
-                        }
-                    }
-                }
-            });
-            buttonPanel.add(clearButton);
-            buttonPanel.add(saveButton);
-            infoPanel.add(buttonPanel);
-
-        }
-
-        // Add panel to the right side
-        GridBagConstraints c = new GridBagConstraints();
-        c.gridx = 0;
-        c.gridy = 1;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        ((JPanel) mainPanel.getRightComponent()).add(infoPanel, c);
-
+        spSolPanel.addSolution(solution);
+        spSolPanel.setVisible(true);
     }
 
     private void launchShortestPathThread(ShortestPathAlgorithm spAlgorithm) {
