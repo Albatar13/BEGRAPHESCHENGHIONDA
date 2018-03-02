@@ -46,7 +46,11 @@ public class MapViewDrawing extends MapView implements Drawing {
      */
     private static final long serialVersionUID = 8606967833704938092L;
 
-    private class MapViewOverlay implements Overlay {
+    /**
+     * Base Overlay for MapViewDrawing overlays.
+     *
+     */
+    private abstract class MapViewOverlay implements Overlay {
 
         // Marker associated.
         protected Layer[] layers;
@@ -83,6 +87,10 @@ public class MapViewDrawing extends MapView implements Drawing {
 
     };
 
+    /**
+     * MarkerOverlay for MapViewDrawing.
+     *
+     */
     private class MapViewMarkerOverlay extends MapViewOverlay implements MarkerOverlay {
 
         // Color of this marker
@@ -116,6 +124,10 @@ public class MapViewDrawing extends MapView implements Drawing {
 
     };
 
+    /**
+     * PathOverlay for MapViewDrawing.
+     *
+     */
     private class MapViewPathOverlay extends MapViewOverlay implements PathOverlay {
 
         public MapViewPathOverlay(PolylineAutoScaling path, Marker origin, Marker destination) {
@@ -128,6 +140,10 @@ public class MapViewDrawing extends MapView implements Drawing {
 
     }
 
+    /**
+     * PointSetOverlay for MapViewDrawing - Not currently implemented.
+     *
+     */
     private class MapViewPointSetOverlay extends MapViewOverlay implements PointSetOverlay {
 
         public MapViewPointSetOverlay() {
