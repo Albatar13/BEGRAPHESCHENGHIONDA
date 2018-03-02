@@ -3,6 +3,7 @@ package org.insa.graphics;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -14,6 +15,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -49,13 +51,19 @@ public class ShortestPathPanel extends JPanel {
         private final Mode mode;
         private final Class<? extends ShortestPathAlgorithm> algoClass;
 
+        private final boolean graphicVisualization;
+        private final boolean textualVisualization;
+
         public StartActionEvent(Class<? extends ShortestPathAlgorithm> algoClass, Node origin,
-                Node destination, Mode mode) {
+                Node destination, Mode mode, boolean graphicVisualization,
+                boolean textualVisualization) {
             super(ShortestPathPanel.this, START_EVENT_ID, START_EVENT_COMMAND);
             this.origin = origin;
             this.destination = destination;
             this.mode = mode;
             this.algoClass = algoClass;
+            this.graphicVisualization = graphicVisualization;
+            this.textualVisualization = textualVisualization;
         }
 
         /**
@@ -84,6 +92,20 @@ public class ShortestPathPanel extends JPanel {
          */
         public Class<? extends ShortestPathAlgorithm> getAlgorithmClass() {
             return this.algoClass;
+        }
+
+        /**
+         * @return true if graphic visualization is enabled.
+         */
+        public boolean isGraphicVisualizationEnabled() {
+            return this.graphicVisualization;
+        }
+
+        /**
+         * @return true if textual visualization is enabled.
+         */
+        public boolean isTextualVisualizationEnabled() {
+            return this.textualVisualization;
         }
 
     };
@@ -140,24 +162,33 @@ public class ShortestPathPanel extends JPanel {
         components.add(this.nodesInputPanel);
 
         // Add mode selection
-        JPanel modePanel = new JPanel();
-        modePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        modePanel.setLayout(new BoxLayout(modePanel, BoxLayout.LINE_AXIS));
+        JPanel modeAndObserverPanel = new JPanel();
+        modeAndObserverPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        modeAndObserverPanel.setLayout(new GridLayout(2, 3));
         JRadioButton lengthModeButton = new JRadioButton("Length");
         lengthModeButton.setSelected(true);
         JRadioButton timeModeButton = new JRadioButton("Time");
         ButtonGroup group = new ButtonGroup();
         group.add(lengthModeButton);
         group.add(timeModeButton);
-        modePanel.add(Box.createHorizontalGlue());
-        modePanel.add(lengthModeButton);
-        modePanel.add(Box.createHorizontalGlue());
-        modePanel.add(timeModeButton);
-        modePanel.add(Box.createHorizontalGlue());
 
-        add(modePanel);
+        JCheckBox graphicObserver = new JCheckBox("Graphic");
+        graphicObserver.setSelected(true);
+        JCheckBox textObserver = new JCheckBox("Textual");
+
+        modeAndObserverPanel.add(new JLabel("Mode: "));
+        modeAndObserverPanel.add(lengthModeButton);
+        modeAndObserverPanel.add(timeModeButton);
+        modeAndObserverPanel.add(new JLabel("Visualization: "));
+        modeAndObserverPanel.add(graphicObserver);
+        modeAndObserverPanel.add(textObserver);
+
         components.add(timeModeButton);
         components.add(lengthModeButton);
+        components.add(graphicObserver);
+        components.add(textObserver);
+
+        add(modeAndObserverPanel);
 
         solutionPanel = new ShortestPathSolutionPanel(parent);
         solutionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -180,9 +211,10 @@ public class ShortestPathPanel extends JPanel {
 
                 for (ActionListener lis: startActionListeners) {
                     lis.actionPerformed(new StartActionEvent(
-                            ShortestPathAlgorithmFactory
-                                    .getAlgorithmClass((String) algoSelect.getSelectedItem()),
-                            origin, destination, mode));
+                            ShortestPathAlgorithmFactory.getAlgorithmClass(
+                                    (String) algoSelect.getSelectedItem()),
+                            origin, destination, mode, graphicObserver.isSelected(),
+                            textObserver.isSelected()));
                 }
             }
         });

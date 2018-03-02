@@ -46,6 +46,7 @@ import org.insa.algo.shortestpath.ShortestPathAlgorithmFactory;
 import org.insa.algo.shortestpath.ShortestPathData;
 import org.insa.algo.shortestpath.ShortestPathGraphicObserver;
 import org.insa.algo.shortestpath.ShortestPathSolution;
+import org.insa.algo.shortestpath.ShortestPathTextObserver;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentGraphicObserver;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentTextObserver;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsAlgorithm;
@@ -145,11 +146,11 @@ public class MainWindow extends JFrame {
                 StartActionEvent evt = (StartActionEvent) e;
                 ShortestPathData data = new ShortestPathData(graph, evt.getOrigin(),
                         evt.getDestination(), evt.getMode());
+
+                ShortestPathAlgorithm spAlgorithm = null;
                 try {
-                    ShortestPathAlgorithm spAlgorithm = ShortestPathAlgorithmFactory
+                    spAlgorithm = ShortestPathAlgorithmFactory
                             .createAlgorithm(evt.getAlgorithmClass(), data);
-                    spPanel.setEnabled(false);
-                    launchShortestPathThread(spAlgorithm);
                 }
                 catch (Exception e1) {
                     JOptionPane.showMessageDialog(MainWindow.this,
@@ -157,6 +158,17 @@ public class MainWindow extends JFrame {
                             "Internal error: Algorithm instantiation failure",
                             JOptionPane.ERROR_MESSAGE);
                     e1.printStackTrace();
+                    return;
+                }
+
+                spPanel.setEnabled(false);
+                launchShortestPathThread(spAlgorithm);
+
+                if (evt.isGraphicVisualizationEnabled()) {
+                    spAlgorithm.addObserver(new ShortestPathGraphicObserver(drawing));
+                }
+                if (evt.isTextualVisualizationEnabled()) {
+                    spAlgorithm.addObserver(new ShortestPathTextObserver(printStream));
                 }
             }
         });
@@ -274,8 +286,6 @@ public class MainWindow extends JFrame {
     }
 
     private void launchShortestPathThread(ShortestPathAlgorithm spAlgorithm) {
-        spAlgorithm.addObserver(new ShortestPathGraphicObserver(drawing));
-        // algo.addObserver(new ShortestPathTextObserver(printStream));
         launchThread(new Runnable() {
             @Override
             public void run() {
