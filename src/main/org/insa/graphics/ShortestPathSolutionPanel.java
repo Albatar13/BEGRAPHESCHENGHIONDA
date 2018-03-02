@@ -30,7 +30,8 @@ import org.insa.graph.io.BinaryPathWriter;
 import org.insa.graphics.drawing.Drawing;
 import org.insa.graphics.drawing.overlays.PathOverlay;
 
-public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeListener, GraphChangeListener {
+public class ShortestPathSolutionPanel extends JPanel
+        implements DrawingChangeListener, GraphChangeListener {
 
     /**
      * 
@@ -95,13 +96,12 @@ public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeLi
 
         /*
          * (non-Javadoc)
-         * 
          * @see java.lang.Object#toString()
          */
         public String toString() {
             return "Shortest-path from #" + this.getData().getOrigin().getId() + " to #"
-                    + this.getData().getDestination().getId() + " [" + this.getData().getMode().toString().toLowerCase()
-                    + "]";
+                    + this.getData().getDestination().getId() + " ["
+                    + this.getData().getMode().toString().toLowerCase() + "]";
         }
     }
 
@@ -124,8 +124,6 @@ public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeLi
                 new EmptyBorder(15, 15, 15, 15)));
 
         this.drawing = drawing;
-
-        // TODO: Create select + Block for JPanel
 
         solutionSelect = new JComboBox<>();
         solutionSelect.setBackground(Color.WHITE);
@@ -163,7 +161,8 @@ public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeLi
             public void actionPerformed(ActionEvent e) {
                 String filepath = System.getProperty("user.dir");
                 filepath += File.separator + String.format("path_%#x_%d_%d.path",
-                        currentBundle.getData().getGraph().getMapId(), currentBundle.getData().getOrigin().getId(),
+                        currentBundle.getData().getGraph().getMapId(),
+                        currentBundle.getData().getOrigin().getId(),
                         currentBundle.getData().getDestination().getId());
                 JFileChooser fileChooser = new JFileChooser();
                 fileChooser.setSelectedFile(new File(filepath));
@@ -172,12 +171,13 @@ public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeLi
                 if (fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
                     File file = fileChooser.getSelectedFile();
                     try {
-                        BinaryPathWriter writer = new BinaryPathWriter(
-                                new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file))));
+                        BinaryPathWriter writer = new BinaryPathWriter(new DataOutputStream(
+                                new BufferedOutputStream(new FileOutputStream(file))));
                         writer.writePath(currentBundle.getSolution().getPath());
                     }
                     catch (IOException e1) {
-                        JOptionPane.showMessageDialog(parent, "Unable to write path to the selected file.");
+                        JOptionPane.showMessageDialog(parent,
+                                "Unable to write path to the selected file.");
                         e1.printStackTrace();
                     }
                 }
@@ -196,6 +196,11 @@ public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeLi
             public void actionPerformed(ActionEvent e) {
 
                 ShortestPathBundle bundle = (ShortestPathBundle) solutionSelect.getSelectedItem();
+
+                // Handle case when the JComboBox is empty.
+                if (bundle == null) {
+                    return;
+                }
 
                 if (currentBundle != null && currentBundle.getOverlay() != null) {
                     currentBundle.getOverlay().setVisible(false);
@@ -225,12 +230,12 @@ public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeLi
         ShortestPathData data = bundle.getData();
         String info = null;
         if (!bundle.getSolution().isFeasible()) {
-            info = String.format("Shortest path: No path found from node #%d to node #%d.", data.getOrigin().getId(),
-                    data.getDestination().getId());
+            info = String.format("Shortest path: No path found from node #%d to node #%d.",
+                    data.getOrigin().getId(), data.getDestination().getId());
         }
         else {
-            info = String.format("Shortest path: Found a path from node #%d to node #%d", data.getOrigin().getId(),
-                    data.getDestination().getId());
+            info = String.format("Shortest path: Found a path from node #%d to node #%d",
+                    data.getOrigin().getId(), data.getDestination().getId());
             if (data.getMode() == Mode.LENGTH) {
                 info = String.format("%s, %.2f kilometers.", info,
                         (bundle.getSolution().getPath().getLength() / 1000.0));
@@ -247,6 +252,7 @@ public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeLi
     public void newGraphLoaded(Graph graph) {
         this.solutionSelect.removeAllItems();
         this.currentBundle = null;
+        this.setVisible(false);
     }
 
     @Override
