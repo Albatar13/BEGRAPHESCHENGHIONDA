@@ -89,7 +89,7 @@ public class MapViewDrawing extends MapView implements Drawing {
         Color color;
 
         public MapViewMarkerOverlay(Marker marker, Color color) {
-            super(new Layer[]{ marker });
+            super(new Layer[] { marker });
             this.color = color;
         }
 
@@ -108,8 +108,8 @@ public class MapViewDrawing extends MapView implements Drawing {
         public void moveTo(Point point) {
             Marker marker = (Marker) this.layers[0];
             this.delete();
-            marker = new Marker(convertPoint(point), marker.getBitmap(),
-                    marker.getHorizontalOffset(), marker.getVerticalOffset());
+            marker = new Marker(convertPoint(point), marker.getBitmap(), marker.getHorizontalOffset(),
+                    marker.getVerticalOffset());
             this.layers[0] = marker;
             MapViewDrawing.this.getLayerManager().getLayers().add(marker);
         }
@@ -119,11 +119,11 @@ public class MapViewDrawing extends MapView implements Drawing {
     private class MapViewPathOverlay extends MapViewOverlay implements PathOverlay {
 
         public MapViewPathOverlay(PolylineAutoScaling path, Marker origin, Marker destination) {
-            super(new Layer[]{ path, origin, destination });
+            super(new Layer[] { path, origin, destination });
         }
 
         public MapViewPathOverlay(PolylineAutoScaling path) {
-            super(new Layer[]{ path });
+            super(new Layer[] { path });
         }
 
     }
@@ -203,15 +203,13 @@ public class MapViewDrawing extends MapView implements Drawing {
         return new LatLong(point.getLatitude(), point.getLongitude());
     }
 
-    private TileRendererLayer createTileRendererLayer(TileCache tileCache,
-            MapDataStore mapDataStore, MapViewPosition mapViewPosition,
-            HillsRenderConfig hillsRenderConfig) {
-        TileRendererLayer tileRendererLayer = new TileRendererLayer(tileCache, mapDataStore,
-                mapViewPosition, false, true, false, GRAPHIC_FACTORY, hillsRenderConfig) {
+    private TileRendererLayer createTileRendererLayer(TileCache tileCache, MapDataStore mapDataStore,
+            MapViewPosition mapViewPosition, HillsRenderConfig hillsRenderConfig) {
+        TileRendererLayer tileRendererLayer = new TileRendererLayer(tileCache, mapDataStore, mapViewPosition, false,
+                true, false, GRAPHIC_FACTORY, hillsRenderConfig) {
             @Override
             public boolean onTap(LatLong tapLatLong, org.mapsforge.core.model.Point layerXY,
                     org.mapsforge.core.model.Point tapXY) {
-                System.out.println("Tap on: " + tapLatLong);
                 Point pt = new Point(tapLatLong.getLongitude(), tapLatLong.getLatitude());
                 for (DrawingClickListener listener: MapViewDrawing.this.drawingClickListeners) {
                     listener.mouseClicked(pt);
@@ -264,8 +262,7 @@ public class MapViewDrawing extends MapView implements Drawing {
     public void drawGraph(File file) {
 
         // Tile cache
-        TileCache tileCache = AwtUtil.createTileCache(tileSize,
-                getModel().frameBufferModel.getOverdrawFactor(), 1024,
+        TileCache tileCache = AwtUtil.createTileCache(tileSize, getModel().frameBufferModel.getOverdrawFactor(), 1024,
                 new File(System.getProperty("java.io.tmpdir"), UUID.randomUUID().toString()));
 
         // Layers
@@ -278,12 +275,10 @@ public class MapViewDrawing extends MapView implements Drawing {
         BoundingBox boundingBox = mapDataStore.boundingBox();
 
         final Model model = getModel();
-        if (model.mapViewPosition.getZoomLevel() == 0
-                || !boundingBox.contains(model.mapViewPosition.getCenter())) {
-            byte zoomLevel = LatLongUtils.zoomForBounds(model.mapViewDimension.getDimension(),
-                    boundingBox, model.displayModel.getTileSize());
-            model.mapViewPosition
-                    .setMapPosition(new MapPosition(boundingBox.getCenterPoint(), zoomLevel));
+        if (model.mapViewPosition.getZoomLevel() == 0 || !boundingBox.contains(model.mapViewPosition.getCenter())) {
+            byte zoomLevel = LatLongUtils.zoomForBounds(model.mapViewDimension.getDimension(), boundingBox,
+                    model.displayModel.getTileSize());
+            model.mapViewPosition.setMapPosition(new MapPosition(boundingBox.getCenterPoint(), zoomLevel));
         }
     }
 
@@ -306,8 +301,7 @@ public class MapViewDrawing extends MapView implements Drawing {
         PathOverlay overlay = null;
         if (markers) {
             Marker origin = createMarker(path.getOrigin().getPoint(), DEFAULT_PATH_COLOR),
-                    destination = createMarker(path.getDestination().getPoint(),
-                            DEFAULT_PATH_COLOR);
+                    destination = createMarker(path.getDestination().getPoint(), DEFAULT_PATH_COLOR);
             overlay = new MapViewPathOverlay(line, origin, destination);
         }
         else {
