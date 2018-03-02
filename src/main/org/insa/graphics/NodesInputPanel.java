@@ -34,10 +34,54 @@ public class NodesInputPanel extends JPanel
     /**
      * 
      */
-    private static final long serialVersionUID = -1638302070013027690L;
+    private static final long serialVersionUID = 1L;
 
     private static final Color DEFAULT_MARKER_COLOR = Color.BLUE;
 
+    /**
+     * Utility class that can be used to find a node from coordinates in a "fast"
+     * way.
+     *
+     */
+    private static class NodeFinder {
+
+        // Graph associated with this node finder.
+        private Graph graph;
+
+        /**
+         * @param graph
+         */
+        public NodeFinder(Graph graph) {
+            this.graph = graph;
+        }
+
+        /**
+         * @param point
+         * 
+         * @return the closest node to the given point, or null if no node is "close
+         *         enough".
+         */
+        public Node findClosestNode(Point point) {
+            Node minNode = null;
+            double minDis = Double.POSITIVE_INFINITY;
+            for (Node node: graph.getNodes()) {
+                double dlon = point.getLongitude() - node.getPoint().getLongitude();
+                double dlat = point.getLatitude() - node.getPoint().getLatitude();
+                double dis = dlon * dlon + dlat * dlat; // No need to square
+                if (dis < minDis) {
+                    minNode = node;
+                    minDis = dis;
+                }
+            }
+            return minNode;
+        }
+
+    }
+
+    /**
+     * Event data send when a node input has changed.
+     *
+     */
     public class InputChangedEvent extends ActionEvent {
 
         /**
@@ -77,6 +121,7 @@ public class NodesInputPanel extends JPanel
     // Drawing and graph
     private Drawing drawing;
     private Graph graph;
+    private NodeFinder nodeFinder;
 
     /**
      * @param drawing Original drawing used (see {@link:newDrawingLoaded}).
@@ -316,7 +361,7 @@ public class NodesInputPanel extends JPanel
     public void mouseClicked(Point point) {
         JTextField input = getInputToFill();
         if (input != null) {
-            Node node = graph.findClosestNode(point);
+            Node node = nodeFinder.findClosestNode(point);
             input.setText(String.valueOf(node.getId()));
             nextInputToFill();
         }
@@ -327,6 +372,8 @@ public class NodesInputPanel extends JPanel
         if (graph != this.graph) {
             this.clear();
             this.graph = graph;
+
+            nodeFinder = new NodeFinder(graph);
 
             // Disable if previously disabled...
             setEnabled(this.isEnabled());

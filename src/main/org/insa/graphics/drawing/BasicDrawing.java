@@ -8,7 +8,6 @@ import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -129,8 +128,7 @@ public class BasicDrawing extends JPanel implements Drawing {
             double scale = DEFAULT_MARKER_WIDTH / (double) img.getHeight();
             gr.scale(scale, scale);
 
-            graphics.drawImage(img, px - img.getWidth() / 2, py - img.getHeight(),
-                    BasicDrawing.this);
+            graphics.drawImage(img, px - img.getWidth() / 2, py - img.getHeight(), BasicDrawing.this);
         }
 
     };
@@ -279,8 +277,7 @@ public class BasicDrawing extends JPanel implements Drawing {
     private Graphics2D graphGraphics = null;
 
     // List of image for markers
-    private List<BasicOverlay> overlays = Collections
-            .synchronizedList(new ArrayList<BasicOverlay>());
+    private List<BasicOverlay> overlays = Collections.synchronizedList(new ArrayList<BasicOverlay>());
 
     // Mapping DrawingClickListener -> MouseEventListener
     private Map<DrawingClickListener, MouseListener> listenerMapping = new IdentityHashMap<>();
@@ -290,14 +287,7 @@ public class BasicDrawing extends JPanel implements Drawing {
      * 
      */
     public BasicDrawing() {
-        this.zoomAndPanListener = new ZoomAndPanListener(this,
-                ZoomAndPanListener.DEFAULT_MIN_ZOOM_LEVEL, 20, 1.2);
-        this.addMouseListener(zoomAndPanListener);
-        this.addMouseMotionListener(zoomAndPanListener);
-        this.addMouseWheelListener(zoomAndPanListener);
-
-        // Avoid bunch of NullPointerException
-        this.zoomAndPanListener.setCoordTransform(new AffineTransform());
+        this.zoomAndPanListener = new ZoomAndPanListener(this, ZoomAndPanListener.DEFAULT_MIN_ZOOM_LEVEL, 20, 1.2);
     }
 
     @Override
@@ -347,8 +337,7 @@ public class BasicDrawing extends JPanel implements Drawing {
         // Get the point using the inverse transform of the Zoom/Pan object, this gives
         // us
         // a point within the drawing box (between [0, 0] and [width, height]).
-        Point2D ptDst = this.zoomAndPanListener.getCoordTransform()
-                .inverseTransform(event.getPoint(), null);
+        Point2D ptDst = this.zoomAndPanListener.getCoordTransform().inverseTransform(event.getPoint(), null);
 
         // Inverse the "projection" on x/y to get longitude and latitude.
         double lon = ptDst.getX();
@@ -427,9 +416,9 @@ public class BasicDrawing extends JPanel implements Drawing {
      * 
      * @param arc Arc to draw.
      * @param palette Palette to use to retrieve color and width for arc, or null to
-     * use current settings.
+     *        use current settings.
      */
-    protected void drawArc(Arc arc, GraphPalette palette) {
+    protected void drawArc(Arc arc, GraphPalette palette, boolean repaint) {
         List<Point> pts = arc.getPoints();
         if (!pts.isEmpty()) {
             if (palette != null) {
@@ -450,7 +439,9 @@ public class BasicDrawing extends JPanel implements Drawing {
                 prev = curr;
             }
         }
-        this.repaint();
+        if (repaint) {
+            this.repaint();
+        }
     }
 
     /**
@@ -464,8 +455,8 @@ public class BasicDrawing extends JPanel implements Drawing {
         this.clear();
 
         // Find minimum/maximum longitude and latitude.
-        double minLon = Double.POSITIVE_INFINITY, minLat = Double.POSITIVE_INFINITY,
-                maxLon = Double.NEGATIVE_INFINITY, maxLat = Double.NEGATIVE_INFINITY;
+        double minLon = Double.POSITIVE_INFINITY, minLat = Double.POSITIVE_INFINITY, maxLon = Double.NEGATIVE_INFINITY,
+                maxLat = Double.NEGATIVE_INFINITY;
         for (Node node: graph.getNodes()) {
             Point pt = node.getPoint();
             if (pt.getLatitude() < minLat) {
@@ -503,8 +494,7 @@ public class BasicDrawing extends JPanel implements Drawing {
         }
 
         // Create the image
-        BufferedImage img = new BufferedImage(this.width, this.height,
-                BufferedImage.TYPE_3BYTE_BGR);
+        BufferedImage img = new BufferedImage(this.width, this.height, BufferedImage.TYPE_3BYTE_BGR);
         this.graphImage = img;
         this.graphGraphics = img.createGraphics();
         this.graphGraphics.setBackground(Color.WHITE);
@@ -512,12 +502,10 @@ public class BasicDrawing extends JPanel implements Drawing {
 
         // Set the zoom and pan listener
 
-        double scale = 1 / Math.max(this.width / (double) this.getWidth(),
-                this.height / (double) this.getHeight());
+        double scale = 1 / Math.max(this.width / (double) this.getWidth(), this.height / (double) this.getHeight());
 
         this.zoomAndPanListener.setCoordTransform(this.graphGraphics.getTransform());
-        this.zoomAndPanListener.getCoordTransform().translate(
-                (this.getWidth() - this.width * scale) / 2,
+        this.zoomAndPanListener.getCoordTransform().translate((this.getWidth() - this.width * scale) / 2,
                 (this.getHeight() - this.height * scale) / 2);
         this.zoomAndPanListener.getCoordTransform().scale(scale, scale);
         this.zoomAndPanListener.setZoomLevel(0);
@@ -528,15 +516,33 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     @Override
     public void drawGraph(Graph graph, GraphPalette palette) {
+        int repaintModulo = graph.getNodes().size() / 100;
+
+        // Initialize the buffered image
+
         this.initialize(graph);
+
+        // Remove zoom and pan listener
+        this.removeMouseListener(zoomAndPanListener);
+        this.removeMouseMotionListener(zoomAndPanListener);
+        this.removeMouseWheelListener(zoomAndPanListener);
+
         for (Node node: graph.getNodes()) {
             for (Arc arc: node.getSuccessors()) {
-                if (arc.getRoadInformation().isOneWay()
-                        || arc.getOrigin().compareTo(arc.getDestination()) < 0) {
-                    drawArc(arc, palette);
+                if (arc.getRoadInformation().isOneWay() || arc.getOrigin().compareTo(arc.getDestination()) < 0) {
+                    drawArc(arc, palette, false);
                 }
             }
+            if (node.getId() % repaintModulo == 0) {
+                this.repaint();
+            }
         }
+        this.repaint();
+
+        // Re-add zoom and pan listener
+        this.addMouseListener(zoomAndPanListener);
+        this.addMouseMotionListener(zoomAndPanListener);
+        this.addMouseWheelListener(zoomAndPanListener);
     }
 
     @Override

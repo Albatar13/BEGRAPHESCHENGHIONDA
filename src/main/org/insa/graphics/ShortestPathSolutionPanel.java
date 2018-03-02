@@ -32,8 +32,7 @@ import org.insa.graph.io.BinaryPathWriter;
 import org.insa.graphics.drawing.Drawing;
 import org.insa.graphics.drawing.overlays.PathOverlay;
 
-public class ShortestPathSolutionPanel extends JPanel
-        implements DrawingChangeListener, GraphChangeListener {
+public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeListener, GraphChangeListener {
 
     /**
      * 
@@ -98,12 +97,13 @@ public class ShortestPathSolutionPanel extends JPanel
 
         /*
          * (non-Javadoc)
+         * 
          * @see java.lang.Object#toString()
          */
         public String toString() {
             return "Shortest-path from #" + this.getData().getOrigin().getId() + " to #"
-                    + this.getData().getDestination().getId() + " ["
-                    + this.getData().getMode().toString().toLowerCase() + "]";
+                    + this.getData().getDestination().getId() + " [" + this.getData().getMode().toString().toLowerCase()
+                    + "]";
         }
     }
 
@@ -167,10 +167,9 @@ public class ShortestPathSolutionPanel extends JPanel
             @Override
             public void actionPerformed(ActionEvent e) {
                 String filepath = System.getProperty("user.dir");
-                filepath += File.separator + String.format("path_%#x_%d_%d.path",
-                        currentBundle.getData().getGraph().getMapId(),
-                        currentBundle.getData().getOrigin().getId(),
-                        currentBundle.getData().getDestination().getId());
+                filepath += File.separator + String.format("path_%s_%d_%d.path",
+                        currentBundle.getData().getGraph().getMapId().toLowerCase().replaceAll("[^a-z0-9_]", "_"),
+                        currentBundle.getData().getOrigin().getId(), currentBundle.getData().getDestination().getId());
                 JFileChooser fileChooser = new JFileChooser();
                 fileChooser.setSelectedFile(new File(filepath));
                 fileChooser.setApproveButtonText("Save");
@@ -178,13 +177,12 @@ public class ShortestPathSolutionPanel extends JPanel
                 if (fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
                     File file = fileChooser.getSelectedFile();
                     try {
-                        BinaryPathWriter writer = new BinaryPathWriter(new DataOutputStream(
-                                new BufferedOutputStream(new FileOutputStream(file))));
+                        BinaryPathWriter writer = new BinaryPathWriter(
+                                new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file))));
                         writer.writePath(currentBundle.getSolution().getPath());
                     }
                     catch (IOException e1) {
-                        JOptionPane.showMessageDialog(parent,
-                                "Unable to write path to the selected file.");
+                        JOptionPane.showMessageDialog(parent, "Unable to write path to the selected file.");
                         e1.printStackTrace();
                     }
                 }
@@ -237,8 +235,8 @@ public class ShortestPathSolutionPanel extends JPanel
         ShortestPathData data = bundle.getData();
         String info = null;
         if (!bundle.getSolution().isFeasible()) {
-            info = String.format("No path found from node #%d to node #%d.",
-                    data.getOrigin().getId(), data.getDestination().getId());
+            info = String.format("No path found from node #%d to node #%d.", data.getOrigin().getId(),
+                    data.getDestination().getId());
         }
         else {
             info = String.format("Found a path from node #%d to node #%d", data.getOrigin().getId(),
@@ -275,6 +273,12 @@ public class ShortestPathSolutionPanel extends JPanel
 
     @Override
     public void newGraphLoaded(Graph graph) {
+        for (int i = 0; i < this.solutionSelect.getItemCount(); ++i) {
+            PathOverlay overlay = this.solutionSelect.getItemAt(i).getOverlay();
+            if (overlay != null) {
+                overlay.delete();
+            }
+        }
         this.solutionSelect.removeAllItems();
         this.currentBundle = null;
         this.setVisible(false);
