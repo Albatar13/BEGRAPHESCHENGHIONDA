@@ -3,7 +3,8 @@ package org.insa.graphics;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -25,8 +26,11 @@ import javax.swing.border.EmptyBorder;
 
 import org.insa.algo.shortestpath.ShortestPathAlgorithm;
 import org.insa.algo.shortestpath.ShortestPathAlgorithmFactory;
+import org.insa.algo.shortestpath.ShortestPathData.ArcFilter;
 import org.insa.algo.shortestpath.ShortestPathData.Mode;
+import org.insa.graph.Arc;
 import org.insa.graph.Node;
+import org.insa.graph.RoadInformation.AccessMode;
 import org.insa.graphics.NodesInputPanel.InputChangedEvent;
 
 public class ShortestPathPanel extends JPanel {
@@ -51,12 +55,13 @@ public class ShortestPathPanel extends JPanel {
         private final Mode mode;
         private final Class<? extends ShortestPathAlgorithm> algoClass;
 
+        private final ArcFilter arcFilter;
+
         private final boolean graphicVisualization;
         private final boolean textualVisualization;
 
-        public StartActionEvent(Class<? extends ShortestPathAlgorithm> algoClass, Node origin,
-                Node destination, Mode mode, boolean graphicVisualization,
-                boolean textualVisualization) {
+        public StartActionEvent(Class<? extends ShortestPathAlgorithm> algoClass, Node origin, Node destination,
+                Mode mode, ArcFilter arcFilter, boolean graphicVisualization, boolean textualVisualization) {
             super(ShortestPathPanel.this, START_EVENT_ID, START_EVENT_COMMAND);
             this.origin = origin;
             this.destination = destination;
@@ -64,6 +69,7 @@ public class ShortestPathPanel extends JPanel {
             this.algoClass = algoClass;
             this.graphicVisualization = graphicVisualization;
             this.textualVisualization = textualVisualization;
+            this.arcFilter = arcFilter;
         }
 
         /**
@@ -85,6 +91,13 @@ public class ShortestPathPanel extends JPanel {
          */
         public Mode getMode() {
             return this.mode;
+        }
+
+        /**
+         * @return Arc filter associated with this event.
+         */
+        public ArcFilter getArcFilter() {
+            return this.arcFilter;
         }
 
         /**
@@ -161,10 +174,34 @@ public class ShortestPathPanel extends JPanel {
         add(this.nodesInputPanel);
         components.add(this.nodesInputPanel);
 
+        JComboBox<ArcFilter> arcFilterSelect = new JComboBox<>(new ArcFilter[] { new ArcFilter() {
+            @Override
+            public boolean isAllowed(Arc arc) {
+                return true;
+            }
+
+            @Override
+            public String toString() {
+                return "All arcs are allowed";
+            }
+        }, new ArcFilter() {
+            @Override
+            public boolean isAllowed(Arc arc) {
+                return arc.getRoadInformation().getAccessRestrictions().isAllowedFor(AccessMode.MOTORCAR)
+                        && !arc.getRoadInformation().getAccessRestrictions().isPrivate();
+            }
+
+            @Override
+            public String toString() {
+                return "Non-private roads allowed for motorcars";
+            }
+        } });
+        arcFilterSelect.setBackground(Color.WHITE);
+
         // Add mode selection
         JPanel modeAndObserverPanel = new JPanel();
         modeAndObserverPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        modeAndObserverPanel.setLayout(new GridLayout(2, 3));
+        modeAndObserverPanel.setLayout(new GridBagLayout());
         JRadioButton lengthModeButton = new JRadioButton("Length");
         lengthModeButton.setSelected(true);
         JRadioButton timeModeButton = new JRadioButton("Time");
@@ -176,15 +213,44 @@ public class ShortestPathPanel extends JPanel {
         graphicObserver.setSelected(true);
         JCheckBox textObserver = new JCheckBox("Textual");
 
-        modeAndObserverPanel.add(new JLabel("Mode: "));
-        modeAndObserverPanel.add(lengthModeButton);
-        modeAndObserverPanel.add(timeModeButton);
-        modeAndObserverPanel.add(new JLabel("Visualization: "));
-        modeAndObserverPanel.add(graphicObserver);
-        modeAndObserverPanel.add(textObserver);
+        GridBagConstraints c = new GridBagConstraints();
+
+        c.fill = GridBagConstraints.HORIZONTAL;
+
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 0;
+        modeAndObserverPanel.add(new JLabel("Mode: "), c);
+        c.gridx = 1;
+        c.weightx = 1;
+        modeAndObserverPanel.add(lengthModeButton, c);
+        c.gridx = 2;
+        c.weightx = 1;
+        modeAndObserverPanel.add(timeModeButton, c);
+
+        c.gridy = 2;
+        c.gridx = 0;
+        c.weightx = 0;
+        modeAndObserverPanel.add(new JLabel("Visualization: "), c);
+        c.gridx = 1;
+        c.weightx = 1;
+        modeAndObserverPanel.add(graphicObserver, c);
+        c.gridx = 2;
+        c.weightx = 1;
+        modeAndObserverPanel.add(textObserver, c);
+
+        c.gridy = 1;
+        c.gridx = 0;
+        c.weightx = 0;
+        modeAndObserverPanel.add(new JLabel("Restrictions: "), c);
+        c.gridx = 1;
+        c.gridwidth = 2;
+        c.weightx = 1;
+        modeAndObserverPanel.add(arcFilterSelect, c);
 
         components.add(timeModeButton);
         components.add(lengthModeButton);
+        components.add(arcFilterSelect);
         components.add(graphicObserver);
         components.add(textObserver);
 
@@ -211,10 +277,9 @@ public class ShortestPathPanel extends JPanel {
 
                 for (ActionListener lis: startActionListeners) {
                     lis.actionPerformed(new StartActionEvent(
-                            ShortestPathAlgorithmFactory.getAlgorithmClass(
-                                    (String) algoSelect.getSelectedItem()),
-                            origin, destination, mode, graphicObserver.isSelected(),
-                            textObserver.isSelected()));
+                            ShortestPathAlgorithmFactory.getAlgorithmClass((String) algoSelect.getSelectedItem()),
+                            origin, destination, mode, (ArcFilter) arcFilterSelect.getSelectedItem(),
+                            graphicObserver.isSelected(), textObserver.isSelected()));
                 }
             }
         });
