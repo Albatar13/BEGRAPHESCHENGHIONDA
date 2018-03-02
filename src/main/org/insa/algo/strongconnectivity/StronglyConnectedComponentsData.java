@@ -1,9 +1,9 @@
 package org.insa.algo.strongconnectivity;
 
-import org.insa.algo.AbstractData;
+import org.insa.algo.AbstractInputData;
 import org.insa.graph.Graph;
 
-public class StronglyConnectedComponentsData extends AbstractData {
+public class StronglyConnectedComponentsData extends AbstractInputData {
 
 	/**
 	 * 

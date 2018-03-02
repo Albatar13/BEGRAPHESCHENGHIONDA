@@ -4,71 +4,74 @@ import java.time.Duration;
 
 public abstract class AbstractSolution {
 
-	/**
-	 * Possible status for a solution.
-	 *
-	 */
-	public enum Status {
-		UNKNOWN,
-		INFEASIBLE,
-		FEASIBLE,
-		OPTIMAL,
-	};
-	
-	// Status of the solution.
-	Status status;
-	
-	// Solving time for the solution
-	Duration solvingTime;
-	
-	// Original instance of the solution
-	AbstractData instance;
+    /**
+     * Possible status for a solution.
+     *
+     */
+    public enum Status {
+        UNKNOWN, INFEASIBLE, FEASIBLE, OPTIMAL,
+    };
 
-	/**
-	 * Create a new abstract solution with unknown status.
-	 * 
-	 * @param instance
-	 */
-	protected AbstractSolution(AbstractData instance) {
-		this.instance = instance;
-		this.solvingTime = Duration.ZERO;
-		this.status = Status.UNKNOWN;
-	}
-	
-	protected AbstractSolution(AbstractData instance, Status status) {
-		this.instance = instance;
-		this.status = status;
-	}
-	
-	/**
-	 * @return Original instance for this solution.
-	 */
-	public AbstractData getInputData() { return instance; }
-	
-	/**
-	 * @return Status of this solution.
-	 */
-	public Status getStatus() { return status; }
-	
-	/**
-	 * @return Solving time of this solution.
-	 */
-	public Duration getSolvingTime() { return solvingTime; }
-	
-	/**
-	 * Set the solving time of this solution.
-	 * 
-	 * @param solvingTime Solving time for the solution.
-	 */
-	protected void setSolvingTime(Duration solvingTime) {
-		this.solvingTime = solvingTime;
-	}
-	
-	/**
-	 * @return true if the solution is feasible or optimal.
-	 */
-	public boolean isFeasible() {
-		return status == Status.FEASIBLE || status == Status.OPTIMAL;
-	}
-	
+    // Status of the solution.
+    Status status;
+
+    // Solving time for the solution.
+    Duration solvingTime;
+
+    // Original input of the solution.
+    AbstractInputData data;
+
+    /**
+     * Create a new abstract solution with unknown status.
+     * 
+     * @param data
+     */
+    protected AbstractSolution(AbstractInputData data) {
+        this.data = data;
+        this.solvingTime = Duration.ZERO;
+        this.status = Status.UNKNOWN;
+    }
+
+    protected AbstractSolution(AbstractInputData data, Status status) {
+        this.data = data;
+        this.status = status;
+    }
+
+    /**
+     * @return Original input for this solution.
+     */
+    public AbstractInputData getInputData() {
+        return data;
+    }
+
+    /**
+     * @return Status of this solution.
+     */
+    public Status getStatus() {
+        return status;
+    }
+
+    /**
+     * @return Solving time of this solution.
+     */
+    public Duration getSolvingTime() {
+        return solvingTime;
+    }
+
+    /**
+     * Set the solving time of this solution.
+     * 
+     * @param solvingTime Solving time for the solution.
+     */
+    protected void setSolvingTime(Duration solvingTime) {
+        this.solvingTime = solvingTime;
+    }
+
+    /**
+     * @return true if the solution is feasible or optimal.
+     */
+    public boolean isFeasible() {
+        return status == Status.FEASIBLE || status == Status.OPTIMAL;
+    }
+
 }

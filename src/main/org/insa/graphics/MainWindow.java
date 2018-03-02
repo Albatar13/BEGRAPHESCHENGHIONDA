@@ -617,9 +617,8 @@ public class MainWindow extends JFrame {
         wccItem.addActionListener(baf.createBlockingAction(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                WeaklyConnectedComponentsData instance = new WeaklyConnectedComponentsData(graph);
                 WeaklyConnectedComponentsAlgorithm algo = new WeaklyConnectedComponentsAlgorithm(
-                        instance);
+                        new WeaklyConnectedComponentsData(graph));
                 algo.addObserver(new WeaklyConnectedComponentGraphicObserver(drawing));
                 algo.addObserver(new WeaklyConnectedComponentTextObserver(printStream));
                 launchThread(new Runnable() {

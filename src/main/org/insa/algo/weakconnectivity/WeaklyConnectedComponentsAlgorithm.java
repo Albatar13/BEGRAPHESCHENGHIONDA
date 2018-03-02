@@ -13,15 +13,14 @@ import org.insa.graph.Arc;
 import org.insa.graph.Graph;
 import org.insa.graph.Node;
 
-public class WeaklyConnectedComponentsAlgorithm extends AbstractAlgorithm<WeaklyConnectedComponentObserver> {
+public class WeaklyConnectedComponentsAlgorithm
+        extends AbstractAlgorithm<WeaklyConnectedComponentObserver> {
 
     /**
-     * 
-     * @param instance
-     * @param logOutput
+     * @param data
      */
-    public WeaklyConnectedComponentsAlgorithm(WeaklyConnectedComponentsData instance) {
-        super(instance);
+    public WeaklyConnectedComponentsAlgorithm(WeaklyConnectedComponentsData data) {
+        super(data);
     }
 
     @Override
@@ -70,7 +69,7 @@ public class WeaklyConnectedComponentsAlgorithm extends AbstractAlgorithm<Weakly
 
     /**
      * @return An adjacency list for the undirected graph equivalent to the stored
-     *         graph.
+     * graph.
      */
     protected ArrayList<HashSet<Integer>> createUndirectedGraph() {
         int nNodes = getInputData().getGraph().getNodes().size();
