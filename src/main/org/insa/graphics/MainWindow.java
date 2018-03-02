@@ -185,7 +185,7 @@ public class MainWindow extends JFrame {
 
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                int confirmed = JOptionPane.showConfirmDialog(null,
+                int confirmed = JOptionPane.showConfirmDialog(MainWindow.this,
                         "Are you sure you want to close the application?", "Exit Confirmation",
                         JOptionPane.YES_NO_OPTION);
 
@@ -683,7 +683,7 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (currentThread.isRunning()) {
-                    int confirmed = JOptionPane.showConfirmDialog(null,
+                    int confirmed = JOptionPane.showConfirmDialog(MainWindow.this,
                             "Are you sure you want to kill the running thread?",
                             "Kill Confirmation", JOptionPane.YES_NO_OPTION);
                     if (confirmed == JOptionPane.YES_OPTION) {
