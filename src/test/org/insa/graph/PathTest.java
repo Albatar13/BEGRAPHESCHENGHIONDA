@@ -52,15 +52,14 @@ public class PathTest {
         d2e = new Arc(nodes[3], nodes[4], 20, speed20, null);
         e2d = new Arc(nodes[4], nodes[0], 10, speed10, null);
 
-        graph = new Graph("ID", "", Arrays.asList(nodes));
+        graph = new Graph("ID", "", Arrays.asList(nodes), null);
 
         emptyPath = new Path(graph, new ArrayList<Arc>());
-        shortPath = new Path(graph, Arrays.asList(new Arc[]{ a2b, b2c, c2d_1 }));
-        longPath = new Path(graph, Arrays.asList(new Arc[]{ a2b, b2c, c2d_1, d2e }));
-        loopPath = new Path(graph, Arrays.asList(new Arc[]{ a2b, b2c, c2d_1, d2a }));
-        longLoopPath = new Path(graph,
-                Arrays.asList(new Arc[]{ a2b, b2c, c2d_1, d2a, a2c, c2d_3, d2a, a2b, b2c }));
-        invalidPath = new Path(graph, Arrays.asList(new Arc[]{ a2b, c2d_1, d2e }));
+        shortPath = new Path(graph, Arrays.asList(new Arc[] { a2b, b2c, c2d_1 }));
+        longPath = new Path(graph, Arrays.asList(new Arc[] { a2b, b2c, c2d_1, d2e }));
+        loopPath = new Path(graph, Arrays.asList(new Arc[] { a2b, b2c, c2d_1, d2a }));
+        longLoopPath = new Path(graph, Arrays.asList(new Arc[] { a2b, b2c, c2d_1, d2a, a2c, c2d_3, d2a, a2b, b2c }));
+        invalidPath = new Path(graph, Arrays.asList(new Arc[] { a2b, c2d_1, d2e }));
 
     }
 
@@ -125,9 +124,8 @@ public class PathTest {
         Arc[] expected;
 
         // Simple construction
-        path = Path.createFastestPathFromNodes(graph,
-                Arrays.asList(new Node[]{ nodes[0], nodes[1], nodes[2] }));
-        expected = new Arc[]{ a2b, b2c };
+        path = Path.createFastestPathFromNodes(graph, Arrays.asList(new Node[] { nodes[0], nodes[1], nodes[2] }));
+        expected = new Arc[] { a2b, b2c };
         assertEquals(expected.length, path.getArcs().size());
         for (int i = 0; i < expected.length; ++i) {
             assertEquals(expected[i], path.getArcs().get(i));
@@ -135,8 +133,8 @@ public class PathTest {
 
         // Not so simple construction
         path = Path.createFastestPathFromNodes(graph,
-                Arrays.asList(new Node[]{ nodes[0], nodes[1], nodes[2], nodes[3] }));
-        expected = new Arc[]{ a2b, b2c, c2d_3 };
+                Arrays.asList(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }));
+        expected = new Arc[] { a2b, b2c, c2d_3 };
         assertEquals(expected.length, path.getArcs().size());
         for (int i = 0; i < expected.length; ++i) {
             assertEquals(expected[i], path.getArcs().get(i));
@@ -149,9 +147,8 @@ public class PathTest {
         Arc[] expected;
 
         // Simple construction
-        path = Path.createShortestPathFromNodes(graph,
-                Arrays.asList(new Node[]{ nodes[0], nodes[1], nodes[2] }));
-        expected = new Arc[]{ a2b, b2c };
+        path = Path.createShortestPathFromNodes(graph, Arrays.asList(new Node[] { nodes[0], nodes[1], nodes[2] }));
+        expected = new Arc[] { a2b, b2c };
         assertEquals(expected.length, path.getArcs().size());
         for (int i = 0; i < expected.length; ++i) {
             assertEquals(expected[i], path.getArcs().get(i));
@@ -159,8 +156,8 @@ public class PathTest {
 
         // Not so simple construction
         path = Path.createShortestPathFromNodes(graph,
-                Arrays.asList(new Node[]{ nodes[0], nodes[1], nodes[2], nodes[3] }));
-        expected = new Arc[]{ a2b, b2c, c2d_2 };
+                Arrays.asList(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }));
+        expected = new Arc[] { a2b, b2c, c2d_2 };
         assertEquals(expected.length, path.getArcs().size());
         for (int i = 0; i < expected.length; ++i) {
             assertEquals(expected[i], path.getArcs().get(i));
@@ -169,12 +166,12 @@ public class PathTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateFastestPathFromNodesException() {
-        Path.createFastestPathFromNodes(graph, Arrays.asList(new Node[]{ nodes[1], nodes[0] }));
+        Path.createFastestPathFromNodes(graph, Arrays.asList(new Node[] { nodes[1], nodes[0] }));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateShortestPathFromNodesException() {
-        Path.createShortestPathFromNodes(graph, Arrays.asList(new Node[]{ nodes[1], nodes[0] }));
+        Path.createShortestPathFromNodes(graph, Arrays.asList(new Node[] { nodes[1], nodes[0] }));
     }
 
 }

@@ -2,9 +2,6 @@ package org.insa.graph.io;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -23,9 +20,7 @@ public class BinaryGraphReaderTest {
 
     @BeforeClass
     public static void initAll() throws IOException {
-        BinaryGraphReaderInsa2016 reader = new BinaryGraphReaderInsa2016(
-                new DataInputStream(new BufferedInputStream(new FileInputStream("Maps/midip.map"))));
-        midip = reader.read();
+        // TODO
     }
 
     public void assertPointAt(Point p1, double longitude, double latitude) {
