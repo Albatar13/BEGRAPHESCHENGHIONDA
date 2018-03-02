@@ -2,6 +2,7 @@ package org.insa.graph.io;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.insa.graph.Arc;
 import org.insa.graph.Path;
@@ -23,9 +24,11 @@ public class BinaryPathWriter extends BinaryWriter implements PathWriter {
         dos.writeInt(BinaryPathReader.VERSION);
 
         // Write map id.
-        dos.writeInt(path.getGraph().getMapId());
+        byte[] bytes = Arrays.copyOf(path.getGraph().getMapId().getBytes("UTF-8"),
+                BinaryGraphReaderInsa2018.MAP_ID_FIELD_LENGTH);
+        dos.write(bytes);
 
-        // Write number of racs
+        // Write number of arcs
         dos.writeInt(path.getArcs().size() + 1);
 
         // Write origin / destination.

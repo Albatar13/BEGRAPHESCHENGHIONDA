@@ -12,7 +12,7 @@ public interface GraphReaderObserver {
      * 
      * @param mapId ID of the graph.
      */
-    public void notifyStartReading(int mapId);
+    public void notifyStartReading(String mapId);
 
     /**
      * Notify that the graph has been fully read.

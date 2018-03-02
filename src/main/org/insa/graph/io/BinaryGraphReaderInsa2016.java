@@ -179,7 +179,7 @@ public class BinaryGraphReaderInsa2016 extends BinaryReader implements GraphRead
         // Check format.
         checkByteOrThrow(253);
 
-        return new Graph(mapId, nodes);
+        return new Graph(Integer.toHexString(mapId), "", nodes);
     }
 
     /**

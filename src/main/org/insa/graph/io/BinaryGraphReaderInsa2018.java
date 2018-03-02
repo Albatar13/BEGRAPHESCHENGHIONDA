@@ -12,8 +12,8 @@ import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Point;
 import org.insa.graph.RoadInformation;
-import org.insa.graph.RoadInformation.AccessRestriction;
 import org.insa.graph.RoadInformation.AccessMode;
+import org.insa.graph.RoadInformation.AccessRestriction;
 import org.insa.graph.RoadInformation.RoadType;
 
 public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphReader {
@@ -21,6 +21,9 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
     // Map version and magic number targeted for this reader.
     private static final int VERSION = 5;
     private static final int MAGIC_NUMBER = 0x208BC3B3;
+
+    // Length of the map id field (in bytes)
+    protected static final int MAP_ID_FIELD_LENGTH = 32;
 
     // Some masks...
     private static final int MASK_UNKNOWN = 0x01;
@@ -128,7 +131,18 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
         checkVersionOrThrow(dis.readInt());
 
         // Read map id.
-        int mapId = dis.readInt();
+        String mapId;
+        String mapName = "";
+
+        if (getCurrentVersion() < 6) {
+            mapId = "0x" + Integer.toHexString(dis.readInt());
+        }
+        else {
+            byte[] byteId = new byte[MAP_ID_FIELD_LENGTH];
+            dis.read(byteId);
+            mapId = new String(byteId, "UTF-8");
+            mapName = dis.readUTF();
+        }
 
         observers.forEach((observer) -> observer.notifyStartReading(mapId));
 
@@ -229,7 +243,7 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
 
         observers.forEach((observer) -> observer.notifyEndReading());
 
-        return new Graph(mapId, nodes);
+        return new Graph(mapId, mapName, nodes);
     }
 
     /**

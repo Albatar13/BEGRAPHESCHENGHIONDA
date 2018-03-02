@@ -73,8 +73,8 @@ public class GraphReaderProgressBar extends JDialog implements GraphReaderObserv
     }
 
     @Override
-    public void notifyStartReading(int mapId) {
-        setTitle(String.format("Reading graph %#x... ", mapId));
+    public void notifyStartReading(String mapId) {
+        setTitle("Reading graph " + mapId + "... ");
         setVisible(true);
     }
 

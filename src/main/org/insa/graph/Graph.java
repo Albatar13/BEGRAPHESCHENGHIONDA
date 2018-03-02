@@ -6,7 +6,10 @@ import java.util.List;
 public class Graph {
 
     // Map identifier.
-    private final int mapId;
+    private final String mapId;
+
+    // Map name
+    private final String mapName;
 
     // Nodes of the graph.
     private final List<Node> nodes;
@@ -15,8 +18,9 @@ public class Graph {
      * @param mapId ID of this graph.
      * @param list List of nodes for this graph.
      */
-    public Graph(int mapId, List<Node> list) {
+    public Graph(String mapId, String mapName, List<Node> list) {
         this.mapId = mapId;
+        this.mapName = mapName;
         this.nodes = list;
     }
 
@@ -50,8 +54,15 @@ public class Graph {
     /**
      * @return Map ID of this graph.
      */
-    public int getMapId() {
+    public String getMapId() {
         return mapId;
+    }
+
+    /**
+     * @return Name of the map associated with this graph.
+     */
+    public String getMapName() {
+        return mapName;
     }
 
     /**

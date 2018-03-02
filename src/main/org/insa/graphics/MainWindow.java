@@ -278,6 +278,7 @@ public class MainWindow extends JFrame {
         threadTimer.stop();
         threadPanel.setVisible(false);
         currentThread.setThread(null);
+        spPanel.setEnabled(true);
     }
 
     private void displayShortestPathSolution(ShortestPathSolution solution) {
@@ -428,8 +429,12 @@ public class MainWindow extends JFrame {
                 }
                 notifyNewGraphLoaded();
 
-                graphInfoPanel.setText(String.format("Map ID: %#x, %d nodes", graph.getMapId(),
-                        graph.getNodes().size()));
+                String info = graph.getMapId();
+                if (graph.getMapName() != null && !graph.getMapName().isEmpty()) {
+                    info += " - " + graph.getMapName();
+                }
+                info += ", " + graph.getNodes().size() + " nodes";
+                graphInfoPanel.setText(info);
                 drawGraph();
 
                 for (JMenuItem item: graphLockItems) {

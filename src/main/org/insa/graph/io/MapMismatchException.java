@@ -9,14 +9,14 @@ public class MapMismatchException extends IOException {
      */
     private static final long serialVersionUID = 3076730078387819138L;
     // Actual and expected magic numbers.
-    private int actualMapId, expectedMapId;
+    private String actualMapId, expectedMapId;
 
     /**
      * 
      * @param actualVersion
      * @param expectedVersion
      */
-    public MapMismatchException(int actualMapId, int expectedMapId) {
+    public MapMismatchException(String actualMapId, String expectedMapId) {
         super();
         this.actualMapId = actualMapId;
         this.expectedMapId = expectedMapId;
@@ -25,14 +25,14 @@ public class MapMismatchException extends IOException {
     /**
      * @return
      */
-    public int getActualMapId() {
+    public String getActualMapId() {
         return actualMapId;
     }
 
     /**
      * @return
      */
-    public int getExpectedMapId() {
+    public String getExpectedMapId() {
         return expectedMapId;
     }
 }

@@ -52,7 +52,7 @@ public class PathTest {
         d2e = new Arc(nodes[3], nodes[4], 20, speed20, null);
         e2d = new Arc(nodes[4], nodes[0], 10, speed10, null);
 
-        graph = new Graph(0, Arrays.asList(nodes));
+        graph = new Graph("ID", "", Arrays.asList(nodes));
 
         emptyPath = new Path(graph, new ArrayList<Arc>());
         shortPath = new Path(graph, Arrays.asList(new Arc[]{ a2b, b2c, c2d_1 }));
