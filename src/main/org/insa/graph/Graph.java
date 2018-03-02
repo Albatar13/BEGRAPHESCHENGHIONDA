@@ -14,14 +14,25 @@ public class Graph {
     // Nodes of the graph.
     private final List<Node> nodes;
 
+    // Graph information of this graph.
+    private final GraphInformation graphInfo;
+
     /**
      * @param mapId ID of this graph.
      * @param list List of nodes for this graph.
      */
-    public Graph(String mapId, String mapName, List<Node> list) {
+    public Graph(String mapId, String mapName, List<Node> list, GraphInformation graphInformation) {
         this.mapId = mapId;
         this.mapName = mapName;
         this.nodes = list;
+        this.graphInfo = graphInformation;
+    }
+
+    /**
+     * @return GraphInformation of this graph.
+     */
+    public GraphInformation getGraphInformation() {
+        return this.graphInfo;
     }
 
     /**
@@ -29,26 +40,6 @@ public class Graph {
      */
     public List<Node> getNodes() {
         return Collections.unmodifiableList(nodes);
-    }
-
-    /**
-     * Find the closet node to the given point.
-     * 
-     * @param point
-     * 
-     * @return Closest node to the given point.
-     */
-    public Node findClosestNode(Point point) {
-        Node node = null;
-        double minDis = Double.POSITIVE_INFINITY;
-        for (int n = 0; n < nodes.size(); ++n) {
-            double dis = point.distanceTo(nodes.get(n).getPoint());
-            if (dis < minDis) {
-                node = nodes.get(n);
-                minDis = dis;
-            }
-        }
-        return node;
     }
 
     /**

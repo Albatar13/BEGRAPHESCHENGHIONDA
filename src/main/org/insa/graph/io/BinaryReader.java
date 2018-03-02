@@ -77,6 +77,22 @@ public abstract class BinaryReader {
     }
 
     /**
+     * Read an bytes array of fixed length from the input and convert it to a string
+     * using the given charset, removing any trailing '\0'.
+     * 
+     * @param length
+     * @param charset
+     * 
+     * @return an UTF-8 string read from the input.
+     * @throws IOException
+     */
+    protected String readFixedLengthString(int length, String charset) throws IOException {
+        byte[] bytes = new byte[length];
+        this.dis.read(bytes);
+        return new String(bytes, "UTF-8").trim();
+    }
+
+    /**
      * Read 24 bits from the stream and return the corresponding integer value.
      * 
      * @return Integer value read from the next 24 bits of the stream.

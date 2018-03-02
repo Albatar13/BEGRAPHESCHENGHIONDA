@@ -26,10 +26,7 @@ public class BinaryPathReader extends BinaryReader implements PathReader {
         checkVersionOrThrow(dis.readInt());
 
         // Read map ID and check against graph.
-        byte[] mapIdBytes = new byte[BinaryGraphReaderInsa2018.MAP_ID_FIELD_LENGTH];
-        dis.read(mapIdBytes);
-
-        String mapId = new String(mapIdBytes, "UTF-8");
+        String mapId = readFixedLengthString(BinaryGraphReaderInsa2018.MAP_ID_FIELD_LENGTH, "UTF-8");
 
         if (!mapId.equals(graph.getMapId())) {
             throw new MapMismatchException(mapId, graph.getMapId());

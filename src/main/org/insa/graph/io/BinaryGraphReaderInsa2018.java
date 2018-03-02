@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.insa.graph.Arc;
 import org.insa.graph.Graph;
+import org.insa.graph.GraphInformation;
 import org.insa.graph.Node;
 import org.insa.graph.Point;
 import org.insa.graph.RoadInformation;
@@ -63,8 +64,7 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
         allowedModes.put(AccessMode.MOTORCAR, (access & MASK_MOTORCAR) != 0);
         allowedModes.put(AccessMode.BUS, (access & MASK_BUS) != 0);
 
-        return new AccessRestriction((access & MASK_PRIVATE) != 0,
-                (access & MASK_PUBLIC_TRANSPORT) != 0, allowedModes);
+        return new AccessRestriction((access & MASK_PRIVATE) != 0, (access & MASK_PUBLIC_TRANSPORT) != 0, allowedModes);
     }
 
     /**
@@ -138,9 +138,7 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
             mapId = "0x" + Integer.toHexString(dis.readInt());
         }
         else {
-            byte[] byteId = new byte[MAP_ID_FIELD_LENGTH];
-            dis.read(byteId);
-            mapId = new String(byteId, "UTF-8");
+            mapId = readFixedLengthString(MAP_ID_FIELD_LENGTH, "UTF-8");
             mapName = dis.readUTF();
         }
 
@@ -177,16 +175,21 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
 
         // Read
         observers.forEach((observer) -> observer.notifyStartReadingDescriptors(nbDesc));
+        int maxSpeed = 0;
         for (int descr = 0; descr < nbDesc; ++descr) {
             final RoadInformation roadinf = readRoadInformation();
             descs[descr] = roadinf;
             observers.forEach((observer) -> observer.notifyNewDescriptorRead(roadinf));
+
+            // Update max speed
+            maxSpeed = Math.max(roadinf.getMaximumSpeed(), maxSpeed);
         }
 
         // Check format.
         checkByteOrThrow(254);
 
         // Read successors and convert to arcs.
+        int maxLength = 0;
         final int copyNbTotalSuccesors = nbTotalSuccessors; // Stupid Java...
         observers.forEach((observer) -> observer.notifyStartReadingArcs(copyNbTotalSuccesors));
         for (int node = 0; node < nbNodes; ++node) {
@@ -200,6 +203,7 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
 
                 // Length of the arc.
                 int length = dis.readUnsignedShort();
+                maxLength = Math.max(length, maxLength);
 
                 // Number of segments.
                 int nbSegments = dis.readUnsignedShort();
@@ -214,8 +218,7 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
                     float dlon = (dis.readShort()) / 2.0e5f;
                     float dlat = (dis.readShort()) / 2.0e5f;
 
-                    points.add(new Point(lastPoint.getLongitude() + dlon,
-                            lastPoint.getLatitude() + dlat));
+                    points.add(new Point(lastPoint.getLongitude() + dlon, lastPoint.getLatitude() + dlat));
                 }
 
                 points.add(nodes.get(destNode).getPoint());
@@ -243,7 +246,9 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
 
         observers.forEach((observer) -> observer.notifyEndReading());
 
-        return new Graph(mapId, mapName, nodes);
+        this.dis.close();
+
+        return new Graph(mapId, mapName, nodes, new GraphInformation(maxSpeed, maxLength));
     }
 
     /**
@@ -258,8 +263,7 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
         if (getCurrentVersion() >= 6) {
             access = toAccessInformation(dis.readUnsignedShort());
         }
-        return new RoadInformation(toRoadType(type), access, (x & 0x80) > 0, (x & 0x7F) * 5,
-                dis.readUTF());
+        return new RoadInformation(toRoadType(type), access, (x & 0x80) > 0, (x & 0x7F) * 5, dis.readUTF());
     }
 
 }
