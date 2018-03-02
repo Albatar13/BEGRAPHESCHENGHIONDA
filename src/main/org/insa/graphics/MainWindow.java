@@ -98,7 +98,6 @@ public class MainWindow extends JFrame {
 
     // Shortest path panel
     private ShortestPathPanel spPanel;
-    private ShortestPathSolutionPanel spSolPanel;
 
     // List of items that cannot be used without a graph
     private ArrayList<JMenuItem> graphLockItems = new ArrayList<JMenuItem>();
@@ -139,7 +138,7 @@ public class MainWindow extends JFrame {
 
         this.drawing = this.basicDrawing;
 
-        spPanel = new ShortestPathPanel();
+        spPanel = new ShortestPathPanel(this);
         spPanel.addStartActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -163,17 +162,14 @@ public class MainWindow extends JFrame {
         });
         spPanel.setVisible(false);
 
-        spSolPanel = new ShortestPathSolutionPanel(this, drawing);
-        spSolPanel.setVisible(false);
-
         // Add click listeners to both drawing.
         basicDrawing.addDrawingClickListener(spPanel.nodesInputPanel);
         mapViewDrawing.addDrawingClickListener(spPanel.nodesInputPanel);
 
         this.graphChangeListeneres.add(spPanel.nodesInputPanel);
-        this.graphChangeListeneres.add(spSolPanel);
+        this.graphChangeListeneres.add(spPanel.solutionPanel);
         this.drawingChangeListeners.add(spPanel.nodesInputPanel);
-        this.drawingChangeListeners.add(spSolPanel);
+        this.drawingChangeListeners.add(spPanel.solutionPanel);
 
         // Create action factory.
         this.currentThread = new ThreadWrapper(this);
@@ -219,12 +215,6 @@ public class MainWindow extends JFrame {
         c = new GridBagConstraints();
         c.gridx = 0;
         c.gridy = 1;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        rightComponent.add(spSolPanel, c);
-
-        c = new GridBagConstraints();
-        c.gridx = 0;
-        c.gridy = 2;
         c.weightx = 1;
         c.weighty = 1;
         c.fill = GridBagConstraints.BOTH;
@@ -279,8 +269,8 @@ public class MainWindow extends JFrame {
     }
 
     private void displayShortestPathSolution(ShortestPathSolution solution) {
-        spSolPanel.addSolution(solution);
-        spSolPanel.setVisible(true);
+        spPanel.solutionPanel.addSolution(solution);
+        spPanel.solutionPanel.setVisible(true);
     }
 
     private void launchShortestPathThread(ShortestPathAlgorithm spAlgorithm) {

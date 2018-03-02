@@ -19,6 +19,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.UIManager;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
@@ -112,27 +114,32 @@ public class ShortestPathSolutionPanel extends JPanel
     private final JComboBox<ShortestPathBundle> solutionSelect;
 
     // Map solution -> panel
-    private final JLabel informationPanel;
+    private final JTextArea informationPanel;
 
     // Current bundle
     private ShortestPathBundle currentBundle = null;
 
-    public ShortestPathSolutionPanel(Component parent, Drawing drawing) {
+    public ShortestPathSolutionPanel(Component parent) {
         super();
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        setBorder(new CompoundBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK),
-                new EmptyBorder(15, 15, 15, 15)));
-
-        this.drawing = drawing;
+        setBorder(new CompoundBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, Color.LIGHT_GRAY),
+                new EmptyBorder(10, 0, 10, 0)));
 
         solutionSelect = new JComboBox<>();
         solutionSelect.setBackground(Color.WHITE);
         solutionSelect.setAlignmentX(Component.LEFT_ALIGNMENT);
         add(solutionSelect);
 
-        informationPanel = new JLabel();
+        informationPanel = new JTextArea();
+        informationPanel.setWrapStyleWord(true);
+        informationPanel.setLineWrap(true);
+        informationPanel.setOpaque(true);
+        informationPanel.setFocusable(false);
+        informationPanel.setEditable(false);
+        informationPanel.setBackground(UIManager.getColor("Label.background"));
+        informationPanel.setFont(UIManager.getFont("Label.font"));
+        informationPanel.setBorder(UIManager.getBorder("Label.border"));
         informationPanel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
-        informationPanel.setHorizontalAlignment(JLabel.LEFT);
         add(informationPanel);
 
         JButton clearButton = new JButton("Hide");
@@ -230,22 +237,40 @@ public class ShortestPathSolutionPanel extends JPanel
         ShortestPathData data = bundle.getData();
         String info = null;
         if (!bundle.getSolution().isFeasible()) {
-            info = String.format("Shortest path: No path found from node #%d to node #%d.",
+            info = String.format("No path found from node #%d to node #%d.",
                     data.getOrigin().getId(), data.getDestination().getId());
         }
         else {
-            info = String.format("Shortest path: Found a path from node #%d to node #%d",
-                    data.getOrigin().getId(), data.getDestination().getId());
+            info = String.format("Found a path from node #%d to node #%d", data.getOrigin().getId(),
+                    data.getDestination().getId());
             if (data.getMode() == Mode.LENGTH) {
-                info = String.format("%s, %.2f kilometers.", info,
+                info = String.format("%s, %.4f kilometers.", info,
                         (bundle.getSolution().getPath().getLength() / 1000.0));
             }
             else {
-                info = String.format("%s, %.2f minutes.", info,
+                info = String.format("%s, %.4f minutes.", info,
                         (bundle.getSolution().getPath().getMinimumTravelTime() / 60.0));
             }
         }
         informationPanel.setText(info);
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        solutionSelect.setEnabled(enabled);
+
+        if (enabled) {
+            // Trigger event
+            solutionSelect.actionPerformed(null);
+        }
+        else {
+            ShortestPathBundle bundle = (ShortestPathBundle) this.solutionSelect.getSelectedItem();
+            if (bundle != null && bundle.getOverlay() != null) {
+                bundle.getOverlay().setVisible(false);
+            }
+        }
+
     }
 
     @Override

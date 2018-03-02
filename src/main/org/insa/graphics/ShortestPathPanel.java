@@ -49,8 +49,8 @@ public class ShortestPathPanel extends JPanel {
         private final Mode mode;
         private final Class<? extends ShortestPathAlgorithm> algoClass;
 
-        public StartActionEvent(Class<? extends ShortestPathAlgorithm> algoClass, Node origin, Node destination,
-                Mode mode) {
+        public StartActionEvent(Class<? extends ShortestPathAlgorithm> algoClass, Node origin,
+                Node destination, Mode mode) {
             super(ShortestPathPanel.this, START_EVENT_ID, START_EVENT_COMMAND);
             this.origin = origin;
             this.destination = destination;
@@ -91,6 +91,9 @@ public class ShortestPathPanel extends JPanel {
     // Input panels for node.
     protected NodesInputPanel nodesInputPanel;
 
+    // Solution
+    protected ShortestPathSolutionPanel solutionPanel;
+
     // Component that can be enabled/disabled.
     private ArrayList<JComponent> components = new ArrayList<>();
 
@@ -101,7 +104,7 @@ public class ShortestPathPanel extends JPanel {
 
     /**
      */
-    public ShortestPathPanel() {
+    public ShortestPathPanel(Component parent) {
         super();
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
@@ -156,6 +159,12 @@ public class ShortestPathPanel extends JPanel {
         components.add(timeModeButton);
         components.add(lengthModeButton);
 
+        solutionPanel = new ShortestPathSolutionPanel(parent);
+        solutionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        solutionPanel.setVisible(false);
+        add(Box.createVerticalStrut(10));
+        add(solutionPanel);
+
         // Bottom panel
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.LINE_AXIS));
@@ -171,7 +180,8 @@ public class ShortestPathPanel extends JPanel {
 
                 for (ActionListener lis: startActionListeners) {
                     lis.actionPerformed(new StartActionEvent(
-                            ShortestPathAlgorithmFactory.getAlgorithmClass((String) algoSelect.getSelectedItem()),
+                            ShortestPathAlgorithmFactory
+                                    .getAlgorithmClass((String) algoSelect.getSelectedItem()),
                             origin, destination, mode));
                 }
             }
@@ -236,6 +246,7 @@ public class ShortestPathPanel extends JPanel {
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
         nodesInputPanel.setEnabled(enabled);
+        solutionPanel.setEnabled(enabled);
         for (JComponent component: components) {
             component.setEnabled(enabled);
         }
