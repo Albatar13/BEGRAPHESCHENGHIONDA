@@ -166,11 +166,12 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
         this.add(new PathPanel(path));
         this.setVisible(true);
         this.revalidate();
+        this.repaint();
     }
 
     protected void removePath(PathPanel panel) {
         PathsPanel.this.remove(panel);
-        PathsPanel.this.validate();
+        PathsPanel.this.revalidate();
         PathsPanel.this.repaint();
         if (this.getComponentCount() == 0) {
             this.setVisible(false);
