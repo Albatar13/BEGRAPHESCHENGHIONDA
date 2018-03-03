@@ -1,7 +1,6 @@
 package org.insa.graphics.drawing.overlays;
 
 import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.DataInputStream;
@@ -17,7 +16,7 @@ public class MarkerUtils {
      * @param color
      * @return
      */
-    public static BufferedImage getMarkerForColor(Color color) {
+    public static Image getMarkerForColor(Color color) {
         // create image
         int[][] mask = readMarkerMask();
         BufferedImage image = new BufferedImage(mask[0].length, mask.length, BufferedImage.TYPE_4BYTE_ABGR);
@@ -31,13 +30,7 @@ public class MarkerUtils {
             }
         }
 
-        BufferedImage scaleImage = new BufferedImage(28, 48, BufferedImage.TYPE_4BYTE_ABGR);
-        Graphics2D graphics = scaleImage.createGraphics();
-        graphics.drawImage(image.getScaledInstance(28, 48, Image.SCALE_SMOOTH), 0, 0, null);
-        graphics.dispose();
-
-        // Create Bitmap and return it.
-        return scaleImage;
+        return image;
     }
 
     // Mask cache

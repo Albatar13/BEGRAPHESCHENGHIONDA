@@ -3,6 +3,7 @@ package org.insa.graphics.drawing.components;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -17,20 +18,19 @@ import org.insa.graph.Point;
 import org.insa.graphics.drawing.Drawing;
 import org.insa.graphics.drawing.DrawingClickListener;
 import org.insa.graphics.drawing.GraphPalette;
+import org.insa.graphics.drawing.overlays.MarkerAutoScaling;
 import org.insa.graphics.drawing.overlays.MarkerOverlay;
 import org.insa.graphics.drawing.overlays.MarkerUtils;
 import org.insa.graphics.drawing.overlays.Overlay;
 import org.insa.graphics.drawing.overlays.PathOverlay;
 import org.insa.graphics.drawing.overlays.PointSetOverlay;
 import org.insa.graphics.drawing.overlays.PolylineAutoScaling;
-import org.mapsforge.core.graphics.Bitmap;
 import org.mapsforge.core.graphics.GraphicFactory;
 import org.mapsforge.core.model.BoundingBox;
 import org.mapsforge.core.model.LatLong;
 import org.mapsforge.core.model.MapPosition;
 import org.mapsforge.core.util.LatLongUtils;
 import org.mapsforge.core.util.Parameters;
-import org.mapsforge.map.awt.graphics.AwtBitmap;
 import org.mapsforge.map.awt.graphics.AwtGraphicFactory;
 import org.mapsforge.map.awt.util.AwtUtil;
 import org.mapsforge.map.awt.view.MapView;
@@ -122,10 +122,9 @@ public class MapViewDrawing extends MapView implements Drawing {
 
         @Override
         public void moveTo(Point point) {
-            Marker marker = (Marker) this.layers[0];
+            MarkerAutoScaling marker = (MarkerAutoScaling) this.layers[0];
             this.delete();
-            marker = new Marker(convertPoint(point), marker.getBitmap(), marker.getHorizontalOffset(),
-                    marker.getVerticalOffset());
+            marker = new MarkerAutoScaling(convertPoint(point), marker.getImage());
             this.layers[0] = marker;
             MapViewDrawing.this.getLayerManager().getLayers().add(marker);
         }
@@ -302,8 +301,9 @@ public class MapViewDrawing extends MapView implements Drawing {
     }
 
     protected Marker createMarker(Point point, Color color) {
-        Bitmap bitmap = new AwtBitmap(MarkerUtils.getMarkerForColor(color));
-        return new Marker(convertPoint(point), bitmap, 0, -bitmap.getHeight() / 2);
+        Image image = MarkerUtils.getMarkerForColor(color);
+        // Bitmap bitmap = new AwtBitmap(MarkerUtils.getMarkerForColor(color));
+        return new MarkerAutoScaling(convertPoint(point), image);
     }
 
     @Override
