@@ -23,7 +23,6 @@ import javax.swing.border.EmptyBorder;
 
 import org.insa.algo.AbstractInputData;
 import org.insa.algo.AbstractSolution;
-import org.insa.algo.shortestpath.ShortestPathSolution;
 import org.insa.graph.Graph;
 import org.insa.graph.Path;
 import org.insa.graphics.drawing.Drawing;
@@ -51,9 +50,11 @@ public class SolutionPanel extends JPanel implements DrawingChangeListener, Grap
          * @param solution Solution for this bundle, must not be null.
          * 
          */
-        public SolutionBundle(AbstractSolution solution) {
+        public SolutionBundle(AbstractSolution solution, boolean createOverlays) {
             this.solution = solution;
-            this.overlays = createOverlaysFromSolution();
+            if (createOverlays) {
+                this.overlays = createOverlaysFromSolution();
+            }
         }
 
         /**
@@ -78,10 +79,20 @@ public class SolutionPanel extends JPanel implements DrawingChangeListener, Grap
         }
 
         /**
+         * @return true if this bundle has overlays.
+         */
+        public boolean hasOverlays() {
+            return !this.overlays.isEmpty();
+        }
+
+        /**
          * Re-draw the current overlay (if any) on the new drawing.
          * 
          */
         public void updateOverlays() {
+            if (this.overlays.isEmpty()) {
+                return; // This bundle has no overlay.
+            }
             List<PathOverlay> oldOverlays = this.overlays;
             this.overlays = createOverlaysFromSolution();
             for (int i = 0; i < oldOverlays.size(); ++i) {
@@ -153,6 +164,8 @@ public class SolutionPanel extends JPanel implements DrawingChangeListener, Grap
         informationPanel.setFont(UIManager.getFont("Label.font"));
         informationPanel.setBorder(UIManager.getBorder("Label.border"));
         informationPanel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
+
+        add(Box.createVerticalStrut(8));
         add(informationPanel);
 
         JButton clearButton = new JButton("Hide");
@@ -173,42 +186,13 @@ public class SolutionPanel extends JPanel implements DrawingChangeListener, Grap
             }
         });
 
-        JButton saveButton = new JButton("Save");
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // String filepath = System.getProperty("user.dir");
-                // filepath += File.separator + String.format("path_%s_%d_%d.path",
-                // currentBundle.getData().getGraph().getMapId().toLowerCase().replaceAll("[^a-z0-9_]",
-                // "_"),
-                // currentBundle.getData().getOrigin().getId(),
-                // currentBundle.getData().getDestination().getId());
-                // JFileChooser fileChooser = new JFileChooser();
-                // fileChooser.setSelectedFile(new File(filepath));
-                // fileChooser.setApproveButtonText("Save");
-                //
-                // if (fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
-                // File file = fileChooser.getSelectedFile();
-                // try {
-                // BinaryPathWriter writer = new BinaryPathWriter(
-                // new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file))));
-                // writer.writePath(currentBundle.getSolution().getPath());
-                // }
-                // catch (IOException e1) {
-                // JOptionPane.showMessageDialog(parent, "Unable to write path to the selected
-                // file.");
-                // e1.printStackTrace();
-                // }
-                // }
-            }
-        });
-
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
         buttonPanel.add(Box.createHorizontalGlue());
         buttonPanel.add(clearButton);
-        buttonPanel.add(saveButton);
         buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        add(Box.createVerticalStrut(4));
         add(buttonPanel);
 
         solutionSelect.addActionListener(new ActionListener() {
@@ -228,7 +212,7 @@ public class SolutionPanel extends JPanel implements DrawingChangeListener, Grap
                 }
 
                 updateInformationLabel(bundle);
-                buttonPanel.setVisible(bundle.getSolution().isFeasible());
+                buttonPanel.setVisible(bundle.getSolution().isFeasible() && bundle.hasOverlays());
                 clearButton.setText(bundle.getSolution().isFeasible() ? "Hide" : "Show");
 
                 for (PathOverlay overlay: bundle.getOverlays()) {
@@ -241,8 +225,19 @@ public class SolutionPanel extends JPanel implements DrawingChangeListener, Grap
 
     }
 
-    public void addSolution(ShortestPathSolution solution) {
-        SolutionBundle bundle = new SolutionBundle(solution);
+    public void addSolution(AbstractSolution solution) {
+        addSolution(solution, true);
+    }
+
+    /**
+     * Add the given solution to the panel.
+     * 
+     * @param solution the solution to add to the panel
+     * @param createOverlays Whether or not overlay should be created for this
+     *        solution.
+     */
+    public void addSolution(AbstractSolution solution, boolean createOverlays) {
+        SolutionBundle bundle = new SolutionBundle(solution, createOverlays);
         solutionSelect.addItem(bundle);
         solutionSelect.setSelectedItem(bundle);
     }

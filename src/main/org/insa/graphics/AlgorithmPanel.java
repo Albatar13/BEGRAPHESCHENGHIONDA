@@ -61,8 +61,8 @@ public class AlgorithmPanel extends JPanel {
         private final boolean graphicVisualization;
         private final boolean textualVisualization;
 
-        public StartActionEvent(Class<? extends AbstractAlgorithm<?>> algoClass, List<Node> nodes, AbstractInputData.Mode mode,
-                AbstractInputData.ArcFilter arcFilter, boolean graphicVisualization, boolean textualVisualization) {
+        public StartActionEvent(Class<? extends AbstractAlgorithm<?>> algoClass, List<Node> nodes, Mode mode,
+                ArcFilter arcFilter, boolean graphicVisualization, boolean textualVisualization) {
             super(AlgorithmPanel.this, START_EVENT_ID, START_EVENT_COMMAND);
             this.nodes = nodes;
             this.mode = mode;
@@ -82,14 +82,14 @@ public class AlgorithmPanel extends JPanel {
         /**
          * @return Mode associated with this event.
          */
-        public AbstractInputData.Mode getMode() {
+        public Mode getMode() {
             return this.mode;
         }
 
         /**
          * @return Arc filter associated with this event.
          */
-        public AbstractInputData.ArcFilter getArcFilter() {
+        public ArcFilter getArcFilter() {
             return this.arcFilter;
         }
 
@@ -168,28 +168,29 @@ public class AlgorithmPanel extends JPanel {
         add(this.nodesInputPanel);
         components.add(this.nodesInputPanel);
 
-        JComboBox<AbstractInputData.ArcFilter> arcFilterSelect = new JComboBox<>(new AbstractInputData.ArcFilter[] { new AbstractInputData.ArcFilter() {
-            @Override
-            public boolean isAllowed(Arc arc) {
-                return true;
-            }
+        JComboBox<AbstractInputData.ArcFilter> arcFilterSelect = new JComboBox<>(
+                new AbstractInputData.ArcFilter[] { new AbstractInputData.ArcFilter() {
+                    @Override
+                    public boolean isAllowed(Arc arc) {
+                        return true;
+                    }
 
-            @Override
-            public String toString() {
-                return "All arcs are allowed";
-            }
-        }, new AbstractInputData.ArcFilter() {
-            @Override
-            public boolean isAllowed(Arc arc) {
-                return arc.getRoadInformation().getAccessRestrictions().isAllowedFor(AccessMode.MOTORCAR)
-                        && !arc.getRoadInformation().getAccessRestrictions().isPrivate();
-            }
+                    @Override
+                    public String toString() {
+                        return "All arcs are allowed";
+                    }
+                }, new AbstractInputData.ArcFilter() {
+                    @Override
+                    public boolean isAllowed(Arc arc) {
+                        return arc.getRoadInformation().getAccessRestrictions().isAllowedFor(AccessMode.MOTORCAR)
+                                && !arc.getRoadInformation().getAccessRestrictions().isPrivate();
+                    }
 
-            @Override
-            public String toString() {
-                return "Only non-private roads allowed for motorcars";
-            }
-        } });
+                    @Override
+                    public String toString() {
+                        return "Only non-private roads allowed for motorcars";
+                    }
+                } });
         arcFilterSelect.setBackground(Color.WHITE);
 
         // Add mode selection
@@ -265,13 +266,17 @@ public class AlgorithmPanel extends JPanel {
         startAlgoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                AbstractInputData.Mode mode = lengthModeButton.isSelected() ? AbstractInputData.Mode.LENGTH : AbstractInputData.Mode.TIME;
+                AbstractInputData.Mode mode = lengthModeButton.isSelected() ? AbstractInputData.Mode.LENGTH
+                        : AbstractInputData.Mode.TIME;
 
                 for (ActionListener lis: startActionListeners) {
-                    lis.actionPerformed(new StartActionEvent(
-                            AlgorithmFactory.getAlgorithmClass(baseAlgorithm, (String) algoSelect.getSelectedItem()),
-                            nodesInputPanel.getNodeForInputs(), mode, (AbstractInputData.ArcFilter) arcFilterSelect.getSelectedItem(),
-                            graphicObserver.isSelected(), textObserver.isSelected()));
+                    lis.actionPerformed(
+                            new StartActionEvent(
+                                    AlgorithmFactory.getAlgorithmClass(baseAlgorithm,
+                                            (String) algoSelect.getSelectedItem()),
+                                    nodesInputPanel.getNodeForInputs(), mode,
+                                    (AbstractInputData.ArcFilter) arcFilterSelect.getSelectedItem(),
+                                    graphicObserver.isSelected(), textObserver.isSelected()));
                 }
             }
         });

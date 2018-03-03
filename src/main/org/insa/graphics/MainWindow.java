@@ -106,8 +106,11 @@ public class MainWindow extends JFrame {
     // Main panel.
     private JSplitPane mainPanel;
 
-    // Shortest path panel
+    // Algorithm panel
     private AlgorithmPanel spPanel;
+
+    // Path panel
+    private PathsPanel pathPanel;
 
     // List of items that cannot be used without a graph
     private ArrayList<JMenuItem> graphLockItems = new ArrayList<JMenuItem>();
@@ -183,14 +186,18 @@ public class MainWindow extends JFrame {
         });
         spPanel.setVisible(false);
 
+        this.pathPanel = new PathsPanel(this);
+
         // Add click listeners to both drawing.
         basicDrawing.addDrawingClickListener(spPanel.nodesInputPanel);
         mapViewDrawing.addDrawingClickListener(spPanel.nodesInputPanel);
 
         this.graphChangeListeneres.add(spPanel.nodesInputPanel);
         this.graphChangeListeneres.add(spPanel.solutionPanel);
+        this.graphChangeListeneres.add(pathPanel);
         this.drawingChangeListeners.add(spPanel.nodesInputPanel);
         this.drawingChangeListeners.add(spPanel.solutionPanel);
+        this.drawingChangeListeners.add(pathPanel);
 
         // Create action factory.
         this.currentThread = new ThreadWrapper(this);
@@ -231,11 +238,14 @@ public class MainWindow extends JFrame {
         c.gridx = 0;
         c.gridy = 0;
         c.fill = GridBagConstraints.HORIZONTAL;
+        rightComponent.add(pathPanel, c);
+
+        c.gridy = 1;
         rightComponent.add(spPanel, c);
 
         c = new GridBagConstraints();
         c.gridx = 0;
-        c.gridy = 1;
+        c.gridy = 2;
         c.weightx = 1;
         c.weighty = 1;
         c.fill = GridBagConstraints.BOTH;
@@ -293,7 +303,10 @@ public class MainWindow extends JFrame {
     }
 
     private void displayShortestPathSolution(ShortestPathSolution solution) {
-        spPanel.solutionPanel.addSolution(solution);
+        spPanel.solutionPanel.addSolution(solution, false); // Do not add overlay in the solution panel.
+        if (solution.isFeasible()) {
+            pathPanel.addPath(solution.getPath());
+        }
         spPanel.solutionPanel.setVisible(true);
     }
 
@@ -526,7 +539,7 @@ public class MainWindow extends JFrame {
                     }
                     try {
                         Path path = reader.readPath(graph);
-                        drawing.drawPath(path);
+                        pathPanel.addPath(path);
                     }
                     catch (MapMismatchException exception) {
                         JOptionPane.showMessageDialog(MainWindow.this,
