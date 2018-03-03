@@ -170,6 +170,7 @@ public class ShortestPathPanel extends JPanel {
         this.nodesInputPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         nodesInputPanel.addTextField("Origin: ", new Color(57, 172, 115));
         nodesInputPanel.addTextField("Destination: ", new Color(255, 77, 77));
+        nodesInputPanel.setEnabled(false);
 
         add(this.nodesInputPanel);
         components.add(this.nodesInputPanel);

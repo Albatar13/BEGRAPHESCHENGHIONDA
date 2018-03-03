@@ -285,7 +285,6 @@ public class MainWindow extends JFrame {
         threadTimer.stop();
         threadPanel.setVisible(false);
         currentThread.setThread(null);
-        spPanel.setEnabled(true);
     }
 
     private void displayShortestPathSolution(ShortestPathSolution solution) {

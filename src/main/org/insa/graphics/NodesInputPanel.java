@@ -392,7 +392,9 @@ public class NodesInputPanel extends JPanel
         for (JTextField input: nodeInputs) {
             MarkerOverlay tracker = markerTrackers.getOrDefault(input, null);
             if (tracker != null) {
-                markerTrackers.put(input, this.drawing.drawMarker(tracker.getPoint(), tracker.getColor()));
+                MarkerOverlay newMarker = this.drawing.drawMarker(tracker.getPoint(), tracker.getColor());
+                markerTrackers.put(input, newMarker);
+                newMarker.setVisible(tracker.isVisible());
                 tracker.delete();
             }
         }
