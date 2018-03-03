@@ -71,7 +71,7 @@ public class MainWindow extends JFrame {
     /**
      * 
      */
-    private static final long serialVersionUID = -527660583705140687L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * 
