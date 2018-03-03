@@ -1,4 +1,4 @@
-package org.insa.graphics.drawing;
+package org.insa.graphics.drawing.components;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -25,6 +25,10 @@ import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Path;
 import org.insa.graph.Point;
+import org.insa.graphics.drawing.BasicGraphPalette;
+import org.insa.graphics.drawing.Drawing;
+import org.insa.graphics.drawing.DrawingClickListener;
+import org.insa.graphics.drawing.GraphPalette;
 import org.insa.graphics.drawing.overlays.MarkerOverlay;
 import org.insa.graphics.drawing.overlays.MarkerUtils;
 import org.insa.graphics.drawing.overlays.Overlay;

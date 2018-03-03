@@ -59,12 +59,12 @@ import org.insa.graph.io.BinaryPathReader;
 import org.insa.graph.io.GraphReader;
 import org.insa.graph.io.MapMismatchException;
 import org.insa.graphics.ShortestPathPanel.StartActionEvent;
-import org.insa.graphics.drawing.BasicDrawing;
 import org.insa.graphics.drawing.BasicGraphPalette;
 import org.insa.graphics.drawing.BlackAndWhiteGraphPalette;
 import org.insa.graphics.drawing.Drawing;
 import org.insa.graphics.drawing.GraphPalette;
-import org.insa.graphics.drawing.MapViewDrawing;
+import org.insa.graphics.drawing.components.BasicDrawing;
+import org.insa.graphics.drawing.components.MapViewDrawing;
 
 public class MainWindow extends JFrame {
 

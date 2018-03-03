@@ -1,4 +1,4 @@
-package org.insa.graphics.drawing;
+package org.insa.graphics.drawing.components;
 
 import java.awt.Color;
 import java.io.File;
@@ -9,6 +9,9 @@ import org.insa.graph.Arc;
 import org.insa.graph.Graph;
 import org.insa.graph.Path;
 import org.insa.graph.Point;
+import org.insa.graphics.drawing.Drawing;
+import org.insa.graphics.drawing.DrawingClickListener;
+import org.insa.graphics.drawing.GraphPalette;
 import org.insa.graphics.drawing.overlays.MarkerOverlay;
 import org.insa.graphics.drawing.overlays.MarkerUtils;
 import org.insa.graphics.drawing.overlays.Overlay;
@@ -213,6 +216,9 @@ public class MapViewDrawing extends MapView implements Drawing {
         DisplayModel model = getModel().displayModel;
         this.tileSize = DEFAULT_TILE_SIZE;
         model.setFixedTileSize(this.tileSize);
+
+        this.setZoomLevelMin((byte) 0);
+        this.setZoomLevelMax((byte) 20);
     }
 
     protected LatLong convertPoint(Point point) {

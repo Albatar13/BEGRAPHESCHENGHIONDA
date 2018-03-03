@@ -1,4 +1,4 @@
-package org.insa.graphics.drawing;
+package org.insa.graphics.drawing.components;
 
 import java.awt.*;
 import java.awt.event.*;
