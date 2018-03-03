@@ -62,9 +62,9 @@ public class MapZoomControls {
     public MapZoomControls(Component component, final int defaultZoom, final int minZoom, final int maxZoom)
             throws IOException {
 
-        zoomIn = ImageIO.read(new File("zoomIn.png")).getScaledInstance(DEFAULT_HEIGHT, DEFAULT_HEIGHT,
+        zoomIn = ImageIO.read(new File("res/zoomIn.png")).getScaledInstance(DEFAULT_HEIGHT, DEFAULT_HEIGHT,
                 Image.SCALE_SMOOTH);
-        zoomOut = ImageIO.read(new File("zoomOut.png")).getScaledInstance(DEFAULT_HEIGHT, DEFAULT_HEIGHT,
+        zoomOut = ImageIO.read(new File("res/zoomOut.png")).getScaledInstance(DEFAULT_HEIGHT, DEFAULT_HEIGHT,
                 Image.SCALE_SMOOTH);
 
         this.currentLevel = defaultZoom;
