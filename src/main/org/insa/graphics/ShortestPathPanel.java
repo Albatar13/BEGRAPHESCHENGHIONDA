@@ -194,7 +194,7 @@ public class ShortestPathPanel extends JPanel {
 
             @Override
             public String toString() {
-                return "Non-private roads allowed for motorcars";
+                return "Only non-private roads allowed for motorcars";
             }
         } });
         arcFilterSelect.setBackground(Color.WHITE);

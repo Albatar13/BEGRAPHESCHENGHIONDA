@@ -154,6 +154,7 @@ public class BasicDrawing extends JPanel implements Drawing {
             this.points = points;
             this.origin = origin;
             this.destination = destination;
+            this.color = color;
         }
 
         @Override
@@ -217,7 +218,7 @@ public class BasicDrawing extends JPanel implements Drawing {
 
         @Override
         public void setWidth(int width) {
-            this.width = width;
+            this.width = Math.max(2, width);
         }
 
         @Override
@@ -228,7 +229,6 @@ public class BasicDrawing extends JPanel implements Drawing {
 
         @Override
         public void addPoint(Point point) {
-            this.width = 5;
             int x = BasicDrawing.this.projx(point.getLongitude()) - this.width / 2;
             int y = BasicDrawing.this.projy(point.getLatitude()) - this.width / 2;
             this.graphics.fillOval(x, y, this.width, this.width);

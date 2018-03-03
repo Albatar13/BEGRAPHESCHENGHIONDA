@@ -169,7 +169,6 @@ public class MainWindow extends JFrame {
                 }
 
                 spPanel.setEnabled(false);
-                launchShortestPathThread(spAlgorithm);
 
                 if (evt.isGraphicVisualizationEnabled()) {
                     spAlgorithm.addObserver(new ShortestPathGraphicObserver(drawing));
@@ -177,6 +176,8 @@ public class MainWindow extends JFrame {
                 if (evt.isTextualVisualizationEnabled()) {
                     spAlgorithm.addObserver(new ShortestPathTextObserver(printStream));
                 }
+
+                launchShortestPathThread(spAlgorithm);
             }
         });
         spPanel.setVisible(false);
@@ -285,6 +286,9 @@ public class MainWindow extends JFrame {
         threadTimer.stop();
         threadPanel.setVisible(false);
         currentThread.setThread(null);
+        if (spPanel.isVisible()) {
+            spPanel.setEnabled(true);
+        }
     }
 
     private void displayShortestPathSolution(ShortestPathSolution solution) {

@@ -1,5 +1,6 @@
 package org.insa.graphics.drawing.components;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -172,6 +173,8 @@ public class MapZoomControls {
         // Draw icon
         g.drawImage(zoomOut, xoffset, yoffset, observer);
         zoomOutRect.setBounds(xoffset, yoffset, DEFAULT_HEIGHT, DEFAULT_HEIGHT);
+
+        g.setStroke(new BasicStroke(1));
 
         // Draw ticks
         xoffset += DEFAULT_HEIGHT + 2;
