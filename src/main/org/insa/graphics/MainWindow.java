@@ -42,8 +42,8 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.insa.algo.AlgorithmFactory;
 import org.insa.algo.shortestpath.ShortestPathAlgorithm;
-import org.insa.algo.shortestpath.ShortestPathAlgorithmFactory;
 import org.insa.algo.shortestpath.ShortestPathData;
 import org.insa.algo.shortestpath.ShortestPathGraphicObserver;
 import org.insa.algo.shortestpath.ShortestPathSolution;
@@ -153,12 +153,13 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 StartActionEvent evt = (StartActionEvent) e;
-                ShortestPathData data = new ShortestPathData(graph, evt.getOrigin(), evt.getDestination(),
+                ShortestPathData data = new ShortestPathData(graph, evt.getNodes().get(0), evt.getNodes().get(1),
                         evt.getMode(), evt.getArcFilter());
 
                 ShortestPathAlgorithm spAlgorithm = null;
                 try {
-                    spAlgorithm = ShortestPathAlgorithmFactory.createAlgorithm(evt.getAlgorithmClass(), data);
+                    spAlgorithm = (ShortestPathAlgorithm) AlgorithmFactory.createAlgorithm(evt.getAlgorithmClass(),
+                            data);
                 }
                 catch (Exception e1) {
                     JOptionPane.showMessageDialog(MainWindow.this,

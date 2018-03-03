@@ -282,6 +282,13 @@ public class NodesInputPanel extends JPanel
     }
 
     /**
+     * @return Current graph associated with this input panel.
+     */
+    protected Graph getGraph() {
+        return this.graph;
+    }
+
+    /**
      * @return The node for the given text field, or null if the content of the text
      *         field is invalid.
      */

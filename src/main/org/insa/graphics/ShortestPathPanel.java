@@ -24,8 +24,9 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.border.EmptyBorder;
 
+import org.insa.algo.AbstractAlgorithm;
+import org.insa.algo.AlgorithmFactory;
 import org.insa.algo.shortestpath.ShortestPathAlgorithm;
-import org.insa.algo.shortestpath.ShortestPathAlgorithmFactory;
 import org.insa.algo.shortestpath.ShortestPathData.ArcFilter;
 import org.insa.algo.shortestpath.ShortestPathData.Mode;
 import org.insa.graph.Arc;
@@ -51,20 +52,19 @@ public class ShortestPathPanel extends JPanel {
 
         protected static final int START_EVENT_ID = 0x1;
 
-        private final Node origin, destination;
+        private final List<Node> nodes;
         private final Mode mode;
-        private final Class<? extends ShortestPathAlgorithm> algoClass;
+        private final Class<? extends AbstractAlgorithm<?>> algoClass;
 
         private final ArcFilter arcFilter;
 
         private final boolean graphicVisualization;
         private final boolean textualVisualization;
 
-        public StartActionEvent(Class<? extends ShortestPathAlgorithm> algoClass, Node origin, Node destination,
-                Mode mode, ArcFilter arcFilter, boolean graphicVisualization, boolean textualVisualization) {
+        public StartActionEvent(Class<? extends AbstractAlgorithm<?>> algoClass, List<Node> nodes, Mode mode,
+                ArcFilter arcFilter, boolean graphicVisualization, boolean textualVisualization) {
             super(ShortestPathPanel.this, START_EVENT_ID, START_EVENT_COMMAND);
-            this.origin = origin;
-            this.destination = destination;
+            this.nodes = nodes;
             this.mode = mode;
             this.algoClass = algoClass;
             this.graphicVisualization = graphicVisualization;
@@ -73,17 +73,10 @@ public class ShortestPathPanel extends JPanel {
         }
 
         /**
-         * @return Origin node associated with this event.
+         * @return Nodes associated with this event.
          */
-        public Node getOrigin() {
-            return this.origin;
-        }
-
-        /**
-         * @return Destination node associated with this event.
-         */
-        public Node getDestination() {
-            return this.destination;
+        public List<Node> getNodes() {
+            return this.nodes;
         }
 
         /**
@@ -103,7 +96,7 @@ public class ShortestPathPanel extends JPanel {
         /**
          * @return Algorithm class associated with this event.
          */
-        public Class<? extends ShortestPathAlgorithm> getAlgorithmClass() {
+        public Class<? extends AbstractAlgorithm<?>> getAlgorithmClass() {
             return this.algoClass;
         }
 
@@ -159,7 +152,7 @@ public class ShortestPathPanel extends JPanel {
 
         // Add algorithm selection
         JComboBox<String> algoSelect = new JComboBox<>(
-                ShortestPathAlgorithmFactory.getAlgorithmNames().toArray(new String[0]));
+                AlgorithmFactory.getAlgorithmNames(ShortestPathAlgorithm.class).toArray(new String[0]));
         algoSelect.setBackground(Color.WHITE);
         algoSelect.setAlignmentX(Component.LEFT_ALIGNMENT);
         add(algoSelect);
@@ -272,14 +265,13 @@ public class ShortestPathPanel extends JPanel {
         startAlgoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                List<Node> nodes = nodesInputPanel.getNodeForInputs();
-                Node origin = nodes.get(0), destination = nodes.get(1);
                 Mode mode = lengthModeButton.isSelected() ? Mode.LENGTH : Mode.TIME;
 
                 for (ActionListener lis: startActionListeners) {
                     lis.actionPerformed(new StartActionEvent(
-                            ShortestPathAlgorithmFactory.getAlgorithmClass((String) algoSelect.getSelectedItem()),
-                            origin, destination, mode, (ArcFilter) arcFilterSelect.getSelectedItem(),
+                            AlgorithmFactory.getAlgorithmClass(ShortestPathAlgorithm.class,
+                                    (String) algoSelect.getSelectedItem()),
+                            nodesInputPanel.getNodeForInputs(), mode, (ArcFilter) arcFilterSelect.getSelectedItem(),
                             graphicObserver.isSelected(), textObserver.isSelected()));
                 }
             }
