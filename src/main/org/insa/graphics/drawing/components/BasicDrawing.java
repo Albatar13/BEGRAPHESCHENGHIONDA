@@ -91,19 +91,20 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     private class BasicMarkerOverlay extends BasicOverlay implements MarkerOverlay {
 
-        // Default marker width
-        private static final int DEFAULT_MARKER_WIDTH = 20;
-
         // Point of the marker.
         private Point point;
 
         // Color of the marker.
         private final Color color;
 
+        // Image to draw
+        private final BufferedImage image;
+
         public BasicMarkerOverlay(Point point, Color color) {
             super();
             this.point = point;
             this.color = color;
+            this.image = MarkerUtils.getMarkerForColor(color);
         }
 
         @Override
@@ -128,12 +129,8 @@ public class BasicDrawing extends JPanel implements Drawing {
             int px = BasicDrawing.this.projx(getPoint().getLongitude());
             int py = BasicDrawing.this.projy(getPoint().getLatitude());
 
-            BufferedImage img = MarkerUtils.getMarkerForColor(color);
-            Graphics2D gr = img.createGraphics();
-            double scale = DEFAULT_MARKER_WIDTH / (double) img.getHeight();
-            gr.scale(scale, scale);
-
-            graphics.drawImage(img, px - img.getWidth() / 2, py - img.getHeight(), BasicDrawing.this);
+            graphics.drawImage(this.image, px - this.image.getWidth() / 2, py - this.image.getHeight(),
+                    BasicDrawing.this);
         }
 
     };
