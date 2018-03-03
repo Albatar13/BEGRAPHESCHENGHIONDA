@@ -7,7 +7,7 @@
 // ******************ERRORS********************************
 // Throws RuntimeException for findMin and deleteMin when empty
 
-package org.insa.utility;
+package org.insa.algo.datastructures;
 
 import java.util.* ;
 
