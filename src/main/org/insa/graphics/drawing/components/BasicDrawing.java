@@ -9,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
@@ -17,10 +16,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.JPanel;
 
@@ -288,7 +285,7 @@ public class BasicDrawing extends JPanel implements Drawing {
     private List<BasicOverlay> overlays = Collections.synchronizedList(new ArrayList<BasicOverlay>());
 
     // Mapping DrawingClickListener -> MouseEventListener
-    private Map<DrawingClickListener, MouseListener> listenerMapping = new IdentityHashMap<>();
+    private List<DrawingClickListener> drawingClickListeners = new ArrayList<>();
 
     // Zoom controls
     private MapZoomControls zoomControls;
@@ -319,6 +316,25 @@ public class BasicDrawing extends JPanel implements Drawing {
         catch (IOException e) {
             e.printStackTrace();
         }
+
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent evt) {
+                if (zoomControls.contains(evt.getPoint())) {
+                    return;
+                }
+                Point lonlat = null;
+                try {
+                    lonlat = getLongitudeLatitude(evt);
+                }
+                catch (NoninvertibleTransformException e) {
+                    return;
+                }
+                for (DrawingClickListener listener: drawingClickListeners) {
+                    listener.mouseClicked(lonlat);
+                }
+            }
+        });
     }
 
     @Override
@@ -345,7 +361,7 @@ public class BasicDrawing extends JPanel implements Drawing {
         if (this.zoomControls != null) {
             this.zoomControls.setZoomLevel(this.zoomAndPanListener.getZoomLevel());
             this.zoomControls.draw(g, getWidth() - this.zoomControls.getWidth() - 20,
-                    this.getHeight() - this.zoomControls.getHeight() - 20, this);
+                    this.getHeight() - this.zoomControls.getHeight() - 10, this);
         }
 
     }
@@ -392,24 +408,12 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     @Override
     public void addDrawingClickListener(DrawingClickListener listener) {
-        MouseListener mListener = new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent evt) {
-                try {
-                    listener.mouseClicked(getLongitudeLatitude(evt));
-                }
-                catch (NoninvertibleTransformException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        this.addMouseListener(mListener);
-        this.listenerMapping.put(listener, mListener);
+        this.drawingClickListeners.add(listener);
     }
 
     @Override
     public void removeDrawingClickListener(DrawingClickListener listener) {
-        this.removeMouseListener(this.listenerMapping.get(listener));
+        this.drawingClickListeners.remove(listener);
     }
 
     @Override

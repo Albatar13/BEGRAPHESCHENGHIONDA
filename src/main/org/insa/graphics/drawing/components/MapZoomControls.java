@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,10 +28,10 @@ public class MapZoomControls {
     private static final String ZOOM_OUT_ACTION_NAME = "ZoomOut";
 
     // Height
-    private static final int DEFAULT_HEIGHT = 18;
+    private static final int DEFAULT_HEIGHT = 20;
 
     // Default spacing between mark
-    private static final int DEFAULT_SPACING = 3;
+    private static final int DEFAULT_SPACING = 4;
 
     // Zoom ticks ratio from height (not the current one)
     private static final double ZOOM_TICK_HEIGHT_RATIO = 0.3;
@@ -136,6 +137,19 @@ public class MapZoomControls {
      */
     public int getWidth() {
         return DEFAULT_HEIGHT + 2 + (this.maxLevel - this.minLevel) * DEFAULT_SPACING + 1 + 2 + DEFAULT_HEIGHT;
+    }
+
+    /**
+     * Check if a point is contained inside an element of this zoom controls, useful
+     * to avoid spurious click listeners.
+     * 
+     * @param point
+     * 
+     * @return true if the given point correspond to an element of this zoom
+     *         controls.
+     */
+    public boolean contains(Point point) {
+        return zoomInRect.contains(point) || zoomOutRect.contains(point);
     }
 
     protected void draw(Graphics2D g, int xoffset, int yoffset, ImageObserver observer) {
