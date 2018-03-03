@@ -2,6 +2,7 @@ package org.insa.graphics.drawing.components;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
@@ -70,6 +71,18 @@ public class MapZoomControls {
         this.currentLevel = defaultZoom;
         this.minLevel = minZoom;
         this.maxLevel = maxZoom;
+
+        component.addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                if (zoomInRect.contains(e.getPoint()) || zoomOutRect.contains(e.getPoint())) {
+                    component.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                }
+                else {
+                    component.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+                }
+            }
+        });
 
         component.addMouseListener(new MouseAdapter() {
             @Override
