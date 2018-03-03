@@ -1,7 +1,12 @@
 package org.insa.graphics.drawing.components;
 
 import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -207,6 +212,9 @@ public class MapViewDrawing extends MapView implements Drawing {
     // Tile size
     private int tileSize;
 
+    // Zoom controls
+    private MapZoomControls zoomControls;
+
     public MapViewDrawing() {
         super();
         Parameters.NUMBER_OF_THREADS = 2;
@@ -219,6 +227,37 @@ public class MapViewDrawing extends MapView implements Drawing {
 
         this.setZoomLevelMin((byte) 0);
         this.setZoomLevelMax((byte) 20);
+
+        // Try...
+        try {
+            this.zoomControls = new MapZoomControls(this, 0, 0, 20);
+            this.zoomControls.addZoomInListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    getModel().mapViewPosition.zoomIn();
+                }
+            });
+            this.zoomControls.addZoomOutListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    getModel().mapViewPosition.zoomOut();
+                }
+            });
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void paint(Graphics graphics) {
+        super.paint(graphics);
+        if (this.zoomControls != null) {
+            this.zoomControls.setZoomLevel(this.getModel().mapViewPosition.getZoomLevel());
+            this.zoomControls.draw((Graphics2D) graphics, getWidth() - this.zoomControls.getWidth() - 20,
+                    this.getHeight() - this.zoomControls.getHeight() - 10, this);
+        }
+
     }
 
     protected LatLong convertPoint(Point point) {
@@ -232,6 +271,9 @@ public class MapViewDrawing extends MapView implements Drawing {
             @Override
             public boolean onTap(LatLong tapLatLong, org.mapsforge.core.model.Point layerXY,
                     org.mapsforge.core.model.Point tapXY) {
+                if (zoomControls.contains(new java.awt.Point((int) tapXY.x, (int) tapXY.y))) {
+                    return false;
+                }
                 Point pt = new Point(tapLatLong.getLongitude(), tapLatLong.getLatitude());
                 for (DrawingClickListener listener: MapViewDrawing.this.drawingClickListeners) {
                     listener.mouseClicked(pt);
@@ -301,6 +343,7 @@ public class MapViewDrawing extends MapView implements Drawing {
             byte zoomLevel = LatLongUtils.zoomForBounds(model.mapViewDimension.getDimension(), boundingBox,
                     model.displayModel.getTileSize());
             model.mapViewPosition.setMapPosition(new MapPosition(boundingBox.getCenterPoint(), zoomLevel));
+            zoomControls.setZoomLevel(zoomLevel);
         }
     }
 

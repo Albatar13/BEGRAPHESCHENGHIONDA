@@ -5,18 +5,19 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.JPanel;
 
@@ -284,7 +285,10 @@ public class BasicDrawing extends JPanel implements Drawing {
     private List<BasicOverlay> overlays = Collections.synchronizedList(new ArrayList<BasicOverlay>());
 
     // Mapping DrawingClickListener -> MouseEventListener
-    private Map<DrawingClickListener, MouseListener> listenerMapping = new IdentityHashMap<>();
+    private List<DrawingClickListener> drawingClickListeners = new ArrayList<>();
+
+    // Zoom controls
+    private MapZoomControls zoomControls;
 
     /**
      * Create a new BasicDrawing.
@@ -292,11 +296,52 @@ public class BasicDrawing extends JPanel implements Drawing {
      */
     public BasicDrawing() {
         this.zoomAndPanListener = new ZoomAndPanListener(this, ZoomAndPanListener.DEFAULT_MIN_ZOOM_LEVEL, 20, 1.2);
+
+        // Try...
+        try {
+            this.zoomControls = new MapZoomControls(this, 0, ZoomAndPanListener.DEFAULT_MIN_ZOOM_LEVEL, 20);
+            this.zoomControls.addZoomInListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    zoomAndPanListener.zoomIn();
+                }
+            });
+            this.zoomControls.addZoomOutListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    zoomAndPanListener.zoomOut();
+                }
+            });
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent evt) {
+                if (zoomControls.contains(evt.getPoint())) {
+                    return;
+                }
+                Point lonlat = null;
+                try {
+                    lonlat = getLongitudeLatitude(evt);
+                }
+                catch (NoninvertibleTransformException e) {
+                    return;
+                }
+                for (DrawingClickListener listener: drawingClickListeners) {
+                    listener.mouseClicked(lonlat);
+                }
+            }
+        });
     }
 
     @Override
     public void paintComponent(Graphics g1) {
+        super.paintComponent(g1);
         Graphics2D g = (Graphics2D) g1;
+        AffineTransform sTransform = g.getTransform();
         g.clearRect(0, 0, getWidth(), getHeight());
         g.setTransform(zoomAndPanListener.getCoordTransform());
 
@@ -311,6 +356,14 @@ public class BasicDrawing extends JPanel implements Drawing {
                 overlay.draw(g);
             }
         }
+
+        g.setTransform(sTransform);
+        if (this.zoomControls != null) {
+            this.zoomControls.setZoomLevel(this.zoomAndPanListener.getZoomLevel());
+            this.zoomControls.draw(g, getWidth() - this.zoomControls.getWidth() - 20,
+                    this.getHeight() - this.zoomControls.getHeight() - 10, this);
+        }
+
     }
 
     /**
@@ -355,24 +408,12 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     @Override
     public void addDrawingClickListener(DrawingClickListener listener) {
-        MouseListener mListener = new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent evt) {
-                try {
-                    listener.mouseClicked(getLongitudeLatitude(evt));
-                }
-                catch (NoninvertibleTransformException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        this.addMouseListener(mListener);
-        this.listenerMapping.put(listener, mListener);
+        this.drawingClickListeners.add(listener);
     }
 
     @Override
     public void removeDrawingClickListener(DrawingClickListener listener) {
-        this.removeMouseListener(this.listenerMapping.get(listener));
+        this.drawingClickListeners.remove(listener);
     }
 
     @Override
@@ -513,6 +554,7 @@ public class BasicDrawing extends JPanel implements Drawing {
                 (this.getHeight() - this.height * scale) / 2);
         this.zoomAndPanListener.getCoordTransform().scale(scale, scale);
         this.zoomAndPanListener.setZoomLevel(0);
+        this.zoomControls.setZoomLevel(0);
 
         // Repaint
         this.repaint();
