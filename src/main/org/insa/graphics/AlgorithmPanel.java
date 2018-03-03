@@ -25,16 +25,16 @@ import javax.swing.JRadioButton;
 import javax.swing.border.EmptyBorder;
 
 import org.insa.algo.AbstractAlgorithm;
+import org.insa.algo.AbstractInputData;
+import org.insa.algo.AbstractInputData.ArcFilter;
+import org.insa.algo.AbstractInputData.Mode;
 import org.insa.algo.AlgorithmFactory;
-import org.insa.algo.shortestpath.ShortestPathAlgorithm;
-import org.insa.algo.shortestpath.ShortestPathData.ArcFilter;
-import org.insa.algo.shortestpath.ShortestPathData.Mode;
 import org.insa.graph.Arc;
 import org.insa.graph.Node;
 import org.insa.graph.RoadInformation.AccessMode;
 import org.insa.graphics.NodesInputPanel.InputChangedEvent;
 
-public class ShortestPathPanel extends JPanel {
+public class AlgorithmPanel extends JPanel {
 
     /**
      * 
@@ -53,17 +53,17 @@ public class ShortestPathPanel extends JPanel {
         protected static final int START_EVENT_ID = 0x1;
 
         private final List<Node> nodes;
-        private final Mode mode;
+        private final AbstractInputData.Mode mode;
         private final Class<? extends AbstractAlgorithm<?>> algoClass;
 
-        private final ArcFilter arcFilter;
+        private final AbstractInputData.ArcFilter arcFilter;
 
         private final boolean graphicVisualization;
         private final boolean textualVisualization;
 
-        public StartActionEvent(Class<? extends AbstractAlgorithm<?>> algoClass, List<Node> nodes, Mode mode,
-                ArcFilter arcFilter, boolean graphicVisualization, boolean textualVisualization) {
-            super(ShortestPathPanel.this, START_EVENT_ID, START_EVENT_COMMAND);
+        public StartActionEvent(Class<? extends AbstractAlgorithm<?>> algoClass, List<Node> nodes, AbstractInputData.Mode mode,
+                AbstractInputData.ArcFilter arcFilter, boolean graphicVisualization, boolean textualVisualization) {
+            super(AlgorithmPanel.this, START_EVENT_ID, START_EVENT_COMMAND);
             this.nodes = nodes;
             this.mode = mode;
             this.algoClass = algoClass;
@@ -82,14 +82,14 @@ public class ShortestPathPanel extends JPanel {
         /**
          * @return Mode associated with this event.
          */
-        public Mode getMode() {
+        public AbstractInputData.Mode getMode() {
             return this.mode;
         }
 
         /**
          * @return Arc filter associated with this event.
          */
-        public ArcFilter getArcFilter() {
+        public AbstractInputData.ArcFilter getArcFilter() {
             return this.arcFilter;
         }
 
@@ -120,7 +120,7 @@ public class ShortestPathPanel extends JPanel {
     protected NodesInputPanel nodesInputPanel;
 
     // Solution
-    protected ShortestPathSolutionPanel solutionPanel;
+    protected SolutionPanel solutionPanel;
 
     // Component that can be enabled/disabled.
     private ArrayList<JComponent> components = new ArrayList<>();
@@ -132,7 +132,7 @@ public class ShortestPathPanel extends JPanel {
 
     /**
      */
-    public ShortestPathPanel(Component parent) {
+    public AlgorithmPanel(Component parent, Class<? extends AbstractAlgorithm<?>> baseAlgorithm) {
         super();
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
@@ -152,7 +152,7 @@ public class ShortestPathPanel extends JPanel {
 
         // Add algorithm selection
         JComboBox<String> algoSelect = new JComboBox<>(
-                AlgorithmFactory.getAlgorithmNames(ShortestPathAlgorithm.class).toArray(new String[0]));
+                AlgorithmFactory.getAlgorithmNames(baseAlgorithm).toArray(new String[0]));
         algoSelect.setBackground(Color.WHITE);
         algoSelect.setAlignmentX(Component.LEFT_ALIGNMENT);
         add(algoSelect);
@@ -168,7 +168,7 @@ public class ShortestPathPanel extends JPanel {
         add(this.nodesInputPanel);
         components.add(this.nodesInputPanel);
 
-        JComboBox<ArcFilter> arcFilterSelect = new JComboBox<>(new ArcFilter[] { new ArcFilter() {
+        JComboBox<AbstractInputData.ArcFilter> arcFilterSelect = new JComboBox<>(new AbstractInputData.ArcFilter[] { new AbstractInputData.ArcFilter() {
             @Override
             public boolean isAllowed(Arc arc) {
                 return true;
@@ -178,7 +178,7 @@ public class ShortestPathPanel extends JPanel {
             public String toString() {
                 return "All arcs are allowed";
             }
-        }, new ArcFilter() {
+        }, new AbstractInputData.ArcFilter() {
             @Override
             public boolean isAllowed(Arc arc) {
                 return arc.getRoadInformation().getAccessRestrictions().isAllowedFor(AccessMode.MOTORCAR)
@@ -250,7 +250,7 @@ public class ShortestPathPanel extends JPanel {
 
         add(modeAndObserverPanel);
 
-        solutionPanel = new ShortestPathSolutionPanel(parent);
+        solutionPanel = new SolutionPanel(parent);
         solutionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         solutionPanel.setVisible(false);
         add(Box.createVerticalStrut(10));
@@ -265,13 +265,12 @@ public class ShortestPathPanel extends JPanel {
         startAlgoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Mode mode = lengthModeButton.isSelected() ? Mode.LENGTH : Mode.TIME;
+                AbstractInputData.Mode mode = lengthModeButton.isSelected() ? AbstractInputData.Mode.LENGTH : AbstractInputData.Mode.TIME;
 
                 for (ActionListener lis: startActionListeners) {
                     lis.actionPerformed(new StartActionEvent(
-                            AlgorithmFactory.getAlgorithmClass(ShortestPathAlgorithm.class,
-                                    (String) algoSelect.getSelectedItem()),
-                            nodesInputPanel.getNodeForInputs(), mode, (ArcFilter) arcFilterSelect.getSelectedItem(),
+                            AlgorithmFactory.getAlgorithmClass(baseAlgorithm, (String) algoSelect.getSelectedItem()),
+                            nodesInputPanel.getNodeForInputs(), mode, (AbstractInputData.ArcFilter) arcFilterSelect.getSelectedItem(),
                             graphicObserver.isSelected(), textObserver.isSelected()));
                 }
             }

@@ -58,7 +58,7 @@ import org.insa.graph.io.BinaryGraphReaderInsa2018;
 import org.insa.graph.io.BinaryPathReader;
 import org.insa.graph.io.GraphReader;
 import org.insa.graph.io.MapMismatchException;
-import org.insa.graphics.ShortestPathPanel.StartActionEvent;
+import org.insa.graphics.AlgorithmPanel.StartActionEvent;
 import org.insa.graphics.drawing.BasicGraphPalette;
 import org.insa.graphics.drawing.BlackAndWhiteGraphPalette;
 import org.insa.graphics.drawing.Drawing;
@@ -107,7 +107,7 @@ public class MainWindow extends JFrame {
     private JSplitPane mainPanel;
 
     // Shortest path panel
-    private ShortestPathPanel spPanel;
+    private AlgorithmPanel spPanel;
 
     // List of items that cannot be used without a graph
     private ArrayList<JMenuItem> graphLockItems = new ArrayList<JMenuItem>();
@@ -148,7 +148,7 @@ public class MainWindow extends JFrame {
 
         this.drawing = this.basicDrawing;
 
-        spPanel = new ShortestPathPanel(this);
+        spPanel = new AlgorithmPanel(this, ShortestPathAlgorithm.class);
         spPanel.addStartActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

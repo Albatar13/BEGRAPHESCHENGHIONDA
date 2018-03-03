@@ -5,12 +5,12 @@ import org.insa.graph.Graph;
 
 public class StronglyConnectedComponentsData extends AbstractInputData {
 
-	/**
-	 * 
-	 * @param graph
-	 */
-	public StronglyConnectedComponentsData(Graph graph) {
-		super(graph);
-	}
-	
+    /**
+     * 
+     * @param graph
+     */
+    public StronglyConnectedComponentsData(Graph graph) {
+        super(graph);
+    }
+
 }

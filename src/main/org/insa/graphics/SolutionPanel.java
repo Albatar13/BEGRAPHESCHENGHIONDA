@@ -4,48 +4,45 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedOutputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
-import org.insa.algo.shortestpath.ShortestPathData;
-import org.insa.algo.shortestpath.ShortestPathData.Mode;
+import org.insa.algo.AbstractInputData;
+import org.insa.algo.AbstractSolution;
 import org.insa.algo.shortestpath.ShortestPathSolution;
 import org.insa.graph.Graph;
-import org.insa.graph.io.BinaryPathWriter;
+import org.insa.graph.Path;
 import org.insa.graphics.drawing.Drawing;
 import org.insa.graphics.drawing.overlays.PathOverlay;
 
-public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeListener, GraphChangeListener {
+public class SolutionPanel extends JPanel implements DrawingChangeListener, GraphChangeListener {
 
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
 
-    private class ShortestPathBundle {
+    private class SolutionBundle {
 
         // Solution
-        private final ShortestPathSolution solution;
+        private final AbstractSolution solution;
 
         // Path Overlay (not final due to redraw)
-        private PathOverlay overlay = null;
+        private List<PathOverlay> overlays = new ArrayList<>();
 
         /**
          * Create a new bundle with the given solution and create a new overlay
@@ -54,45 +51,62 @@ public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeLi
          * @param solution Solution for this bundle, must not be null.
          * 
          */
-        public ShortestPathBundle(ShortestPathSolution solution) {
+        public SolutionBundle(AbstractSolution solution) {
             this.solution = solution;
-            if (this.solution.isFeasible()) {
-                this.overlay = drawing.drawPath(this.solution.getPath());
-            }
+            this.overlays = createOverlaysFromSolution();
         }
 
         /**
          * @return Solution associated with this bundle.
          */
-        public ShortestPathSolution getSolution() {
+        public AbstractSolution getSolution() {
             return this.solution;
         }
 
         /**
          * @return Data assocaited with this bundle.
          */
-        public ShortestPathData getData() {
+        public AbstractInputData getData() {
             return this.solution.getInputData();
         }
 
         /**
-         * @return Overlay associated with this bundle, or null.
+         * @return Overlays associated with this bundle, or null.
          */
-        public PathOverlay getOverlay() {
-            return this.overlay;
+        public List<PathOverlay> getOverlays() {
+            return this.overlays;
         }
 
         /**
          * Re-draw the current overlay (if any) on the new drawing.
          * 
          */
-        public void updateOverlay(Drawing newDrawing) {
-            if (this.overlay != null) {
-                PathOverlay oldOverlay = this.overlay;
-                this.overlay = newDrawing.drawPath(this.solution.getPath());
-                this.overlay.setVisible(oldOverlay.isVisible());
-                oldOverlay.delete();
+        public void updateOverlays() {
+            List<PathOverlay> oldOverlays = this.overlays;
+            this.overlays = createOverlaysFromSolution();
+            for (int i = 0; i < oldOverlays.size(); ++i) {
+                oldOverlays.get(i).delete();
             }
+        }
+
+        private List<PathOverlay> createOverlaysFromSolution() {
+            List<PathOverlay> overlays = new ArrayList<>();
+            if (solution.isFeasible()) {
+                Method[] methods = this.solution.getClass().getDeclaredMethods();
+                for (Method method: methods) {
+                    if (method.getReturnType().equals(Path.class) && method.getParameterCount() == 0) {
+                        try {
+                            Path path = (Path) method.invoke(this.solution);
+                            overlays.add(drawing.drawPath(path));
+                        }
+                        catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                            // This has been check before, so should never happen...
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            return overlays;
         }
 
         /*
@@ -101,25 +115,24 @@ public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeLi
          * @see java.lang.Object#toString()
          */
         public String toString() {
-            return "Shortest-path from #" + this.getData().getOrigin().getId() + " to #"
-                    + this.getData().getDestination().getId() + " [" + this.getData().getMode().toString().toLowerCase()
-                    + "]";
+            return getData().toString();
         }
+
     }
 
     // Solution
     private Drawing drawing;
 
     // Solution selector
-    private final JComboBox<ShortestPathBundle> solutionSelect;
+    private final JComboBox<SolutionBundle> solutionSelect;
 
     // Map solution -> panel
     private final JTextArea informationPanel;
 
     // Current bundle
-    private ShortestPathBundle currentBundle = null;
+    private SolutionBundle currentBundle = null;
 
-    public ShortestPathSolutionPanel(Component parent) {
+    public SolutionPanel(Component parent) {
         super();
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         setBorder(new CompoundBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, Color.LIGHT_GRAY),
@@ -147,17 +160,15 @@ public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeLi
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                PathOverlay overlay = currentBundle.getOverlay();
-                if (overlay == null) {
-                    return;
-                }
-                if (overlay.isVisible()) {
-                    overlay.setVisible(false);
-                    clearButton.setText("Show");
-                }
-                else {
-                    overlay.setVisible(true);
-                    clearButton.setText("Hide");
+                for (PathOverlay overlay: currentBundle.getOverlays()) {
+                    if (overlay.isVisible()) {
+                        overlay.setVisible(false);
+                        clearButton.setText("Show");
+                    }
+                    else {
+                        overlay.setVisible(true);
+                        clearButton.setText("Hide");
+                    }
                 }
             }
         });
@@ -166,26 +177,29 @@ public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeLi
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String filepath = System.getProperty("user.dir");
-                filepath += File.separator + String.format("path_%s_%d_%d.path",
-                        currentBundle.getData().getGraph().getMapId().toLowerCase().replaceAll("[^a-z0-9_]", "_"),
-                        currentBundle.getData().getOrigin().getId(), currentBundle.getData().getDestination().getId());
-                JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setSelectedFile(new File(filepath));
-                fileChooser.setApproveButtonText("Save");
-
-                if (fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
-                    File file = fileChooser.getSelectedFile();
-                    try {
-                        BinaryPathWriter writer = new BinaryPathWriter(
-                                new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file))));
-                        writer.writePath(currentBundle.getSolution().getPath());
-                    }
-                    catch (IOException e1) {
-                        JOptionPane.showMessageDialog(parent, "Unable to write path to the selected file.");
-                        e1.printStackTrace();
-                    }
-                }
+                // String filepath = System.getProperty("user.dir");
+                // filepath += File.separator + String.format("path_%s_%d_%d.path",
+                // currentBundle.getData().getGraph().getMapId().toLowerCase().replaceAll("[^a-z0-9_]",
+                // "_"),
+                // currentBundle.getData().getOrigin().getId(),
+                // currentBundle.getData().getDestination().getId());
+                // JFileChooser fileChooser = new JFileChooser();
+                // fileChooser.setSelectedFile(new File(filepath));
+                // fileChooser.setApproveButtonText("Save");
+                //
+                // if (fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
+                // File file = fileChooser.getSelectedFile();
+                // try {
+                // BinaryPathWriter writer = new BinaryPathWriter(
+                // new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file))));
+                // writer.writePath(currentBundle.getSolution().getPath());
+                // }
+                // catch (IOException e1) {
+                // JOptionPane.showMessageDialog(parent, "Unable to write path to the selected
+                // file.");
+                // e1.printStackTrace();
+                // }
+                // }
             }
         });
 
@@ -200,23 +214,25 @@ public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeLi
         solutionSelect.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
-                ShortestPathBundle bundle = (ShortestPathBundle) solutionSelect.getSelectedItem();
+                SolutionBundle bundle = (SolutionBundle) solutionSelect.getSelectedItem();
 
                 // Handle case when the JComboBox is empty.
                 if (bundle == null) {
                     return;
                 }
 
-                if (currentBundle != null && currentBundle.getOverlay() != null) {
-                    currentBundle.getOverlay().setVisible(false);
+                if (currentBundle != null) {
+                    for (PathOverlay overlay: currentBundle.getOverlays()) {
+                        overlay.setVisible(false);
+                    }
                 }
 
                 updateInformationLabel(bundle);
                 buttonPanel.setVisible(bundle.getSolution().isFeasible());
                 clearButton.setText(bundle.getSolution().isFeasible() ? "Hide" : "Show");
 
-                if (bundle.getOverlay() != null) {
-                    bundle.getOverlay().setVisible(true);
+                for (PathOverlay overlay: bundle.getOverlays()) {
+                    overlay.setVisible(true);
                 }
 
                 currentBundle = bundle;
@@ -226,31 +242,13 @@ public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeLi
     }
 
     public void addSolution(ShortestPathSolution solution) {
-        ShortestPathBundle bundle = new ShortestPathBundle(solution);
+        SolutionBundle bundle = new SolutionBundle(solution);
         solutionSelect.addItem(bundle);
         solutionSelect.setSelectedItem(bundle);
     }
 
-    protected void updateInformationLabel(ShortestPathBundle bundle) {
-        ShortestPathData data = bundle.getData();
-        String info = null;
-        if (!bundle.getSolution().isFeasible()) {
-            info = String.format("No path found from node #%d to node #%d.", data.getOrigin().getId(),
-                    data.getDestination().getId());
-        }
-        else {
-            info = String.format("Found a path from node #%d to node #%d", data.getOrigin().getId(),
-                    data.getDestination().getId());
-            if (data.getMode() == Mode.LENGTH) {
-                info = String.format("%s, %.4f kilometers.", info,
-                        (bundle.getSolution().getPath().getLength() / 1000.0));
-            }
-            else {
-                info = String.format("%s, %.4f minutes.", info,
-                        (bundle.getSolution().getPath().getMinimumTravelTime() / 60.0));
-            }
-        }
-        informationPanel.setText(info);
+    protected void updateInformationLabel(SolutionBundle bundle) {
+        informationPanel.setText(bundle.getSolution().toString());
     }
 
     @Override
@@ -263,19 +261,19 @@ public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeLi
             solutionSelect.actionPerformed(null);
         }
         else {
-            ShortestPathBundle bundle = (ShortestPathBundle) this.solutionSelect.getSelectedItem();
-            if (bundle != null && bundle.getOverlay() != null) {
-                bundle.getOverlay().setVisible(false);
+            SolutionBundle bundle = (SolutionBundle) this.solutionSelect.getSelectedItem();
+            if (bundle != null) {
+                for (PathOverlay overlay: bundle.getOverlays()) {
+                    overlay.setVisible(false);
+                }
             }
         }
-
     }
 
     @Override
     public void newGraphLoaded(Graph graph) {
         for (int i = 0; i < this.solutionSelect.getItemCount(); ++i) {
-            PathOverlay overlay = this.solutionSelect.getItemAt(i).getOverlay();
-            if (overlay != null) {
+            for (PathOverlay overlay: this.solutionSelect.getItemAt(i).getOverlays()) {
                 overlay.delete();
             }
         }
@@ -294,7 +292,7 @@ public class ShortestPathSolutionPanel extends JPanel implements DrawingChangeLi
     @Override
     public void onRedrawRequest() {
         for (int i = 0; i < this.solutionSelect.getItemCount(); ++i) {
-            this.solutionSelect.getItemAt(i).updateOverlay(drawing);
+            this.solutionSelect.getItemAt(i).updateOverlays();
         }
     }
 
