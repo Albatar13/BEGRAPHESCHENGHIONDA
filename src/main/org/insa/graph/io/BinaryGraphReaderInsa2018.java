@@ -7,14 +7,14 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
+import org.insa.graph.AccessRestrictions;
+import org.insa.graph.AccessRestrictions.AccessRestriction;
 import org.insa.graph.Arc;
 import org.insa.graph.Graph;
 import org.insa.graph.GraphInformation;
 import org.insa.graph.Node;
 import org.insa.graph.Point;
 import org.insa.graph.RoadInformation;
-import org.insa.graph.RoadInformation.AccessMode;
-import org.insa.graph.RoadInformation.AccessRestriction;
 import org.insa.graph.RoadInformation.RoadType;
 
 public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphReader {
@@ -26,29 +26,39 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
     // Length of the map id field (in bytes)
     protected static final int MAP_ID_FIELD_LENGTH = 32;
 
-    // Some masks...
-    private static final int MASK_UNKNOWN = 0x01;
-    private static final int MASK_PRIVATE = 0x02;
-    @SuppressWarnings("unused")
-    private static final int MASK_AGRICULTURAL = 0x04;
-    @SuppressWarnings("unused")
-    private static final int MASK_SERVICE = 0x08;
-    private static final int MASK_PUBLIC_TRANSPORT = 0x10;
-
-    private static final int MASK_FOOT = 0x01 << 8;
-    private static final int MASK_BICYCLE = 0x02 << 8;
-    private static final int MASK_MOTORCYCLE = 0x0C << 8;
-    private static final int MASK_SMALL_MOTORCYCLE = 0x08 << 8;
-    private static final int MASK_MOTORCAR = 0x10 << 8;
-    private static final int MASK_BUS = 0x20 << 8;
-
     /**
-     * Create a new access information by parsing the given value.
+     * Create a new access information by parsing the given value (V6 version).
      * 
      * @param access
      * @return
      */
-    protected static AccessRestriction toAccessInformation(int access) {
+    protected static AccessRestrictions toAccessInformationV7(long access) {
+
+    }
+
+    /**
+     * Create a new access information by parsing the given value (V6 version).
+     * 
+     * @param access
+     * @return
+     */
+    protected static AccessRestrictions toAccessInformationV6(int access) {
+
+        // Some masks...
+        final int MASK_UNKNOWN = 0x01;
+        final int MASK_PRIVATE = 0x02;
+        @SuppressWarnings("unused")
+        final int MASK_AGRICULTURAL = 0x04;
+        @SuppressWarnings("unused")
+        final int MASK_SERVICE = 0x08;
+        final int MASK_PUBLIC_TRANSPORT = 0x10;
+
+        final int MASK_FOOT = 0x01 << 8;
+        final int MASK_BICYCLE = 0x02 << 8;
+        final int MASK_MOTORCYCLE = 0x0C << 8;
+        final int MASK_SMALL_MOTORCYCLE = 0x08 << 8;
+        final int MASK_MOTORCAR = 0x10 << 8;
+        final int MASK_BUS = 0x20 << 8;
 
         // Unknown -> Return default access information.
         if ((access & MASK_UNKNOWN) != 0) {
@@ -259,9 +269,12 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
     private RoadInformation readRoadInformation() throws IOException {
         char type = (char) dis.readUnsignedByte();
         int x = dis.readUnsignedByte();
-        AccessRestriction access = new AccessRestriction();
-        if (getCurrentVersion() >= 6) {
-            access = toAccessInformation(dis.readUnsignedShort());
+        AccessRestrictions access = new AccessRestrictions();
+        if (getCurrentVersion() >= 7) {
+            access = toAccessInformationV7(dis.readLong());
+        }
+        else if (getCurrentVersion() >= 6) {
+            access = toAccessInformationV6(dis.readUnsignedShort());
         }
         return new RoadInformation(toRoadType(type), access, (x & 0x80) > 0, (x & 0x7F) * 5, dis.readUTF());
     }
