@@ -19,12 +19,14 @@ public class RoadInformation {
         PRIMARY_LINK,
         SECONDARY_LINK,
         TERTIARY,
+        TRACK,
         RESIDENTIAL,
         UNCLASSIFIED,
-        ROAD,
         LIVING_STREET,
         SERVICE,
         ROUNDABOUT,
+        PEDESTRIAN,
+        BICYCLE,
         COASTLINE
     }
 
