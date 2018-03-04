@@ -48,4 +48,26 @@ public class AccessRestrictions {
         this.restrictions = restrictions;
     }
 
+    /**
+     * // TODO:
+     * 
+     * isRestrictedTo(AccessMode.FOOT, EnumSet.of(Restriction.PRIVATE,
+     * Restriction.DESTINATION));
+     * 
+     * @param mode
+     * @param restrictions
+     * @return
+     */
+    public boolean isAllowedForAny(AccessMode mode, EnumSet<AccessRestriction> restrictions) {
+        AccessRestriction modeRestrictions = this.restrictions.getOrDefault(mode, AccessRestriction.UNKNOWN);
+        if (modeRestrictions == AccessRestriction.UNKNOWN) {
+            return true;
+        }
+        return restrictions.contains(modeRestrictions);
+    }
+
+    public boolean isAllowedFor(AccessMode mode, AccessRestriction restrictions) {
+        return isAllowedForAny(mode, EnumSet.of(restrictions));
+    }
+
 }
