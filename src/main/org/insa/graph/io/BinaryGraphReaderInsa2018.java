@@ -26,39 +26,6 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
     // Length of the map id field (in bytes)
     protected static final int MAP_ID_FIELD_LENGTH = 32;
 
-    /*
-     * 4 bits are associated to each type of vehicle, these 4 bits represents the
-     * type of access (see below).
-     * 
-     * Note: The highest 4 bits of the long are not used, for compatibility issue
-     * (unsigned/signed... ).
-     */
-
-    // @formatter:off
-    // These masks indicates which bit should be set for the access value.
-    public static final long  
-        MASK_NO           = 0x0L, // *=no,
-        MASK_YES          = 0x111111111111111L, // *=yes
-        MASK_PRIVATE      = 0x222222222222222L, // *=private
-        MASK_DESTINATION  = 0x333333333333333L, // *=destination
-        MASK_DELIVERY     = 0x444444444444444L, // *=delivery
-        MASK_CUSTOMERS    = 0x555555555555555L, // *=customers,
-        MASK_FORESTRY     = 0x666666666666666L, // *=forestry,*=agricultural
-        MASK_UNKNOWN      = 0xfffffffffffffffL;
-
-    // These masks indicates which parts of the long should be set for each type of
-    // vehicle
-    public static final long 
-            MASK_FOOT             = 0x00000000000000fL, // foot=*
-            MASK_BICYCLE          = 0x000000000000f00L, // bicycle=*
-            MASK_SMALL_MOTORCYCLE = 0x00000000000f000L, // moped,mofa=*
-            MASK_AGRICULTURAL     = 0x0000000000f0000L, // agricultural=*
-            MASK_MOTORCYCLE       = 0x000000000f00000L, // motorcycle=*
-            MASK_MOTORCAR         = 0x00000000f000000L, // motorcar=*
-            MASK_HEAVY_GOODS      = 0x0000000f0000000L, // motorcar=*
-            MASK_PUBLIC_TRANSPORT = 0x0000f0000000000L; // psv,bus,minibus,share_taxi=*
-    // @formatter:on
-
     /**
      * Create a new access information by parsing the given value (V6 version).
      * 
@@ -66,10 +33,21 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
      * @return
      */
     protected static AccessRestrictions toAccessInformationV7(final long access) {
+
+        // See the following for more information:
+        // https://github.com/Holt59/OSM2Graph/blob/master/src/main/org/laas/osm2graph/model/AccessData.java
+
+        // The order of values inside this array is VERY IMPORTANT: For allRestrictions,
+        // the order correspond to the 4 bits value (i.e. FORBIDDEN is 0 or PRIVATE is
+        // 2) - UKNOWN is not included because value above 6 (FORESTRY) are all
+        // considered unknown.
         final AccessRestriction[] allRestrictions = new AccessRestriction[] { AccessRestriction.FORBIDDEN,
                 AccessRestriction.ALLOWED, AccessRestriction.PRIVATE, AccessRestriction.DESTINATION,
                 AccessRestriction.DELIVERY, AccessRestriction.CUSTOMERS, AccessRestriction.FORESTRY };
 
+        // The order of values inside this array is VERY IMPORTANT: The order is such
+        // that each 4-bits group of the long value is processed in the correct order,
+        // i.e. FOOT is processed first (4 lowest bits), and so on.
         final AccessMode[] allModes = new AccessMode[] { AccessMode.FOOT, null, AccessMode.BICYCLE,
                 AccessMode.SMALL_MOTORCYCLE, AccessMode.AGRICULTURAL, AccessMode.MOTORCYCLE, AccessMode.MOTORCAR,
                 AccessMode.HEAVY_GOODS, null, AccessMode.PUBLIC_TRANSPORT };
