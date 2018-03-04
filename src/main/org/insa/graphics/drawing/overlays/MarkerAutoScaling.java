@@ -30,8 +30,8 @@ public class MarkerAutoScaling extends Marker {
 
     @Override
     public synchronized void draw(BoundingBox boundingBox, byte zoomLevel, Canvas canvas, Point topLeftPoint) {
-        int width = (int) PaintUtils.getStrokeWidth(12, zoomLevel),
-                height = (int) PaintUtils.getStrokeWidth(24, zoomLevel);
+        int width = (int) PaintUtils.getStrokeWidth(8, zoomLevel),
+                height = (int) PaintUtils.getStrokeWidth(16, zoomLevel);
         BufferedImage bfd = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D g = bfd.createGraphics();
         g.drawImage(this.originalImage.getScaledInstance(bfd.getWidth(), bfd.getHeight(), Image.SCALE_SMOOTH), 0, 0,
