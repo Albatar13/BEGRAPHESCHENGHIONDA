@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 
 import javax.swing.Box;
@@ -30,10 +29,7 @@ import org.insa.algo.AbstractInputData;
 import org.insa.algo.AbstractInputData.ArcFilter;
 import org.insa.algo.AbstractInputData.Mode;
 import org.insa.algo.AlgorithmFactory;
-import org.insa.graph.AccessRestrictions;
-import org.insa.graph.AccessRestrictions.AccessMode;
-import org.insa.graph.AccessRestrictions.AccessRestriction;
-import org.insa.graph.Arc;
+import org.insa.algo.ArcFilterFactory;
 import org.insa.graph.Node;
 import org.insa.graphics.NodesInputPanel.InputChangedEvent;
 
@@ -171,30 +167,8 @@ public class AlgorithmPanel extends JPanel {
         add(this.nodesInputPanel);
         components.add(this.nodesInputPanel);
 
-        JComboBox<AbstractInputData.ArcFilter> arcFilterSelect = new JComboBox<>(
-                new AbstractInputData.ArcFilter[] { new AbstractInputData.ArcFilter() {
-                    @Override
-                    public boolean isAllowed(Arc arc) {
-                        return true;
-                    }
-
-                    @Override
-                    public String toString() {
-                        return "All arcs are allowed";
-                    }
-                }, new AbstractInputData.ArcFilter() {
-                    @Override
-                    public boolean isAllowed(Arc arc) {
-                        AccessRestrictions restrictions = arc.getRoadInformation().getAccessRestrictions();
-                        return restrictions.isAllowedForAny(AccessMode.MOTORCAR, EnumSet
-                                .complementOf(EnumSet.of(AccessRestriction.PRIVATE, AccessRestriction.FORBIDDEN)));
-                    }
-
-                    @Override
-                    public String toString() {
-                        return "Only non-private roads allowed for motorcars";
-                    }
-                } });
+        JComboBox<ArcFilter> arcFilterSelect = new JComboBox<>(
+                ArcFilterFactory.getAllFilters().toArray(new ArcFilter[0]));
         arcFilterSelect.setBackground(Color.WHITE);
 
         // Add mode selection
