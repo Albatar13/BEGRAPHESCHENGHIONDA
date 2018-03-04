@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -73,13 +75,37 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
 
             JLabel infoPanel = new JLabel();
             String info = "";
-            info += String.format("Length = %.3f kilometers, duration = ", path.getLength() / 1000.);
+
+            // Display length
+            int length = path.getLength();
+            if (length < 2000) {
+                info += String.format("Length = %d meters", length);
+            }
+            else {
+                info += String.format("Length = %.3f kilometers", length / 1000.);
+            }
+
+            // Display time
+            info += ", Duration=";
             double time = path.getMinimumTravelTime();
             int hours = (int) (time / 3600);
             int minutes = (int) (time / 60) % 60;
             int seconds = ((int) time) % 60;
-            info += String.format("%d hours, %d minutes, %d seconds.", hours, minutes, seconds);
+            if (hours > 0) {
+                info += String.format("%d hours, ", hours);
+            }
+            if (minutes > 0) {
+                info += String.format("%d minutes, ", minutes);
+            }
+            info += String.format("%d seconds.", seconds);
             infoPanel.setText("<html>" + toString() + "<br/>" + info + "</html>");
+            infoPanel.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    checkbox.setSelected(!checkbox.isSelected());
+                    overlay.setVisible(checkbox.isSelected());
+                }
+            });
 
             JButton saveButton = new JButton("Save");
             saveButton.addActionListener(new ActionListener() {
@@ -180,6 +206,11 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
 
     @Override
     public void newGraphLoaded(Graph graph) {
+        for (Component c: this.getComponents()) {
+            if (c instanceof PathPanel) {
+                ((PathPanel) c).overlay.delete();
+            }
+        }
         this.removeAll();
         this.setVisible(false);
     }
