@@ -26,7 +26,7 @@ public class RoadInformation {
         SERVICE,
         ROUNDABOUT,
         PEDESTRIAN,
-        BICYCLE,
+        CYCLEWAY,
         COASTLINE
     }
 

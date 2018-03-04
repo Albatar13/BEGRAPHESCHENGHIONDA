@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import javax.swing.Box;
@@ -29,9 +30,11 @@ import org.insa.algo.AbstractInputData;
 import org.insa.algo.AbstractInputData.ArcFilter;
 import org.insa.algo.AbstractInputData.Mode;
 import org.insa.algo.AlgorithmFactory;
+import org.insa.graph.AccessRestrictions;
+import org.insa.graph.AccessRestrictions.AccessMode;
+import org.insa.graph.AccessRestrictions.AccessRestriction;
 import org.insa.graph.Arc;
 import org.insa.graph.Node;
-import org.insa.graph.RoadInformation.AccessMode;
 import org.insa.graphics.NodesInputPanel.InputChangedEvent;
 
 public class AlgorithmPanel extends JPanel {
@@ -182,8 +185,9 @@ public class AlgorithmPanel extends JPanel {
                 }, new AbstractInputData.ArcFilter() {
                     @Override
                     public boolean isAllowed(Arc arc) {
-                        return arc.getRoadInformation().getAccessRestrictions().isAllowedFor(AccessMode.MOTORCAR)
-                                && !arc.getRoadInformation().getAccessRestrictions().isPrivate();
+                        AccessRestrictions restrictions = arc.getRoadInformation().getAccessRestrictions();
+                        return restrictions.isAllowedForAny(AccessMode.MOTORCAR, EnumSet
+                                .complementOf(EnumSet.of(AccessRestriction.PRIVATE, AccessRestriction.FORBIDDEN)));
                     }
 
                     @Override

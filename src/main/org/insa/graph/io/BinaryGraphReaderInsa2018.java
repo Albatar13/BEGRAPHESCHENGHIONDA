@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.Map;
 
 import org.insa.graph.AccessRestrictions;
+import org.insa.graph.AccessRestrictions.AccessMode;
 import org.insa.graph.AccessRestrictions.AccessRestriction;
 import org.insa.graph.Arc;
 import org.insa.graph.Graph;
@@ -26,55 +26,72 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
     // Length of the map id field (in bytes)
     protected static final int MAP_ID_FIELD_LENGTH = 32;
 
+    /*
+     * 4 bits are associated to each type of vehicle, these 4 bits represents the
+     * type of access (see below).
+     * 
+     * Note: The highest 4 bits of the long are not used, for compatibility issue
+     * (unsigned/signed... ).
+     */
+
+    // @formatter:off
+    // These masks indicates which bit should be set for the access value.
+    public static final long  
+        MASK_NO           = 0x0L, // *=no,
+        MASK_YES          = 0x111111111111111L, // *=yes
+        MASK_PRIVATE      = 0x222222222222222L, // *=private
+        MASK_DESTINATION  = 0x333333333333333L, // *=destination
+        MASK_DELIVERY     = 0x444444444444444L, // *=delivery
+        MASK_CUSTOMERS    = 0x555555555555555L, // *=customers,
+        MASK_FORESTRY     = 0x666666666666666L, // *=forestry,*=agricultural
+        MASK_UNKNOWN      = 0xfffffffffffffffL;
+
+    // These masks indicates which parts of the long should be set for each type of
+    // vehicle
+    public static final long 
+            MASK_FOOT             = 0x00000000000000fL, // foot=*
+            MASK_BICYCLE          = 0x000000000000f00L, // bicycle=*
+            MASK_SMALL_MOTORCYCLE = 0x00000000000f000L, // moped,mofa=*
+            MASK_AGRICULTURAL     = 0x0000000000f0000L, // agricultural=*
+            MASK_MOTORCYCLE       = 0x000000000f00000L, // motorcycle=*
+            MASK_MOTORCAR         = 0x00000000f000000L, // motorcar=*
+            MASK_HEAVY_GOODS      = 0x0000000f0000000L, // motorcar=*
+            MASK_PUBLIC_TRANSPORT = 0x0000f0000000000L; // psv,bus,minibus,share_taxi=*
+    // @formatter:on
+
     /**
      * Create a new access information by parsing the given value (V6 version).
      * 
      * @param access
      * @return
      */
-    protected static AccessRestrictions toAccessInformationV7(long access) {
+    protected static AccessRestrictions toAccessInformationV7(final long access) {
+        final AccessRestriction[] allRestrictions = new AccessRestriction[] { AccessRestriction.FORBIDDEN,
+                AccessRestriction.ALLOWED, AccessRestriction.PRIVATE, AccessRestriction.DESTINATION,
+                AccessRestriction.DELIVERY, AccessRestriction.CUSTOMERS, AccessRestriction.FORESTRY };
 
-    }
+        final AccessMode[] allModes = new AccessMode[] { AccessMode.FOOT, null, AccessMode.BICYCLE,
+                AccessMode.SMALL_MOTORCYCLE, AccessMode.AGRICULTURAL, AccessMode.MOTORCYCLE, AccessMode.MOTORCAR,
+                AccessMode.HEAVY_GOODS, null, AccessMode.PUBLIC_TRANSPORT };
 
-    /**
-     * Create a new access information by parsing the given value (V6 version).
-     * 
-     * @param access
-     * @return
-     */
-    protected static AccessRestrictions toAccessInformationV6(int access) {
-
-        // Some masks...
-        final int MASK_UNKNOWN = 0x01;
-        final int MASK_PRIVATE = 0x02;
-        @SuppressWarnings("unused")
-        final int MASK_AGRICULTURAL = 0x04;
-        @SuppressWarnings("unused")
-        final int MASK_SERVICE = 0x08;
-        final int MASK_PUBLIC_TRANSPORT = 0x10;
-
-        final int MASK_FOOT = 0x01 << 8;
-        final int MASK_BICYCLE = 0x02 << 8;
-        final int MASK_MOTORCYCLE = 0x0C << 8;
-        final int MASK_SMALL_MOTORCYCLE = 0x08 << 8;
-        final int MASK_MOTORCAR = 0x10 << 8;
-        final int MASK_BUS = 0x20 << 8;
-
-        // Unknown -> Return default access information.
-        if ((access & MASK_UNKNOWN) != 0) {
-            return new AccessRestriction();
+        // fill maps...
+        EnumMap<AccessMode, AccessRestriction> restrictions = new EnumMap<>(AccessMode.class);
+        long copyAccess = access;
+        for (AccessMode mode: allModes) {
+            if (mode == null) {
+                continue; // filling cells
+            }
+            int value = (int) (copyAccess & 0xf);
+            if (value < allRestrictions.length) {
+                restrictions.put(mode, allRestrictions[value]);
+            }
+            else {
+                restrictions.put(mode, AccessRestriction.UNKNOWN);
+            }
+            copyAccess = copyAccess >> 4;
         }
 
-        Map<AccessMode, Boolean> allowedModes = new EnumMap<>(AccessMode.class);
-
-        allowedModes.put(AccessMode.FOOT, (access & MASK_FOOT) != 0);
-        allowedModes.put(AccessMode.BICYCLE, (access & MASK_BICYCLE) != 0);
-        allowedModes.put(AccessMode.SMALL_MOTORCYCLE, (access & MASK_SMALL_MOTORCYCLE) != 0);
-        allowedModes.put(AccessMode.MOTORCYCLE, (access & MASK_MOTORCYCLE) != 0);
-        allowedModes.put(AccessMode.MOTORCAR, (access & MASK_MOTORCAR) != 0);
-        allowedModes.put(AccessMode.BUS, (access & MASK_BUS) != 0);
-
-        return new AccessRestriction((access & MASK_PRIVATE) != 0, (access & MASK_PUBLIC_TRANSPORT) != 0, allowedModes);
+        return new AccessRestrictions(restrictions, access);
     }
 
     /**
@@ -109,15 +126,20 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
         case 'j':
             return RoadType.RESIDENTIAL;
         case 'k':
-            return RoadType.UNCLASSIFIED;
         case 'l':
-            return RoadType.ROAD;
+            return RoadType.UNCLASSIFIED;
         case 'm':
             return RoadType.LIVING_STREET;
         case 'n':
             return RoadType.SERVICE;
         case 'o':
             return RoadType.ROUNDABOUT;
+        case 'p':
+            return RoadType.PEDESTRIAN;
+        case 'r':
+            return RoadType.CYCLEWAY;
+        case 's':
+            return RoadType.TRACK;
         case 'z':
             return RoadType.COASTLINE;
         }
@@ -272,9 +294,6 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
         AccessRestrictions access = new AccessRestrictions();
         if (getCurrentVersion() >= 7) {
             access = toAccessInformationV7(dis.readLong());
-        }
-        else if (getCurrentVersion() >= 6) {
-            access = toAccessInformationV6(dis.readUnsignedShort());
         }
         return new RoadInformation(toRoadType(type), access, (x & 0x80) > 0, (x & 0x7F) * 5, dis.readUTF());
     }

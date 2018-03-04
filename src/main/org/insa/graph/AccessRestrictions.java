@@ -23,7 +23,13 @@ public class AccessRestrictions {
     }
 
     public enum AccessRestriction {
-        ALLOWED, FORBIDDEN, PRIVATE, DESTINATION, FORESTRY, UNKNOWN
+        ALLOWED, FORBIDDEN, PRIVATE, DESTINATION, DELIVERY, CUSTOMERS, FORESTRY, UNKNOWN;
+
+        // Not private or forbidden
+        public static final EnumSet<AccessRestriction> ALLOWED_FOR_SOMETHING = EnumSet.of(AccessRestriction.ALLOWED,
+                AccessRestriction.DESTINATION, AccessRestriction.DESTINATION, AccessRestriction.DELIVERY,
+                AccessRestriction.CUSTOMERS, AccessRestriction.FORESTRY);
+
     }
 
     // Map mode -> restriction
@@ -39,35 +45,59 @@ public class AccessRestrictions {
         }
     }
 
+    public long value = 0;
+
     /**
      * Create a new instance of access restrictions with the given restrictions.
      * 
      * @param restrictions
      */
-    public AccessRestrictions(EnumMap<AccessMode, AccessRestriction> restrictions) {
+    public AccessRestrictions(EnumMap<AccessMode, AccessRestriction> restrictions, long value) {
         this.restrictions = restrictions;
+        this.value = value;
     }
 
     /**
-     * // TODO:
+     * @param mode
      * 
-     * isRestrictedTo(AccessMode.FOOT, EnumSet.of(Restriction.PRIVATE,
-     * Restriction.DESTINATION));
-     * 
+     * @return Restriction for the given mode.
+     */
+    public AccessRestriction getRestrictionFor(AccessMode mode) {
+        return restrictions.getOrDefault(mode, AccessRestriction.UNKNOWN);
+    }
+
+    /**
      * @param mode
      * @param restrictions
-     * @return
+     * 
+     * @return true if the given mode is allowed for any of the given restrictions.
      */
     public boolean isAllowedForAny(AccessMode mode, EnumSet<AccessRestriction> restrictions) {
-        AccessRestriction modeRestrictions = this.restrictions.getOrDefault(mode, AccessRestriction.UNKNOWN);
-        if (modeRestrictions == AccessRestriction.UNKNOWN) {
-            return true;
+        return restrictions.contains(getRestrictionFor(mode));
+    }
+
+    /**
+     * @param mode
+     * @param restriction
+     * 
+     * @return true if the given mode is allowed for the given restriction.
+     */
+    public boolean isAllowedFor(AccessMode mode, AccessRestriction restriction) {
+        return getRestrictionFor(mode).equals(restriction);
+    }
+
+    /**
+     * @param modes
+     * @param restrictions
+     * 
+     * @return true if all the given modes are allowed for any of the given
+     *         restrictions.
+     */
+    public boolean areAllAllowedForAny(EnumSet<AccessMode> modes, EnumSet<AccessRestriction> restrictions) {
+        boolean allowed = true;
+        for (AccessMode mode: modes) {
+            allowed = allowed && isAllowedForAny(mode, restrictions);
         }
-        return restrictions.contains(modeRestrictions);
+        return allowed;
     }
-
-    public boolean isAllowedFor(AccessMode mode, AccessRestriction restrictions) {
-        return isAllowedForAny(mode, EnumSet.of(restrictions));
-    }
-
 }

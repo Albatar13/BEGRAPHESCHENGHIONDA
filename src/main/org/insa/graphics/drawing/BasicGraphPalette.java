@@ -52,10 +52,12 @@ public class BasicGraphPalette implements GraphPalette {
         case TERTIARY:
         case RESIDENTIAL:
         case UNCLASSIFIED:
-        case ROAD:
         case LIVING_STREET:
         case SERVICE:
         case ROUNDABOUT:
+        case PEDESTRIAN:
+        case CYCLEWAY:
+        case TRACK:
             color = smallroad;
             break;
         case COASTLINE:
@@ -86,10 +88,12 @@ public class BasicGraphPalette implements GraphPalette {
         case TERTIARY:
         case RESIDENTIAL:
         case UNCLASSIFIED:
-        case ROAD:
         case LIVING_STREET:
         case SERVICE:
         case ROUNDABOUT:
+        case PEDESTRIAN:
+        case CYCLEWAY:
+        case TRACK:
             width = 1;
             break;
         case COASTLINE:

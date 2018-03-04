@@ -31,8 +31,8 @@ public class PathTest {
     public static void initAll() throws IOException {
 
         // 10 and 20 meters per seconds
-        RoadInformation speed10 = new RoadInformation(RoadType.ROAD, null, true, 36, ""),
-                speed20 = new RoadInformation(RoadType.ROAD, null, true, 72, "");
+        RoadInformation speed10 = new RoadInformation(RoadType.MOTORWAY, null, true, 36, ""),
+                speed20 = new RoadInformation(RoadType.MOTORWAY, null, true, 72, "");
 
         // Create nodes
         nodes = new Node[5];
