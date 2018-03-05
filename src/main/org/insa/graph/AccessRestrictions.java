@@ -8,7 +8,14 @@ public class AccessRestrictions {
     public enum AccessMode {
 
         // Specific modes
-        FOOT, BICYCLE, SMALL_MOTORCYCLE, AGRICULTURAL, MOTORCYCLE, MOTORCAR, HEAVY_GOODS, PUBLIC_TRANSPORT;
+        FOOT,
+        BICYCLE,
+        SMALL_MOTORCYCLE,
+        AGRICULTURAL,
+        MOTORCYCLE,
+        MOTORCAR,
+        HEAVY_GOODS,
+        PUBLIC_TRANSPORT;
 
         // All available modes
         public static final EnumSet<AccessMode> ALL = EnumSet.allOf(AccessMode.class);
@@ -18,16 +25,17 @@ public class AccessRestrictions {
                 AccessMode.PUBLIC_TRANSPORT);
 
         // Motor vehicle
-        public static final EnumSet<AccessMode> MOTOR_VEHICLE = EnumSet.range(AccessMode.SMALL_MOTORCYCLE,
-                AccessMode.PUBLIC_TRANSPORT);
+        public static final EnumSet<AccessMode> MOTOR_VEHICLE = EnumSet
+                .range(AccessMode.SMALL_MOTORCYCLE, AccessMode.PUBLIC_TRANSPORT);
     }
 
     public enum AccessRestriction {
         ALLOWED, FORBIDDEN, PRIVATE, DESTINATION, DELIVERY, CUSTOMERS, FORESTRY, UNKNOWN;
 
         // Not private or forbidden
-        public static final EnumSet<AccessRestriction> ALLOWED_FOR_SOMETHING = EnumSet.of(AccessRestriction.ALLOWED,
-                AccessRestriction.DESTINATION, AccessRestriction.DESTINATION, AccessRestriction.DELIVERY,
+        public static final EnumSet<AccessRestriction> ALLOWED_FOR_SOMETHING = EnumSet.of(
+                AccessRestriction.ALLOWED, AccessRestriction.DESTINATION,
+                AccessRestriction.DESTINATION, AccessRestriction.DELIVERY,
                 AccessRestriction.CUSTOMERS, AccessRestriction.FORESTRY);
 
     }
@@ -45,16 +53,13 @@ public class AccessRestrictions {
         }
     }
 
-    public long value = 0;
-
     /**
      * Create a new instance of access restrictions with the given restrictions.
      * 
      * @param restrictions
      */
-    public AccessRestrictions(EnumMap<AccessMode, AccessRestriction> restrictions, long value) {
+    public AccessRestrictions(EnumMap<AccessMode, AccessRestriction> restrictions) {
         this.restrictions = restrictions;
-        this.value = value;
     }
 
     /**
@@ -91,9 +96,10 @@ public class AccessRestrictions {
      * @param restrictions
      * 
      * @return true if all the given modes are allowed for any of the given
-     *         restrictions.
+     * restrictions.
      */
-    public boolean areAllAllowedForAny(EnumSet<AccessMode> modes, EnumSet<AccessRestriction> restrictions) {
+    public boolean areAllAllowedForAny(EnumSet<AccessMode> modes,
+            EnumSet<AccessRestriction> restrictions) {
         boolean allowed = true;
         for (AccessMode mode: modes) {
             allowed = allowed && isAllowedForAny(mode, restrictions);
