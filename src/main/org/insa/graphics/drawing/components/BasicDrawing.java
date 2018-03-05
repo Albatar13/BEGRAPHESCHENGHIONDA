@@ -286,7 +286,7 @@ public class BasicDrawing extends JPanel implements Drawing {
     }
 
     // Default path color.
-    public static final Color DEFAULT_PATH_COLOR = new Color(255, 0, 255);
+    public static final Color DEFAULT_PATH_COLOR = new Color(66, 134, 244);
 
     // Default palette.
     public static final GraphPalette DEFAULT_PALETTE = new BasicGraphPalette();
@@ -299,6 +299,8 @@ public class BasicDrawing extends JPanel implements Drawing {
     // Width and height of the image
     private int width, height;
 
+    // Zoom controls
+    private MapZoomControls zoomControls;
     private ZoomAndPanListener zoomAndPanListener;
 
     //
@@ -311,9 +313,6 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     // Mapping DrawingClickListener -> MouseEventListener
     private List<DrawingClickListener> drawingClickListeners = new ArrayList<>();
-
-    // Zoom controls
-    private MapZoomControls zoomControls;
 
     /**
      * Create a new BasicDrawing.
@@ -489,7 +488,7 @@ public class BasicDrawing extends JPanel implements Drawing {
      * 
      * @param arc Arc to draw.
      * @param palette Palette to use to retrieve color and width for arc, or null to
-     * use current settings.
+     *        use current settings.
      */
     protected void drawArc(ArcForward arc, GraphPalette palette, boolean repaint) {
         List<Point> pts = arc.getPoints();
