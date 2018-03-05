@@ -60,8 +60,9 @@ public class AlgorithmPanel extends JPanel {
         private final boolean graphicVisualization;
         private final boolean textualVisualization;
 
-        public StartActionEvent(Class<? extends AbstractAlgorithm<?>> algoClass, List<Node> nodes, Mode mode,
-                ArcFilter arcFilter, boolean graphicVisualization, boolean textualVisualization) {
+        public StartActionEvent(Class<? extends AbstractAlgorithm<?>> algoClass, List<Node> nodes,
+                Mode mode, ArcFilter arcFilter, boolean graphicVisualization,
+                boolean textualVisualization) {
             super(AlgorithmPanel.this, START_EVENT_ID, START_EVENT_COMMAND);
             this.nodes = nodes;
             this.mode = mode;
@@ -131,39 +132,27 @@ public class AlgorithmPanel extends JPanel {
 
     /**
      */
-    public AlgorithmPanel(Component parent, Class<? extends AbstractAlgorithm<?>> baseAlgorithm) {
+    public AlgorithmPanel(Component parent, Class<? extends AbstractAlgorithm<?>> baseAlgorithm,
+            String title, String[] nodeNames, boolean enableModeSelection,
+            boolean enableArcFilterSelection) {
         super();
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
         setBorder(new EmptyBorder(15, 15, 15, 15));
 
         // Set title.
-        JLabel titleLabel = new JLabel("Shortest-Path");
-        titleLabel.setBackground(Color.RED);
-        titleLabel.setHorizontalAlignment(JLabel.LEFT);
-        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        Font font = titleLabel.getFont();
-        font = font.deriveFont(Font.BOLD, 18);
-        titleLabel.setFont(font);
-        add(titleLabel);
-
+        add(createTitleLabel(title));
         add(Box.createVerticalStrut(8));
 
         // Add algorithm selection
-        JComboBox<String> algoSelect = new JComboBox<>(
-                AlgorithmFactory.getAlgorithmNames(baseAlgorithm).toArray(new String[0]));
-        algoSelect.setBackground(Color.WHITE);
-        algoSelect.setAlignmentX(Component.LEFT_ALIGNMENT);
-        add(algoSelect);
-        components.add(algoSelect);
+        JComboBox<String> algoSelect = createAlgoritmSelectComboBox(baseAlgorithm);
+        if (algoSelect.getItemCount() > 1) {
+            add(algoSelect);
+            components.add(algoSelect);
+        }
 
         // Add inputs for node.
-        this.nodesInputPanel = new NodesInputPanel();
-        this.nodesInputPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        nodesInputPanel.addTextField("Origin: ", new Color(57, 172, 115));
-        nodesInputPanel.addTextField("Destination: ", new Color(255, 77, 77));
-        nodesInputPanel.setEnabled(false);
-
+        this.nodesInputPanel = createNodesInputPanel(nodeNames);
         add(this.nodesInputPanel);
         components.add(this.nodesInputPanel);
 
@@ -190,16 +179,18 @@ public class AlgorithmPanel extends JPanel {
 
         c.fill = GridBagConstraints.HORIZONTAL;
 
-        c.gridx = 0;
-        c.gridy = 0;
-        c.weightx = 0;
-        modeAndObserverPanel.add(new JLabel("Mode: "), c);
-        c.gridx = 1;
-        c.weightx = 1;
-        modeAndObserverPanel.add(lengthModeButton, c);
-        c.gridx = 2;
-        c.weightx = 1;
-        modeAndObserverPanel.add(timeModeButton, c);
+        if (enableModeSelection) {
+            c.gridx = 0;
+            c.gridy = 0;
+            c.weightx = 0;
+            modeAndObserverPanel.add(new JLabel("Mode: "), c);
+            c.gridx = 1;
+            c.weightx = 1;
+            modeAndObserverPanel.add(lengthModeButton, c);
+            c.gridx = 2;
+            c.weightx = 1;
+            modeAndObserverPanel.add(timeModeButton, c);
+        }
 
         c.gridy = 2;
         c.gridx = 0;
@@ -212,14 +203,16 @@ public class AlgorithmPanel extends JPanel {
         c.weightx = 1;
         modeAndObserverPanel.add(textObserver, c);
 
-        c.gridy = 1;
-        c.gridx = 0;
-        c.weightx = 0;
-        modeAndObserverPanel.add(new JLabel("Restrictions: "), c);
-        c.gridx = 1;
-        c.gridwidth = 2;
-        c.weightx = 1;
-        modeAndObserverPanel.add(arcFilterSelect, c);
+        if (enableArcFilterSelection) {
+            c.gridy = 1;
+            c.gridx = 0;
+            c.weightx = 0;
+            modeAndObserverPanel.add(new JLabel("Restrictions: "), c);
+            c.gridx = 1;
+            c.gridwidth = 2;
+            c.weightx = 1;
+            modeAndObserverPanel.add(arcFilterSelect, c);
+        }
 
         components.add(timeModeButton);
         components.add(lengthModeButton);
@@ -244,17 +237,17 @@ public class AlgorithmPanel extends JPanel {
         startAlgoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                AbstractInputData.Mode mode = lengthModeButton.isSelected() ? AbstractInputData.Mode.LENGTH
+                AbstractInputData.Mode mode = lengthModeButton.isSelected()
+                        ? AbstractInputData.Mode.LENGTH
                         : AbstractInputData.Mode.TIME;
 
                 for (ActionListener lis: startActionListeners) {
-                    lis.actionPerformed(
-                            new StartActionEvent(
-                                    AlgorithmFactory.getAlgorithmClass(baseAlgorithm,
-                                            (String) algoSelect.getSelectedItem()),
-                                    nodesInputPanel.getNodeForInputs(), mode,
-                                    (AbstractInputData.ArcFilter) arcFilterSelect.getSelectedItem(),
-                                    graphicObserver.isSelected(), textObserver.isSelected()));
+                    lis.actionPerformed(new StartActionEvent(
+                            AlgorithmFactory.getAlgorithmClass(baseAlgorithm,
+                                    (String) algoSelect.getSelectedItem()),
+                            nodesInputPanel.getNodeForInputs(), mode,
+                            (AbstractInputData.ArcFilter) arcFilterSelect.getSelectedItem(),
+                            graphicObserver.isSelected(), textObserver.isSelected()));
                 }
             }
         });
@@ -304,6 +297,57 @@ public class AlgorithmPanel extends JPanel {
         });
 
         setEnabled(false);
+    }
+
+    /**
+     * Create the title JLabel for this panel.
+     * 
+     * @param title Title for the label.
+     * 
+     * @return
+     */
+    protected JLabel createTitleLabel(String title) {
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setBackground(Color.RED);
+        titleLabel.setHorizontalAlignment(JLabel.LEFT);
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        Font font = titleLabel.getFont();
+        font = font.deriveFont(Font.BOLD, 18);
+        titleLabel.setFont(font);
+        return titleLabel;
+    }
+
+    /**
+     * Create the combo box for the algorithm selection.
+     * 
+     * @return
+     */
+    protected JComboBox<String> createAlgoritmSelectComboBox(
+            Class<? extends AbstractAlgorithm<?>> baseAlgorithm) {
+        JComboBox<String> algoSelect = new JComboBox<>(
+                AlgorithmFactory.getAlgorithmNames(baseAlgorithm).toArray(new String[0]));
+        algoSelect.setBackground(Color.WHITE);
+        algoSelect.setAlignmentX(Component.LEFT_ALIGNMENT);
+        return algoSelect;
+
+    }
+
+    /**
+     * Create a node input panel with the given node input names.
+     * 
+     * @param nodeNames
+     * @return
+     */
+    protected NodesInputPanel createNodesInputPanel(String[] nodeNames) {
+        final Color[] nodeColors = { new Color(57, 172, 115), new Color(255, 77, 77),
+                new Color(77, 77, 255), new Color(77, 255, 77) };
+        NodesInputPanel panel = new NodesInputPanel();
+        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        for (int i = 0; i < nodeNames.length; ++i) {
+            panel.addTextField(nodeNames[i] + ": ", nodeColors[i % nodeColors.length]);
+        }
+        panel.setEnabled(false);
+        return panel;
     }
 
     protected boolean allNotNull(List<Node> nodes) {

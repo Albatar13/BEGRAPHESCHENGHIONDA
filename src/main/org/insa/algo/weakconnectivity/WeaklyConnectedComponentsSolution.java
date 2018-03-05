@@ -32,4 +32,26 @@ public class WeaklyConnectedComponentsSolution extends AbstractSolution {
         return components;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        int nIsolated = 0;
+        int nGt10 = 0;
+        for (ArrayList<Node> component: components) {
+            if (component.size() == 1) {
+                nIsolated += 1;
+            }
+            else if (component.size() > 10) {
+                nGt10 += 1;
+            }
+        }
+        return "Found " + components.size() + " components (" + nGt10 + " with more than 10 nodes, "
+                + nIsolated + " isolated nodes) in " + getSolvingTime().getSeconds() + " seconds.";
+
+    }
+
 }

@@ -42,6 +42,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.insa.algo.AbstractSolution;
 import org.insa.algo.AlgorithmFactory;
 import org.insa.algo.shortestpath.ShortestPathAlgorithm;
 import org.insa.algo.shortestpath.ShortestPathData;
@@ -100,20 +101,21 @@ public class MainWindow extends JFrame {
 
     // Drawing and click adapter.
     protected Drawing drawing;
-    private MapViewDrawing mapViewDrawing;
-    private BasicDrawing basicDrawing;
+    private final MapViewDrawing mapViewDrawing;
+    private final BasicDrawing basicDrawing;
 
     // Main panel.
-    private JSplitPane mainPanel;
+    private final JSplitPane mainPanel;
 
-    // Algorithm panel
-    private AlgorithmPanel spPanel;
+    // Algorithm panels
+    private final List<AlgorithmPanel> algoPanels = new ArrayList<>();
+    private final AlgorithmPanel wccPanel, spPanel;
 
     // Path panel
-    private PathsPanel pathPanel;
+    private final PathsPanel pathPanel;
 
     // List of items that cannot be used without a graph
-    private ArrayList<JMenuItem> graphLockItems = new ArrayList<JMenuItem>();
+    private final ArrayList<JMenuItem> graphLockItems = new ArrayList<JMenuItem>();
 
     // Label containing the map ID of the current graph.
     private JLabel graphInfoPanel;
@@ -151,7 +153,43 @@ public class MainWindow extends JFrame {
 
         this.drawing = this.basicDrawing;
 
-        spPanel = new AlgorithmPanel(this, ShortestPathAlgorithm.class);
+        wccPanel = new AlgorithmPanel(this, WeaklyConnectedComponentsAlgorithm.class,
+                "Weakly-Connected Components", new String[] {}, false, false);
+        wccPanel.addStartActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                StartActionEvent evt = (StartActionEvent) e;
+                WeaklyConnectedComponentsData data = new WeaklyConnectedComponentsData(graph);
+
+                WeaklyConnectedComponentsAlgorithm wccAlgorithm = null;
+                try {
+                    wccAlgorithm = (WeaklyConnectedComponentsAlgorithm) AlgorithmFactory
+                            .createAlgorithm(evt.getAlgorithmClass(), data);
+                }
+                catch (Exception e1) {
+                    JOptionPane.showMessageDialog(MainWindow.this,
+                            "An error occurred while creating the specified algorithm.",
+                            "Internal error: Algorithm instantiation failure",
+                            JOptionPane.ERROR_MESSAGE);
+                    e1.printStackTrace();
+                    return;
+                }
+
+                wccPanel.setEnabled(false);
+
+                if (evt.isGraphicVisualizationEnabled()) {
+                    wccAlgorithm.addObserver(new WeaklyConnectedComponentGraphicObserver(drawing));
+                }
+                if (evt.isTextualVisualizationEnabled()) {
+                    wccAlgorithm.addObserver(new WeaklyConnectedComponentTextObserver(printStream));
+                }
+
+                launchWeaklyConnectedComponentsThread(wccAlgorithm);
+            }
+        });
+
+        spPanel = new AlgorithmPanel(this, ShortestPathAlgorithm.class, "Shortest-Path",
+                new String[] { "Origin", "Destination" }, true, true);
         spPanel.addStartActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -185,7 +223,10 @@ public class MainWindow extends JFrame {
                 launchShortestPathThread(spAlgorithm);
             }
         });
-        spPanel.setVisible(false);
+
+        // add algorithm panels
+        algoPanels.add(wccPanel);
+        algoPanels.add(spPanel);
 
         this.pathPanel = new PathsPanel(this);
 
@@ -242,7 +283,10 @@ public class MainWindow extends JFrame {
         rightComponent.add(pathPanel, c);
 
         c.gridy = 1;
-        rightComponent.add(spPanel, c);
+        for (AlgorithmPanel panel: algoPanels) {
+            panel.setVisible(false);
+            rightComponent.add(panel, c);
+        }
 
         c = new GridBagConstraints();
         c.gridx = 0;
@@ -310,6 +354,19 @@ public class MainWindow extends JFrame {
             pathPanel.addPath(solution.getPath());
         }
         spPanel.solutionPanel.setVisible(true);
+    }
+
+    private void launchWeaklyConnectedComponentsThread(
+            WeaklyConnectedComponentsAlgorithm wccAlgorithm) {
+        launchThread(new Runnable() {
+            @Override
+            public void run() {
+                AbstractSolution solution = wccAlgorithm.run();
+                wccPanel.solutionPanel.addSolution(solution, false);
+                wccPanel.solutionPanel.setVisible(true);
+                wccPanel.setEnabled(true);
+            }
+        });
     }
 
     private void launchShortestPathThread(ShortestPathAlgorithm spAlgorithm) {
@@ -473,6 +530,19 @@ public class MainWindow extends JFrame {
                 }
             }
         }, false);
+    }
+
+    /**
+     * Show and enable the given AlgorithmPanel (and hide all others).
+     * 
+     * @param algorithmPanel
+     */
+    private void enableAlgorithmPanel(AlgorithmPanel algorithmPanel) {
+        int dividerLocation = mainPanel.getDividerLocation();
+        for (AlgorithmPanel panel: algoPanels) {
+            panel.setVisible(panel == algorithmPanel);
+        }
+        mainPanel.setDividerLocation(dividerLocation);
     }
 
     private JMenuBar createMenuBar() {
@@ -648,16 +718,7 @@ public class MainWindow extends JFrame {
         wccItem.addActionListener(baf.createBlockingAction(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                WeaklyConnectedComponentsAlgorithm algo = new WeaklyConnectedComponentsAlgorithm(
-                        new WeaklyConnectedComponentsData(graph));
-                algo.addObserver(new WeaklyConnectedComponentGraphicObserver(drawing));
-                algo.addObserver(new WeaklyConnectedComponentTextObserver(printStream));
-                launchThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        algo.run();
-                    }
-                });
+                enableAlgorithmPanel(wccPanel);
             }
         }));
 
@@ -666,9 +727,7 @@ public class MainWindow extends JFrame {
         spItem.addActionListener(baf.createBlockingAction(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int dividerLocation = mainPanel.getDividerLocation();
-                spPanel.setVisible(true);
-                mainPanel.setDividerLocation(dividerLocation);
+                enableAlgorithmPanel(spPanel);
             }
         }));
         graphLockItems.add(wccItem);
