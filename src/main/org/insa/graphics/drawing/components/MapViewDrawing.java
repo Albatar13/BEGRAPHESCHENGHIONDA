@@ -120,7 +120,7 @@ public class MapViewDrawing extends MapView implements Drawing {
     private class MapViewMarkerOverlay extends MapViewOverlay implements MarkerOverlay {
 
         public MapViewMarkerOverlay(Marker marker, Color color) {
-            super(new Layer[]{ marker }, color);
+            super(new Layer[] { marker }, color);
         }
 
         @Override
@@ -156,11 +156,11 @@ public class MapViewDrawing extends MapView implements Drawing {
 
         public MapViewPathOverlay(PolylineAutoScaling path, MarkerAutoScaling origin,
                 MarkerAutoScaling destination) {
-            super(new Layer[]{ path, origin, destination }, path.getColor());
+            super(new Layer[] { path, origin, destination }, path.getColor());
         }
 
         public MapViewPathOverlay(PolylineAutoScaling path) {
-            super(new Layer[]{ path }, path.getColor());
+            super(new Layer[] { path }, path.getColor());
         }
 
         @Override
@@ -270,6 +270,11 @@ public class MapViewDrawing extends MapView implements Drawing {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.mapsforge.map.awt.view.MapView#paint(java.awt.Graphics)
+     */
     @Override
     public void paint(Graphics graphics) {
         super.paint(graphics);
@@ -280,6 +285,33 @@ public class MapViewDrawing extends MapView implements Drawing {
                     this.getHeight() - this.zoomControls.getHeight() - 10, this);
         }
 
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.insa.graphics.drawing.Drawing#clear()
+     */
+    @Override
+    public void clear() {
+        getLayerManager().getLayers().clear();
+        repaint();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.insa.graphics.drawing.Drawing#clearOverlays()
+     */
+    @Override
+    public void clearOverlays() {
+        Layers layers = getLayerManager().getLayers();
+        for (Layer layer: layers) {
+            if (layer instanceof PolylineAutoScaling || layer instanceof MarkerAutoScaling) {
+                getLayerManager().getLayers().remove(layer, false);
+            }
+        }
+        repaint();
     }
 
     protected LatLong convertPoint(Point point) {
@@ -317,12 +349,6 @@ public class MapViewDrawing extends MapView implements Drawing {
     @Override
     public void removeDrawingClickListener(DrawingClickListener listener) {
         this.drawingClickListeners.remove(listener);
-    }
-
-    @Override
-    public void clear() {
-        getLayerManager().getLayers().clear();
-        repaint();
     }
 
     protected MarkerAutoScaling createMarker(Point point, Color color) {

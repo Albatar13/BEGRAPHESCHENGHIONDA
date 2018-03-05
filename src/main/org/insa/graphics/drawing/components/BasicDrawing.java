@@ -392,6 +392,35 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.insa.graphics.drawing.Drawing#clear()
+     */
+    @Override
+    public void clear() {
+        if (this.graphGraphics != null) {
+            this.graphGraphics.clearRect(0, 0, this.width, this.height);
+        }
+        synchronized (overlays) {
+            this.overlays.clear();
+        }
+        this.repaint();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.insa.graphics.drawing.Drawing#clearOverlays()
+     */
+    @Override
+    public void clearOverlays() {
+        synchronized (overlays) {
+            this.overlays.clear();
+        }
+        this.repaint();
+    }
+
     /**
      * @param lon
      * @return
@@ -433,24 +462,27 @@ public class BasicDrawing extends JPanel implements Drawing {
         return new Point((float) lon, (float) lat);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.insa.graphics.drawing.Drawing#addDrawingClickListener(org.insa.graphics.
+     * drawing.DrawingClickListener)
+     */
     @Override
     public void addDrawingClickListener(DrawingClickListener listener) {
         this.drawingClickListeners.add(listener);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.insa.graphics.drawing.Drawing#removeDrawingClickListener(org.insa.
+     * graphics.drawing.DrawingClickListener)
+     */
     @Override
     public void removeDrawingClickListener(DrawingClickListener listener) {
         this.drawingClickListeners.remove(listener);
-    }
-
-    @Override
-    public void clear() {
-        if (this.graphGraphics != null) {
-            this.graphGraphics.clearRect(0, 0, this.width, this.height);
-        }
-        synchronized (overlays) {
-            this.overlays.clear();
-        }
     }
 
     public BasicMarkerOverlay createMarker(Point point, Color color) {

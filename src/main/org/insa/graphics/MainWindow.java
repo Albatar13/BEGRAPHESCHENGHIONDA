@@ -104,6 +104,9 @@ public class MainWindow extends JFrame {
     private final MapViewDrawing mapViewDrawing;
     private final BasicDrawing basicDrawing;
 
+    private final GraphPalette basicPalette, blackAndWhitePalette;
+    private GraphPalette currentPalette;
+
     // Main panel.
     private final JSplitPane mainPanel;
 
@@ -150,8 +153,12 @@ public class MainWindow extends JFrame {
         // Create drawing and action listeners...
         this.basicDrawing = new BasicDrawing();
         this.mapViewDrawing = new MapViewDrawing();
-
         this.drawing = this.basicDrawing;
+
+        // Createa palettes
+        this.basicPalette = new BasicGraphPalette();
+        this.blackAndWhitePalette = new BlackAndWhiteGraphPalette();
+        this.currentPalette = this.basicPalette;
 
         wccPanel = new AlgorithmPanel(this, WeaklyConnectedComponentsAlgorithm.class,
                 "Weakly-Connected Components", new String[] {}, false, false);
@@ -452,8 +459,13 @@ public class MainWindow extends JFrame {
             }
 
             // 2. We draw the graph.
-            drawing.clear();
-            ((MapViewDrawing) drawing).drawGraph(mfile);
+            if (isNewGraph) {
+                drawing.clear();
+                ((MapViewDrawing) drawing).drawGraph(mfile);
+            }
+            else {
+                drawing.clearOverlays();
+            }
             notifyRedrawRequest();
 
         }
@@ -465,8 +477,14 @@ public class MainWindow extends JFrame {
                 mainPanel.setDividerLocation(oldLocation);
                 notifyDrawingLoaded(mapViewDrawing, basicDrawing);
             }
-            drawing.clear();
-            drawing.drawGraph(graph, palette);
+            if (isNewGraph || palette != this.currentPalette) {
+                this.currentPalette = palette;
+                drawing.clear();
+                drawing.drawGraph(graph, palette);
+            }
+            else {
+                drawing.clearOverlays();
+            }
             notifyRedrawRequest();
         }
 
@@ -483,7 +501,7 @@ public class MainWindow extends JFrame {
      * 
      */
     private void drawGraph() {
-        drawGraph(null, new BasicGraphPalette());
+        drawGraph(null, this.currentPalette);
     }
 
     private void loadGraph(GraphReader reader) {
@@ -662,7 +680,7 @@ public class MainWindow extends JFrame {
                 launchThread(new Runnable() {
                     @Override
                     public void run() {
-                        drawGraph(BasicDrawing.class);
+                        drawGraph(BasicDrawing.class, basicPalette);
                     }
                 });
             }
@@ -676,7 +694,7 @@ public class MainWindow extends JFrame {
                 launchThread(new Runnable() {
                     @Override
                     public void run() {
-                        drawGraph(BasicDrawing.class, new BlackAndWhiteGraphPalette());
+                        drawGraph(BasicDrawing.class, blackAndWhitePalette);
                     }
                 });
             }

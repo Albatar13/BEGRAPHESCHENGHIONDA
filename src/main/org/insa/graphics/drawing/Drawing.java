@@ -31,6 +31,11 @@ public interface Drawing {
     public void clear();
 
     /**
+     * Remove overlays from the drawing.
+     */
+    public void clearOverlays();
+
+    /**
      * Draw the given point with the given color.
      * 
      * @param point
