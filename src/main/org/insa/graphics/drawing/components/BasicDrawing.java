@@ -21,8 +21,8 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import org.insa.graph.ArcForward;
 import org.insa.graph.Arc;
+import org.insa.graph.ArcForward;
 import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Path;
@@ -54,8 +54,22 @@ public class BasicDrawing extends JPanel implements Drawing {
         // Visible?
         protected boolean visible;
 
-        public BasicOverlay() {
+        // Color
+        protected Color color;
+
+        public BasicOverlay(Color color) {
             this.visible = true;
+            this.color = color;
+        }
+
+        @Override
+        public void setColor(Color color) {
+            this.color = color;
+        }
+
+        @Override
+        public Color getColor() {
+            return this.color;
         }
 
         @Override
@@ -98,14 +112,11 @@ public class BasicDrawing extends JPanel implements Drawing {
         // Point of the marker.
         private Point point;
 
-        // Color of the marker.
-        private final Color color;
-
         // Image to draw
-        private final Image image;
+        private Image image;
 
         public BasicMarkerOverlay(Point point, Color color) {
-            super();
+            super(color);
             this.point = point;
             this.color = color;
             this.image = MarkerUtils.getMarkerForColor(color);
@@ -117,8 +128,9 @@ public class BasicDrawing extends JPanel implements Drawing {
         }
 
         @Override
-        public Color getColor() {
-            return color;
+        public void setColor(Color color) {
+            super.setColor(color);
+            this.image = MarkerUtils.getMarkerForColor(color);
         }
 
         @Override
@@ -144,14 +156,12 @@ public class BasicDrawing extends JPanel implements Drawing {
         // List of points
         private final List<Point> points;
 
-        // Color for the path
-        private Color color;
-
         // Origin / Destination markers.
         private BasicMarkerOverlay origin, destination;
 
         public BasicPathOverlay(List<Point> points, Color color, BasicMarkerOverlay origin,
                 BasicMarkerOverlay destination) {
+            super(color);
             this.points = points;
             this.origin = origin;
             this.destination = destination;
@@ -164,7 +174,7 @@ public class BasicDrawing extends JPanel implements Drawing {
             if (!points.isEmpty()) {
 
                 graphics.setStroke(new BasicStroke(2));
-                graphics.setColor(color);
+                graphics.setColor(getColor());
 
                 Iterator<Point> itPoint = points.iterator();
                 Point prev = itPoint.next();
@@ -206,6 +216,7 @@ public class BasicDrawing extends JPanel implements Drawing {
         private int width = DEFAULT_POINT_WIDTH;
 
         public BasicPointSetOverlay() {
+            super(Color.BLACK);
             this.image = new BufferedImage(BasicDrawing.this.width, BasicDrawing.this.height,
                     BufferedImage.TYPE_4BYTE_ABGR);
             this.graphics = image.createGraphics();
@@ -214,6 +225,7 @@ public class BasicDrawing extends JPanel implements Drawing {
 
         @Override
         public void setColor(Color color) {
+            super.setColor(color);
             this.graphics.setColor(color);
         }
 

@@ -63,11 +63,25 @@ public class MapViewDrawing extends MapView implements Drawing {
         // Marker associated.
         protected Layer[] layers;
 
-        public MapViewOverlay(Layer[] layers) {
+        // Current color
+        protected Color color;
+
+        public MapViewOverlay(Layer[] layers, Color color) {
             this.layers = layers;
             for (Layer layer: this.layers) {
                 MapViewDrawing.this.getLayerManager().getLayers().add(layer);
             }
+            this.color = color;
+        }
+
+        @Override
+        public void setColor(Color color) {
+            this.color = color;
+        }
+
+        @Override
+        public Color getColor() {
+            return this.color;
         }
 
         @Override
@@ -101,12 +115,8 @@ public class MapViewDrawing extends MapView implements Drawing {
      */
     private class MapViewMarkerOverlay extends MapViewOverlay implements MarkerOverlay {
 
-        // Color of this marker
-        Color color;
-
         public MapViewMarkerOverlay(Marker marker, Color color) {
-            super(new Layer[]{ marker });
-            this.color = color;
+            super(new Layer[]{ marker }, color);
         }
 
         @Override
@@ -117,8 +127,10 @@ public class MapViewDrawing extends MapView implements Drawing {
         }
 
         @Override
-        public Color getColor() {
-            return color;
+        public void setColor(Color color) {
+            super.setColor(color);
+            MarkerAutoScaling marker = (MarkerAutoScaling) super.layers[0];
+            marker.setImage(MarkerUtils.getMarkerForColor(color));
         }
 
         @Override
@@ -138,12 +150,21 @@ public class MapViewDrawing extends MapView implements Drawing {
      */
     private class MapViewPathOverlay extends MapViewOverlay implements PathOverlay {
 
-        public MapViewPathOverlay(PolylineAutoScaling path, Marker origin, Marker destination) {
-            super(new Layer[]{ path, origin, destination });
+        public MapViewPathOverlay(PolylineAutoScaling path, MarkerAutoScaling origin,
+                MarkerAutoScaling destination) {
+            super(new Layer[]{ path, origin, destination }, path.getColor());
         }
 
         public MapViewPathOverlay(PolylineAutoScaling path) {
-            super(new Layer[]{ path });
+            super(new Layer[]{ path }, path.getColor());
+        }
+
+        @Override
+        public void setColor(Color color) {
+            super.setColor(color);
+            ((PolylineAutoScaling) this.layers[0]).setColor(color);
+            ((MarkerAutoScaling) this.layers[1]).setImage(MarkerUtils.getMarkerForColor(color));
+            ((MarkerAutoScaling) this.layers[2]).setImage(MarkerUtils.getMarkerForColor(color));
         }
 
     }
@@ -155,11 +176,7 @@ public class MapViewDrawing extends MapView implements Drawing {
     private class MapViewPointSetOverlay extends MapViewOverlay implements PointSetOverlay {
 
         public MapViewPointSetOverlay() {
-            super(new Layer[0]);
-        }
-
-        @Override
-        public void setColor(Color color) {
+            super(new Layer[0], Color.BLACK);
         }
 
         @Override
@@ -304,9 +321,8 @@ public class MapViewDrawing extends MapView implements Drawing {
         repaint();
     }
 
-    protected Marker createMarker(Point point, Color color) {
+    protected MarkerAutoScaling createMarker(Point point, Color color) {
         Image image = MarkerUtils.getMarkerForColor(color);
-        // Bitmap bitmap = new AwtBitmap(MarkerUtils.getMarkerForColor(color));
         return new MarkerAutoScaling(convertPoint(point), image);
     }
 
@@ -373,7 +389,8 @@ public class MapViewDrawing extends MapView implements Drawing {
         }
         PathOverlay overlay = null;
         if (markers) {
-            Marker origin = createMarker(path.getOrigin().getPoint(), DEFAULT_PATH_COLOR),
+            MarkerAutoScaling origin = createMarker(path.getOrigin().getPoint(),
+                    DEFAULT_PATH_COLOR),
                     destination = createMarker(path.getDestination().getPoint(),
                             DEFAULT_PATH_COLOR);
             overlay = new MapViewPathOverlay(line, origin, destination);

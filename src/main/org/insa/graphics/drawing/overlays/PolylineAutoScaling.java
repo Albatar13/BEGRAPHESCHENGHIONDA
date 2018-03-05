@@ -32,6 +32,22 @@ public class PolylineAutoScaling extends Polyline {
     }
 
     /**
+     * Set the color for this polyline.
+     * 
+     * @param color New color for this polyline.
+     */
+    public void setColor(Color color) {
+        getPaintStroke().setColor(PaintUtils.convertColor(color));
+    }
+
+    /**
+     * @return Color of this polyline.
+     */
+    public Color getColor() {
+        return PaintUtils.convertColor(getPaintStroke().getColor());
+    }
+
+    /**
      * @param point
      */
     public void add(Point point) {

@@ -1,6 +1,20 @@
 package org.insa.graphics.drawing.overlays;
 
+import java.awt.Color;
+
 public interface Overlay {
+
+    /**
+     * Set the color of this overlay.
+     * 
+     * @param color New color for the overlay.
+     */
+    public void setColor(Color color);
+
+    /**
+     * @return The current color of this overlay.
+     */
+    public Color getColor();
 
     /**
      * Show or hide this marker - A marker should be visible when created.

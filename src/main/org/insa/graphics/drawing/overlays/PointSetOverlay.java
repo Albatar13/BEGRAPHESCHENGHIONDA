@@ -7,13 +7,6 @@ import org.insa.graph.Point;
 public interface PointSetOverlay extends Overlay {
 
     /**
-     * Set the color of this overlay for future addPoint().
-     * 
-     * @param color
-     */
-    public void setColor(Color color);
-
-    /**
      * Set the width of this overlay for future addPoint().
      * 
      * @param width

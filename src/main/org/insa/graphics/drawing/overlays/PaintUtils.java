@@ -11,11 +11,24 @@ public class PaintUtils {
     private static final GraphicFactory GRAPHIC_FACTORY = AwtGraphicFactory.INSTANCE;
 
     /**
+     * Convert the given AWT color to a mapsforge compatible color.
+     * 
      * @param color
      * @return
      */
     public static int convertColor(Color color) {
-        return GRAPHIC_FACTORY.createColor(color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
+        return GRAPHIC_FACTORY.createColor(color.getAlpha(), color.getRed(), color.getGreen(),
+                color.getBlue());
+    }
+
+    /**
+     * Convert the given mapsforge color to an AWT Color.
+     * 
+     * @param color
+     * @return
+     */
+    public static Color convertColor(int color) {
+        return new Color(color, true);
     }
 
     /**
@@ -38,4 +51,5 @@ public class PaintUtils {
         }
         return width * mul;
     }
+
 }

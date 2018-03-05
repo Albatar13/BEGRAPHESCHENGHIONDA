@@ -14,28 +14,39 @@ import org.mapsforge.map.layer.overlay.Marker;
 public class MarkerAutoScaling extends Marker {
 
     // Original image.
-    private final Image originalImage;
+    private Image image;
 
     public MarkerAutoScaling(LatLong latLong, Image image) {
         super(latLong, null, 0, 0);
-        this.originalImage = image;
+        this.image = image;
     }
 
     /**
-     * @return
+     * Set a new image for this marker overlay
+     * 
+     * @param image New image to set.
+     */
+    public void setImage(Image image) {
+        this.image = image;
+    }
+
+    /**
+     * @return Current image (marker) of this overlay.
      */
     public Image getImage() {
-        return originalImage;
+        return image;
     }
 
     @Override
-    public synchronized void draw(BoundingBox boundingBox, byte zoomLevel, Canvas canvas, Point topLeftPoint) {
+    public synchronized void draw(BoundingBox boundingBox, byte zoomLevel, Canvas canvas,
+            Point topLeftPoint) {
         int width = (int) PaintUtils.getStrokeWidth(8, zoomLevel),
                 height = (int) PaintUtils.getStrokeWidth(16, zoomLevel);
         BufferedImage bfd = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D g = bfd.createGraphics();
-        g.drawImage(this.originalImage.getScaledInstance(bfd.getWidth(), bfd.getHeight(), Image.SCALE_SMOOTH), 0, 0,
-                null);
+        g.drawImage(
+                this.image.getScaledInstance(bfd.getWidth(), bfd.getHeight(), Image.SCALE_SMOOTH),
+                0, 0, null);
         setBitmap(new AwtBitmap(bfd));
 
         setVerticalOffset(-height / 2);
