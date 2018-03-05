@@ -184,7 +184,17 @@ public class MainWindow extends JFrame {
                     wccAlgorithm.addObserver(new WeaklyConnectedComponentTextObserver(printStream));
                 }
 
-                launchWeaklyConnectedComponentsThread(wccAlgorithm);
+                // We love Java...
+                final WeaklyConnectedComponentsAlgorithm copyAlgorithm = wccAlgorithm;
+                launchThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        AbstractSolution solution = copyAlgorithm.run();
+                        wccPanel.solutionPanel.addSolution(solution, false);
+                        wccPanel.solutionPanel.setVisible(true);
+                        wccPanel.setEnabled(true);
+                    }
+                });
             }
         });
 
@@ -220,7 +230,15 @@ public class MainWindow extends JFrame {
                     spAlgorithm.addObserver(new ShortestPathTextObserver(printStream));
                 }
 
-                launchShortestPathThread(spAlgorithm);
+                final ShortestPathAlgorithm copyAlgorithm = spAlgorithm;
+                launchThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ShortestPathSolution solution = copyAlgorithm.run();
+                        displayShortestPathSolution(solution);
+                        spPanel.setEnabled(true);
+                    }
+                });
             }
         });
 
@@ -354,30 +372,6 @@ public class MainWindow extends JFrame {
             pathPanel.addPath(solution.getPath());
         }
         spPanel.solutionPanel.setVisible(true);
-    }
-
-    private void launchWeaklyConnectedComponentsThread(
-            WeaklyConnectedComponentsAlgorithm wccAlgorithm) {
-        launchThread(new Runnable() {
-            @Override
-            public void run() {
-                AbstractSolution solution = wccAlgorithm.run();
-                wccPanel.solutionPanel.addSolution(solution, false);
-                wccPanel.solutionPanel.setVisible(true);
-                wccPanel.setEnabled(true);
-            }
-        });
-    }
-
-    private void launchShortestPathThread(ShortestPathAlgorithm spAlgorithm) {
-        launchThread(new Runnable() {
-            @Override
-            public void run() {
-                ShortestPathSolution solution = spAlgorithm.run();
-                displayShortestPathSolution(solution);
-                spPanel.setEnabled(true);
-            }
-        });
     }
 
     /**
