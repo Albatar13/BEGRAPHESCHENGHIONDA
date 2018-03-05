@@ -45,15 +45,14 @@ public class RoadInformation {
     // Name of the road.
     private final String name;
 
-    public RoadInformation(RoadType roadType, AccessRestrictions access, boolean isOneWay, int maxSpeed, String name) {
+    public RoadInformation(RoadType roadType, AccessRestrictions access, boolean isOneWay,
+            int maxSpeed, String name) {
         this.type = roadType;
         this.access = access;
         this.oneway = isOneWay;
         this.maxSpeed = maxSpeed;
         this.name = name;
     }
-
-    // Access information
 
     /**
      * @return true if this is a private road.
@@ -92,7 +91,6 @@ public class RoadInformation {
 
     /*
      * (non-Javadoc)
-     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -104,7 +102,8 @@ public class RoadInformation {
         if (getType() == RoadType.MOTORWAY) {
             typeAsString = "highway";
         }
-        return typeAsString + " : " + getName() + " " + (isOneWay() ? " (oneway) " : "") + maxSpeed + " km/h (max.)";
+        return typeAsString + " : " + getName() + " " + (isOneWay() ? " (oneway) " : "") + maxSpeed
+                + " km/h (max.)";
     }
 
 }

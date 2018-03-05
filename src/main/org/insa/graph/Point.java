@@ -17,21 +17,23 @@ public class Point {
      * @return Distance between the two given points, in meters.
      */
     public static double distance(Point p1, Point p2) {
-        double sinLat = Math.sin(Math.toRadians(p1.getLatitude())) * Math.sin(Math.toRadians(p2.getLatitude()));
-        double cosLat = Math.cos(Math.toRadians(p1.getLatitude())) * Math.cos(Math.toRadians(p2.getLatitude()));
+        double sinLat = Math.sin(Math.toRadians(p1.getLatitude()))
+                * Math.sin(Math.toRadians(p2.getLatitude()));
+        double cosLat = Math.cos(Math.toRadians(p1.getLatitude()))
+                * Math.cos(Math.toRadians(p2.getLatitude()));
         double cosLong = Math.cos(Math.toRadians(p2.getLongitude() - p1.getLongitude()));
         return EARTH_RADIUS * Math.acos(sinLat + cosLat * cosLong);
     }
 
     // Longitude and latitude of the point.
-    private final double longitude, latitude;
+    private final float longitude, latitude;
 
     /**
      * 
      * @param longitude Longitude of the point, in degrees.
      * @param latitude Latitude of the point, in degrees.
      */
-    public Point(double longitude, double latitude) {
+    public Point(float longitude, float latitude) {
         this.longitude = longitude;
         this.latitude = latitude;
     }
@@ -39,14 +41,14 @@ public class Point {
     /**
      * @return Longitude of this point (in degrees).
      */
-    public double getLongitude() {
+    public float getLongitude() {
         return longitude;
     }
 
     /**
      * @return Latitude of this point (in degrees).
      */
-    public double getLatitude() {
+    public float getLatitude() {
         return latitude;
     }
 
@@ -63,7 +65,6 @@ public class Point {
 
     /*
      * (non-Javadoc)
-     * 
      * @see java.lang.Object#toString()
      */
     @Override

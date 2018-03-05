@@ -3,13 +3,13 @@ package org.insa.graph.io;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumMap;
 
 import org.insa.graph.AccessRestrictions;
 import org.insa.graph.AccessRestrictions.AccessMode;
 import org.insa.graph.AccessRestrictions.AccessRestriction;
-import org.insa.graph.Arc;
+import org.insa.graph.ArcForward;
+import org.insa.graph.ArcBackward;
 import org.insa.graph.Graph;
 import org.insa.graph.GraphInformation;
 import org.insa.graph.Node;
@@ -41,16 +41,17 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
         // the order correspond to the 4 bits value (i.e. FORBIDDEN is 0 or PRIVATE is
         // 2) - UKNOWN is not included because value above 6 (FORESTRY) are all
         // considered unknown.
-        final AccessRestriction[] allRestrictions = new AccessRestriction[] { AccessRestriction.FORBIDDEN,
-                AccessRestriction.ALLOWED, AccessRestriction.PRIVATE, AccessRestriction.DESTINATION,
-                AccessRestriction.DELIVERY, AccessRestriction.CUSTOMERS, AccessRestriction.FORESTRY };
+        final AccessRestriction[] allRestrictions = new AccessRestriction[]{
+                AccessRestriction.FORBIDDEN, AccessRestriction.ALLOWED, AccessRestriction.PRIVATE,
+                AccessRestriction.DESTINATION, AccessRestriction.DELIVERY,
+                AccessRestriction.CUSTOMERS, AccessRestriction.FORESTRY };
 
         // The order of values inside this array is VERY IMPORTANT: The order is such
         // that each 4-bits group of the long value is processed in the correct order,
         // i.e. FOOT is processed first (4 lowest bits), and so on.
-        final AccessMode[] allModes = new AccessMode[] { AccessMode.FOOT, null, AccessMode.BICYCLE,
-                AccessMode.SMALL_MOTORCYCLE, AccessMode.AGRICULTURAL, AccessMode.MOTORCYCLE, AccessMode.MOTORCAR,
-                AccessMode.HEAVY_GOODS, null, AccessMode.PUBLIC_TRANSPORT };
+        final AccessMode[] allModes = new AccessMode[]{ AccessMode.FOOT, null, AccessMode.BICYCLE,
+                AccessMode.SMALL_MOTORCYCLE, AccessMode.AGRICULTURAL, AccessMode.MOTORCYCLE,
+                AccessMode.MOTORCAR, AccessMode.HEAVY_GOODS, null, AccessMode.PUBLIC_TRANSPORT };
 
         // fill maps...
         EnumMap<AccessMode, AccessRestriction> restrictions = new EnumMap<>(AccessMode.class);
@@ -69,7 +70,7 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
             copyAccess = copyAccess >> 4;
         }
 
-        return new AccessRestrictions(restrictions, access);
+        return new AccessRestrictions(restrictions);
     }
 
     /**
@@ -228,7 +229,8 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
                     float dlon = (dis.readShort()) / 2.0e5f;
                     float dlat = (dis.readShort()) / 2.0e5f;
 
-                    points.add(new Point(lastPoint.getLongitude() + dlon, lastPoint.getLatitude() + dlat));
+                    points.add(new Point(lastPoint.getLongitude() + dlon,
+                            lastPoint.getLatitude() + dlat));
                 }
 
                 points.add(nodes.get(destNode).getPoint());
@@ -238,14 +240,15 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
                 Node dest = nodes.get(destNode);
 
                 // Add successor to initial arc.
-                Arc arc = new Arc(orig, dest, length, info, points);
+                ArcForward arc = new ArcForward(orig, dest, length, info, points);
 
                 // And reverse arc if its a two-way road.
                 if (!info.isOneWay()) {
                     // Add without segments.
-                    ArrayList<Point> rPoints = new ArrayList<Point>(points);
-                    Collections.reverse(rPoints);
-                    new Arc(dest, orig, length, info, rPoints);
+                    // ArrayList<Point> rPoints = new ArrayList<Point>(points);
+                    // Collections.reverse(rPoints);
+                    // new Arc(dest, orig, length, info, null);
+                    new ArcBackward(arc);
                 }
                 observers.forEach((observer) -> observer.notifyNewArcRead(arc));
             }
@@ -273,7 +276,12 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
         if (getCurrentVersion() >= 7) {
             access = toAccessInformationV7(dis.readLong());
         }
-        return new RoadInformation(toRoadType(type), access, (x & 0x80) > 0, (x & 0x7F) * 5, dis.readUTF());
+        else if (getCurrentVersion() >= 6) {
+            // TODO: Try to create something...
+            dis.readUnsignedShort();
+        }
+        return new RoadInformation(toRoadType(type), access, (x & 0x80) > 0, (x & 0x7F) * 5,
+                dis.readUTF());
     }
 
 }

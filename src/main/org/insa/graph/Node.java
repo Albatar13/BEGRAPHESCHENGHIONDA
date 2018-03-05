@@ -59,7 +59,6 @@ public class Node implements Comparable<Node> {
 
     /*
      * (non-Javadoc)
-     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -72,7 +71,6 @@ public class Node implements Comparable<Node> {
 
     /*
      * (non-Javadoc)
-     * 
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
     @Override
