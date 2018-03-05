@@ -4,7 +4,7 @@ package org.insa.graph;
  * Class representing a point on Earth.
  *
  */
-public class Point {
+public final class Point {
 
     // Earth radius, in meters;
     private static final double EARTH_RADIUS = 6378137.0;
@@ -65,6 +65,7 @@ public class Point {
 
     /*
      * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
