@@ -36,8 +36,9 @@ public class ArcFilterFactory {
         filters.add(new ArcFilter() {
             @Override
             public boolean isAllowed(Arc arc) {
-                return arc.getRoadInformation().getAccessRestrictions().isAllowedForAny(AccessMode.MOTORCAR,
-                        EnumSet.complementOf(EnumSet.of(AccessRestriction.FORBIDDEN, AccessRestriction.PRIVATE)));
+                return arc.getRoadInformation().getAccessRestrictions()
+                        .isAllowedForAny(AccessMode.MOTORCAR, EnumSet.complementOf(EnumSet
+                                .of(AccessRestriction.FORBIDDEN, AccessRestriction.PRIVATE)));
             }
 
             @Override
