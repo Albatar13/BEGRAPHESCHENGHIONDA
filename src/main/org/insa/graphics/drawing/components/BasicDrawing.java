@@ -102,6 +102,10 @@ public class BasicDrawing extends JPanel implements Drawing {
 
         public abstract void drawImpl(Graphics2D g);
 
+        public void redraw() {
+            BasicDrawing.this.repaint();
+        }
+
     };
 
     private class BasicMarkerOverlay extends BasicOverlay implements MarkerOverlay {
@@ -166,6 +170,13 @@ public class BasicDrawing extends JPanel implements Drawing {
             this.origin = origin;
             this.destination = destination;
             this.color = color;
+        }
+
+        @Override
+        public void setColor(Color color) {
+            super.setColor(color);
+            this.origin.setColor(color);
+            this.destination.setColor(color);
         }
 
         @Override

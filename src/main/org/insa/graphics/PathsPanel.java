@@ -2,6 +2,8 @@ package org.insa.graphics;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -15,13 +17,18 @@ import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.insa.graph.Graph;
 import org.insa.graph.Path;
@@ -49,6 +56,9 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
         // Path Overlay (not final due to redraw)
         private PathOverlay overlay;
 
+        // Color button
+        private final JButton colorButton;
+
         /**
          * Create a new bundle with the given path and create a new overlay
          * corresponding to the path.
@@ -59,7 +69,8 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
         public PathPanel(Path path) {
             super();
             setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
-            setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY),
+            setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY),
                     new EmptyBorder(5, 0, 5, 0)));
             this.path = path;
             this.overlay = drawing.drawPath(this.path);
@@ -107,7 +118,58 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
                 }
             });
 
-            JButton saveButton = new JButton("Save");
+            colorButton = new JButton(" ");
+            colorButton.setOpaque(true);
+            colorButton.setBorderPainted(false);
+            colorButton.setBackground(this.overlay.getColor());
+            colorButton.setBorder(new EmptyBorder(0, 0, 0, 0));
+            Dimension size = colorButton.getPreferredSize();
+            size.setSize(size.height, size.height);
+            colorButton.setMinimumSize(size);
+            colorButton.setPreferredSize(size);
+            colorButton.setMaximumSize(size);
+
+            colorButton.setToolTipText("Pick a color");
+
+            colorButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    final Color originalColor = overlay.getColor();
+                    JColorChooser chooser = new JColorChooser(overlay.getColor());
+                    chooser.getSelectionModel().addChangeListener(new ChangeListener() {
+                        @Override
+                        public void stateChanged(ChangeEvent e) {
+                            colorButton
+                                    .setBackground(chooser.getSelectionModel().getSelectedColor());
+                            overlay.setColor(chooser.getSelectionModel().getSelectedColor());
+                            overlay.redraw();
+                        }
+                    });
+
+                    JColorChooser.createDialog(getTopLevelAncestor(), "Pick a new color", true,
+                            chooser, new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    colorButton.setBackground(
+                                            chooser.getSelectionModel().getSelectedColor());
+                                    overlay.setColor(
+                                            chooser.getSelectionModel().getSelectedColor());
+                                    overlay.redraw();
+                                }
+                            }, new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    colorButton.setBackground(originalColor);
+                                    overlay.setColor(originalColor);
+                                    overlay.redraw();
+                                }
+                            }).setVisible(true);
+                    ;
+
+                }
+            });
+
+            JButton saveButton = new JButton(UIManager.getIcon("FileView.floppyDriveIcon"));
             saveButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -118,12 +180,14 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
                     JFileChooser fileChooser = new JFileChooser();
                     fileChooser.setSelectedFile(new File(filepath));
                     fileChooser.setApproveButtonText("Save");
+                    fileChooser.setToolTipText("Save");
 
-                    if (fileChooser.showOpenDialog(getTopLevelAncestor()) == JFileChooser.APPROVE_OPTION) {
+                    if (fileChooser
+                            .showSaveDialog(getTopLevelAncestor()) == JFileChooser.APPROVE_OPTION) {
                         File file = fileChooser.getSelectedFile();
                         try {
-                            BinaryPathWriter writer = new BinaryPathWriter(
-                                    new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file))));
+                            BinaryPathWriter writer = new BinaryPathWriter(new DataOutputStream(
+                                    new BufferedOutputStream(new FileOutputStream(file))));
                             writer.writePath(path);
                         }
                         catch (IOException e1) {
@@ -135,7 +199,13 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
                 }
             });
 
-            JButton deleteButton = new JButton("Delete");
+            Image newimg = new ImageIcon("res/cross_mark.png").getImage()
+                    .getScaledInstance(size.width, size.height, java.awt.Image.SCALE_SMOOTH);
+            JButton deleteButton = new JButton(new ImageIcon(newimg));
+            deleteButton.setMinimumSize(size);
+            deleteButton.setMaximumSize(size);
+            deleteButton.setBorderPainted(true);
+            deleteButton.setOpaque(false);
             deleteButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -148,6 +218,7 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
             add(Box.createHorizontalStrut(5));
             add(infoPanel);
             add(Box.createHorizontalGlue());
+            add(colorButton);
             add(saveButton);
             add(deleteButton);
 
@@ -160,17 +231,18 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
         public void updateOverlay() {
             PathOverlay oldOverlay = this.overlay;
             this.overlay = drawing.drawPath(path);
+            this.colorButton.setBackground(this.overlay.getColor());
             this.overlay.setVisible(oldOverlay.isVisible());
             oldOverlay.delete();
         }
 
         /*
          * (non-Javadoc)
-         * 
          * @see java.lang.Object#toString()
          */
         public String toString() {
-            return "Path from #" + path.getOrigin().getId() + " to #" + path.getDestination().getId();
+            return "Path from #" + path.getOrigin().getId() + " to #"
+                    + path.getDestination().getId();
         }
 
     }

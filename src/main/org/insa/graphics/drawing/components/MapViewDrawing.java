@@ -107,6 +107,10 @@ public class MapViewDrawing extends MapView implements Drawing {
             }
         }
 
+        @Override
+        public void redraw() {
+            MapViewDrawing.this.getLayerManager().redrawLayers();
+        }
     };
 
     /**

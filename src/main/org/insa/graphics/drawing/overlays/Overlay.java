@@ -33,4 +33,10 @@ public interface Overlay {
      */
     public void delete();
 
+    /**
+     * Request a redraw of this overlay - This can start a full redraw of the inner
+     * drawing.
+     */
+    public void redraw();
+
 }
