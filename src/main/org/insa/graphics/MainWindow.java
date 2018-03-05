@@ -156,18 +156,19 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 StartActionEvent evt = (StartActionEvent) e;
-                ShortestPathData data = new ShortestPathData(graph, evt.getNodes().get(0), evt.getNodes().get(1),
-                        evt.getMode(), evt.getArcFilter());
+                ShortestPathData data = new ShortestPathData(graph, evt.getNodes().get(0),
+                        evt.getNodes().get(1), evt.getMode(), evt.getArcFilter());
 
                 ShortestPathAlgorithm spAlgorithm = null;
                 try {
-                    spAlgorithm = (ShortestPathAlgorithm) AlgorithmFactory.createAlgorithm(evt.getAlgorithmClass(),
-                            data);
+                    spAlgorithm = (ShortestPathAlgorithm) AlgorithmFactory
+                            .createAlgorithm(evt.getAlgorithmClass(), data);
                 }
                 catch (Exception e1) {
                     JOptionPane.showMessageDialog(MainWindow.this,
                             "An error occurred while creating the specified algorithm.",
-                            "Internal error: Algorithm instantiation failure", JOptionPane.ERROR_MESSAGE);
+                            "Internal error: Algorithm instantiation failure",
+                            JOptionPane.ERROR_MESSAGE);
                     e1.printStackTrace();
                     return;
                 }
@@ -303,7 +304,8 @@ public class MainWindow extends JFrame {
     }
 
     private void displayShortestPathSolution(ShortestPathSolution solution) {
-        spPanel.solutionPanel.addSolution(solution, false); // Do not add overlay in the solution panel.
+        spPanel.solutionPanel.addSolution(solution, false); // Do not add overlay in the solution
+                                                            // panel.
         if (solution.isFeasible()) {
             pathPanel.addPath(solution.getPath());
         }
@@ -365,12 +367,14 @@ public class MainWindow extends JFrame {
         // We need to draw MapView, we have to check if the file exists.
         File mfile = null;
         if (isMapView) {
-            String mfpath = graphFilePath.substring(0, graphFilePath.lastIndexOf(".map")) + ".mapfg";
+            String mfpath = graphFilePath.substring(0, graphFilePath.lastIndexOf(".map"))
+                    + ".mapfg";
             mfile = new File(mfpath);
             if (!mfile.exists()) {
                 if (JOptionPane.showConfirmDialog(this,
                         "The associated mapsforge (.mapfg) file has not been found, do you want to specify it manually?",
-                        "File not found", JOptionPane.YES_NO_CANCEL_OPTION) == JOptionPane.YES_OPTION) {
+                        "File not found",
+                        JOptionPane.YES_NO_CANCEL_OPTION) == JOptionPane.YES_OPTION) {
                     JFileChooser chooser = new JFileChooser(mfile.getParentFile());
                     if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                         mfile = chooser.getSelectedFile();
@@ -445,14 +449,17 @@ public class MainWindow extends JFrame {
                 catch (Exception exception) {
                     progressBar.setVisible(false);
                     progressBar = null;
-                    JOptionPane.showMessageDialog(MainWindow.this, "Unable to read graph from the selected file.");
+                    JOptionPane.showMessageDialog(MainWindow.this,
+                            "Unable to read graph from the selected file.");
                     exception.printStackTrace(System.out);
                     return;
                 }
 
                 String info = graph.getMapId();
                 if (graph.getMapName() != null && !graph.getMapName().isEmpty()) {
-                    info += " - " + graph.getMapName();
+                    // The \u200e character is the left-to-right mark, we need to avoid issue with
+                    // name that are right-to-left (e.g. arabic names).
+                    info += " - " + graph.getMapName() + "\u200e";
                 }
                 info += ", " + graph.getNodes().size() + " nodes";
                 graphInfoPanel.setText(info);
@@ -477,8 +484,10 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser();
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("Graph files", "mapgr");
-                File mapFolder = new File(preferences.get(DEFAULT_MAP_FOLDER_KEY, DEFAULT_MAP_FOLDER_INSA));
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("Graph files",
+                        "mapgr");
+                File mapFolder = new File(
+                        preferences.get(DEFAULT_MAP_FOLDER_KEY, DEFAULT_MAP_FOLDER_INSA));
                 if (!mapFolder.exists()) {
                     mapFolder = new File(System.getProperty("user.dir"));
                 }
@@ -489,16 +498,18 @@ public class MainWindow extends JFrame {
 
                     // Check...
                     if (chooser.getSelectedFile().exists()) {
-                        preferences.put(DEFAULT_MAP_FOLDER_KEY, chooser.getSelectedFile().getParent());
+                        preferences.put(DEFAULT_MAP_FOLDER_KEY,
+                                chooser.getSelectedFile().getParent());
                     }
 
                     DataInputStream stream;
                     try {
-                        stream = new DataInputStream(
-                                new BufferedInputStream(new FileInputStream(chooser.getSelectedFile())));
+                        stream = new DataInputStream(new BufferedInputStream(
+                                new FileInputStream(chooser.getSelectedFile())));
                     }
                     catch (IOException e1) {
-                        JOptionPane.showMessageDialog(MainWindow.this, "Cannot open the selected file.");
+                        JOptionPane.showMessageDialog(MainWindow.this,
+                                "Cannot open the selected file.");
                         return;
                     }
                     loadGraph(new BinaryGraphReaderInsa2018(stream));
@@ -514,8 +525,10 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser();
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("Path & compressed path files", "path");
-                File pathFolder = new File(preferences.get(DEFAULT_PATH_FOLDER_KEY, DEFAULT_PATH_FOLDER_INSA));
+                FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                        "Path & compressed path files", "path");
+                File pathFolder = new File(
+                        preferences.get(DEFAULT_PATH_FOLDER_KEY, DEFAULT_PATH_FOLDER_INSA));
                 if (!pathFolder.exists()) {
                     pathFolder = new File(System.getProperty("user.dir"));
                 }
@@ -525,16 +538,18 @@ public class MainWindow extends JFrame {
 
                     // Check & Update
                     if (chooser.getSelectedFile().exists()) {
-                        preferences.put(DEFAULT_PATH_FOLDER_KEY, chooser.getSelectedFile().getParent());
+                        preferences.put(DEFAULT_PATH_FOLDER_KEY,
+                                chooser.getSelectedFile().getParent());
                     }
 
                     BinaryPathReader reader;
                     try {
-                        reader = new BinaryPathReader(new DataInputStream(
-                                new BufferedInputStream(new FileInputStream(chooser.getSelectedFile()))));
+                        reader = new BinaryPathReader(new DataInputStream(new BufferedInputStream(
+                                new FileInputStream(chooser.getSelectedFile()))));
                     }
                     catch (IOException e1) {
-                        JOptionPane.showMessageDialog(MainWindow.this, "Cannot open the selected file.");
+                        JOptionPane.showMessageDialog(MainWindow.this,
+                                "Cannot open the selected file.");
                         return;
                     }
                     try {
@@ -547,7 +562,8 @@ public class MainWindow extends JFrame {
                         return;
                     }
                     catch (Exception exception) {
-                        JOptionPane.showMessageDialog(MainWindow.this, "Unable to read path from the selected file.");
+                        JOptionPane.showMessageDialog(MainWindow.this,
+                                "Unable to read path from the selected file.");
                         return;
                     }
                 }
@@ -561,7 +577,8 @@ public class MainWindow extends JFrame {
         closeItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                MainWindow.this.dispatchEvent(new WindowEvent(MainWindow.this, WindowEvent.WINDOW_CLOSING));
+                MainWindow.this.dispatchEvent(
+                        new WindowEvent(MainWindow.this, WindowEvent.WINDOW_CLOSING));
             }
         });
 
@@ -602,7 +619,8 @@ public class MainWindow extends JFrame {
         }));
         graphLockItems.add(drawGraphBWItem);
         JMenuItem drawGraphMapsforgeItem = new JMenuItem("Redraw (Map)", KeyEvent.VK_M);
-        drawGraphMapsforgeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.ALT_MASK));
+        drawGraphMapsforgeItem
+                .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.ALT_MASK));
         drawGraphMapsforgeItem.addActionListener(baf.createBlockingAction(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -677,8 +695,9 @@ public class MainWindow extends JFrame {
     private JPanel createStatusBar() {
         // create the status bar panel and shove it down the bottom of the frame
         JPanel statusPanel = new JPanel();
-        statusPanel.setBorder(new CompoundBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY),
-                new EmptyBorder(0, 15, 0, 15)));
+        statusPanel.setBorder(
+                new CompoundBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY),
+                        new EmptyBorder(0, 15, 0, 15)));
         statusPanel.setPreferredSize(new Dimension(getWidth(), 38));
         statusPanel.setLayout(new BorderLayout());
 
@@ -695,8 +714,8 @@ public class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (currentThread.isRunning()) {
                     int confirmed = JOptionPane.showConfirmDialog(MainWindow.this,
-                            "Are you sure you want to kill the running thread?", "Kill Confirmation",
-                            JOptionPane.YES_NO_OPTION);
+                            "Are you sure you want to kill the running thread?",
+                            "Kill Confirmation", JOptionPane.YES_NO_OPTION);
                     if (confirmed == JOptionPane.YES_OPTION) {
                         currentThread.interrupt();
                     }
@@ -708,8 +727,8 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 long seconds = currentThread.getDuration().getSeconds();
-                threadTimerLabel
-                        .setText(String.format("%02d:%02d:%02d", seconds / 3600, seconds / 60 % 60, seconds % 60));
+                threadTimerLabel.setText(String.format("%02d:%02d:%02d", seconds / 3600,
+                        seconds / 60 % 60, seconds % 60));
             }
         });
         threadTimer.setInitialDelay(0);
