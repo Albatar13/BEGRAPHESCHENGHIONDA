@@ -16,8 +16,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.UIManager;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
@@ -105,12 +103,14 @@ public class SolutionPanel extends JPanel implements DrawingChangeListener, Grap
             if (solution.isFeasible()) {
                 Method[] methods = this.solution.getClass().getDeclaredMethods();
                 for (Method method: methods) {
-                    if (method.getReturnType().equals(Path.class) && method.getParameterCount() == 0) {
+                    if (method.getReturnType().equals(Path.class)
+                            && method.getParameterCount() == 0) {
                         try {
                             Path path = (Path) method.invoke(this.solution);
                             overlays.add(drawing.drawPath(path));
                         }
-                        catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                        catch (IllegalAccessException | IllegalArgumentException
+                                | InvocationTargetException e) {
                             // This has been check before, so should never happen...
                             e.printStackTrace();
                         }
@@ -137,8 +137,7 @@ public class SolutionPanel extends JPanel implements DrawingChangeListener, Grap
     // Solution selector
     private final JComboBox<SolutionBundle> solutionSelect;
 
-    // Map solution -> panel
-    private final JTextArea informationPanel;
+    private final JLabel informationPanel;
 
     // Current bundle
     private SolutionBundle currentBundle = null;
@@ -154,16 +153,11 @@ public class SolutionPanel extends JPanel implements DrawingChangeListener, Grap
         solutionSelect.setAlignmentX(Component.LEFT_ALIGNMENT);
         add(solutionSelect);
 
-        informationPanel = new JTextArea();
-        informationPanel.setWrapStyleWord(true);
-        informationPanel.setLineWrap(true);
+        informationPanel = new JLabel();
         informationPanel.setOpaque(true);
         informationPanel.setFocusable(false);
-        informationPanel.setEditable(false);
-        informationPanel.setBackground(UIManager.getColor("Label.background"));
-        informationPanel.setFont(UIManager.getFont("Label.font"));
-        informationPanel.setBorder(UIManager.getBorder("Label.border"));
-        informationPanel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
+        // informationPanel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
+        informationPanel.setHorizontalAlignment(JLabel.LEFT);
 
         add(Box.createVerticalStrut(8));
         add(informationPanel);
@@ -244,6 +238,8 @@ public class SolutionPanel extends JPanel implements DrawingChangeListener, Grap
 
     protected void updateInformationLabel(SolutionBundle bundle) {
         informationPanel.setText(bundle.getSolution().toString());
+        revalidate();
+        repaint();
     }
 
     @Override
