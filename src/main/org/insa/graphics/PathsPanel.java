@@ -107,7 +107,8 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
         public PathPanel(Path path) {
             super();
             setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
-            setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY),
+            setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY),
                     new EmptyBorder(5, 0, 5, 0)));
             this.path = path;
             this.overlay = drawing.drawPath(this.path);
@@ -183,13 +184,14 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
                         }
                     });
 
-                    JColorChooser.createDialog(getTopLevelAncestor(), "Pick a new color", true, chooser,
-                            new ActionListener() {
+                    JColorChooser.createDialog(getTopLevelAncestor(), "Pick a new color", true,
+                            chooser, new ActionListener() {
                                 @Override
                                 public void actionPerformed(ActionEvent e) {
                                     icon.setColor(chooser.getSelectionModel().getSelectedColor());
                                     colorButton.repaint();
-                                    overlay.setColor(chooser.getSelectionModel().getSelectedColor());
+                                    overlay.setColor(
+                                            chooser.getSelectionModel().getSelectedColor());
                                     overlay.redraw();
                                 }
                             }, new ActionListener() {
@@ -225,11 +227,12 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
                     fileChooser.setApproveButtonText("Save");
                     fileChooser.setToolTipText("Save");
 
-                    if (fileChooser.showSaveDialog(getTopLevelAncestor()) == JFileChooser.APPROVE_OPTION) {
+                    if (fileChooser
+                            .showSaveDialog(getTopLevelAncestor()) == JFileChooser.APPROVE_OPTION) {
                         File file = fileChooser.getSelectedFile();
                         try {
-                            BinaryPathWriter writer = new BinaryPathWriter(
-                                    new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file))));
+                            BinaryPathWriter writer = new BinaryPathWriter(new DataOutputStream(
+                                    new BufferedOutputStream(new FileOutputStream(file))));
                             writer.writePath(path);
                         }
                         catch (IOException e1) {
@@ -288,7 +291,8 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
          * @see java.lang.Object#toString()
          */
         public String toString() {
-            return "Path from #" + path.getOrigin().getId() + " to #" + path.getDestination().getId();
+            return "Path from #" + path.getOrigin().getId() + " to #"
+                    + path.getDestination().getId();
         }
 
     }
