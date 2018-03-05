@@ -55,19 +55,20 @@ public class MapZoomControls {
 
     // Zoom in/out image and their rectangles.
     private final Image zoomIn, zoomOut;
-    private final Rectangle zoomInRect = new Rectangle(0, 0, 0, 0), zoomOutRect = new Rectangle(0, 0, 0, 0);
+    private final Rectangle zoomInRect = new Rectangle(0, 0, 0, 0),
+            zoomOutRect = new Rectangle(0, 0, 0, 0);
 
     // List of listeners
     private final List<ActionListener> zoomInListeners = new ArrayList<>();
     private final List<ActionListener> zoomOutListeners = new ArrayList<>();
 
-    public MapZoomControls(Component component, final int defaultZoom, final int minZoom, final int maxZoom)
-            throws IOException {
+    public MapZoomControls(Component component, final int defaultZoom, final int minZoom,
+            final int maxZoom) throws IOException {
 
-        zoomIn = ImageIO.read(new File("res/zoomIn.png")).getScaledInstance(DEFAULT_HEIGHT, DEFAULT_HEIGHT,
-                Image.SCALE_SMOOTH);
-        zoomOut = ImageIO.read(new File("res/zoomOut.png")).getScaledInstance(DEFAULT_HEIGHT, DEFAULT_HEIGHT,
-                Image.SCALE_SMOOTH);
+        zoomIn = ImageIO.read(new File("res/zoomIn.png")).getScaledInstance(DEFAULT_HEIGHT,
+                DEFAULT_HEIGHT, Image.SCALE_SMOOTH);
+        zoomOut = ImageIO.read(new File("res/zoomOut.png")).getScaledInstance(DEFAULT_HEIGHT,
+                DEFAULT_HEIGHT, Image.SCALE_SMOOTH);
 
         this.currentLevel = defaultZoom;
         this.minLevel = minZoom;
@@ -91,13 +92,15 @@ public class MapZoomControls {
                 if (zoomInRect.contains(e.getPoint()) && currentLevel < maxLevel) {
                     currentLevel += 1;
                     for (ActionListener al: zoomInListeners) {
-                        al.actionPerformed(new ActionEvent(this, ZOOM_IN_ACTION_ID, ZOOM_IN_ACTION_NAME));
+                        al.actionPerformed(
+                                new ActionEvent(this, ZOOM_IN_ACTION_ID, ZOOM_IN_ACTION_NAME));
                     }
                 }
                 else if (zoomOutRect.contains(e.getPoint()) && currentLevel > minLevel) {
                     currentLevel -= 1;
                     for (ActionListener al: zoomOutListeners) {
-                        al.actionPerformed(new ActionEvent(this, ZOOM_OUT_ACTION_ID, ZOOM_OUT_ACTION_NAME));
+                        al.actionPerformed(
+                                new ActionEvent(this, ZOOM_OUT_ACTION_ID, ZOOM_OUT_ACTION_NAME));
                     }
                 }
                 component.repaint();
@@ -150,7 +153,8 @@ public class MapZoomControls {
      * @return Width of this "component" when drawn.
      */
     public int getWidth() {
-        return DEFAULT_HEIGHT + 2 + (this.maxLevel - this.minLevel) * DEFAULT_SPACING + 1 + 2 + DEFAULT_HEIGHT;
+        return DEFAULT_HEIGHT + 2 + (this.maxLevel - this.minLevel) * DEFAULT_SPACING + 1 + 2
+                + DEFAULT_HEIGHT;
     }
 
     /**
@@ -160,7 +164,7 @@ public class MapZoomControls {
      * @param point
      * 
      * @return true if the given point correspond to an element of this zoom
-     *         controls.
+     * controls.
      */
     public boolean contains(Point point) {
         return zoomInRect.contains(point) || zoomOutRect.contains(point);
@@ -179,11 +183,14 @@ public class MapZoomControls {
         // Draw ticks
         xoffset += DEFAULT_HEIGHT + 2;
         g.setColor(ZOOM_TICK_COLOR);
-        g.drawLine(xoffset, yoffset + height / 2, xoffset + (this.maxLevel - this.minLevel) * DEFAULT_SPACING + 1,
+        g.drawLine(xoffset, yoffset + height / 2,
+                xoffset + (this.maxLevel - this.minLevel) * DEFAULT_SPACING + 1,
                 yoffset + height / 2);
         for (int i = 0; i <= (this.maxLevel - this.minLevel); i += halfMark ? 2 : 1) {
-            g.drawLine(xoffset + i * DEFAULT_SPACING, yoffset + (int) (height * (1 - ZOOM_TICK_HEIGHT_RATIO) / 2),
-                    xoffset + i * DEFAULT_SPACING, yoffset + (int) (height * (1 + ZOOM_TICK_HEIGHT_RATIO) / 2));
+            g.drawLine(xoffset + i * DEFAULT_SPACING,
+                    yoffset + (int) (height * (1 - ZOOM_TICK_HEIGHT_RATIO) / 2),
+                    xoffset + i * DEFAULT_SPACING,
+                    yoffset + (int) (height * (1 + ZOOM_TICK_HEIGHT_RATIO) / 2));
         }
 
         // Draw current ticks
