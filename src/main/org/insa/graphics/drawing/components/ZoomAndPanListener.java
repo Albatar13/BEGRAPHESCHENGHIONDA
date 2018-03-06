@@ -107,7 +107,8 @@ public class ZoomAndPanListener implements MouseListener, MouseMotionListener, M
                 if (zoomLevel > minZoomLevel) {
                     zoomLevel--;
                     Point2D p1 = transformPoint(p);
-                    coordTransform.scale(1 / zoomMultiplicationFactor, 1 / zoomMultiplicationFactor);
+                    coordTransform.scale(1 / zoomMultiplicationFactor,
+                            1 / zoomMultiplicationFactor);
                     Point2D p2 = transformPoint(p);
                     coordTransform.translate(p2.getX() - p1.getX(), p2.getY() - p1.getY());
                     targetComponent.repaint();

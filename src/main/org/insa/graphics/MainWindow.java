@@ -241,8 +241,17 @@ public class MainWindow extends JFrame {
                 launchThread(new Runnable() {
                     @Override
                     public void run() {
+                        // Run the algorithm.
                         ShortestPathSolution solution = copyAlgorithm.run();
-                        displayShortestPathSolution(solution);
+                        // Add the solution to the solution panel (but do not display
+                        // overlay).
+                        spPanel.solutionPanel.addSolution(solution, false);
+                        // If the solution is feasible, add the path to the path panel.
+                        if (solution.isFeasible()) {
+                            pathPanel.addPath(solution.getPath());
+                        }
+                        // Show the solution panel and enable the shortest-path panel.
+                        spPanel.solutionPanel.setVisible(true);
                         spPanel.setEnabled(true);
                     }
                 });
@@ -372,15 +381,6 @@ public class MainWindow extends JFrame {
         }
     }
 
-    private void displayShortestPathSolution(ShortestPathSolution solution) {
-        spPanel.solutionPanel.addSolution(solution, false); // Do not add overlay in the solution
-                                                            // panel.
-        if (solution.isFeasible()) {
-            pathPanel.addPath(solution.getPath());
-        }
-        spPanel.solutionPanel.setVisible(true);
-    }
-
     /**
      * Notify all listeners that a new graph has been loaded.
      */
@@ -456,10 +456,10 @@ public class MainWindow extends JFrame {
                 mainPanel.setLeftComponent(mapViewDrawing);
                 mainPanel.setDividerLocation(oldLocation);
                 notifyDrawingLoaded(basicDrawing, mapViewDrawing);
+                drawing.clear();
+                ((MapViewDrawing) drawing).drawGraph(mfile);
             }
-
-            // 2. We draw the graph.
-            if (isNewGraph) {
+            else if (isNewGraph) {
                 drawing.clear();
                 ((MapViewDrawing) drawing).drawGraph(mfile);
             }
@@ -476,8 +476,11 @@ public class MainWindow extends JFrame {
                 mainPanel.setLeftComponent(basicDrawing);
                 mainPanel.setDividerLocation(oldLocation);
                 notifyDrawingLoaded(mapViewDrawing, basicDrawing);
+                this.currentPalette = palette;
+                drawing.clear();
+                drawing.drawGraph(graph, palette);
             }
-            if (isNewGraph || palette != this.currentPalette) {
+            else if (isNewGraph || palette != this.currentPalette) {
                 this.currentPalette = palette;
                 drawing.clear();
                 drawing.drawGraph(graph, palette);

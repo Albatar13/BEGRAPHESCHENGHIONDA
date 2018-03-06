@@ -319,6 +319,7 @@ public class BasicDrawing extends JPanel implements Drawing {
      * 
      */
     public BasicDrawing() {
+        setLayout(null);
         this.zoomAndPanListener = new ZoomAndPanListener(this,
                 ZoomAndPanListener.DEFAULT_MIN_ZOOM_LEVEL, 20, 1.2);
 
@@ -419,6 +420,13 @@ public class BasicDrawing extends JPanel implements Drawing {
             this.overlays.clear();
         }
         this.repaint();
+    }
+
+    /**
+     * @return The current ZoomAndPanListener associated with this drawing.
+     */
+    public ZoomAndPanListener getZoomAndPanListener() {
+        return this.zoomAndPanListener;
     }
 
     /**
