@@ -248,6 +248,9 @@ public class NodesInputPanel extends JPanel
                 }
                 else if (tracker != null) {
                     tracker.setVisible(false);
+                    if (getInputToFill() == null) {
+                        nextInputToFill();
+                    }
                 }
 
                 // Create array of nodes
@@ -399,7 +402,8 @@ public class NodesInputPanel extends JPanel
         for (JTextField input: nodeInputs) {
             MarkerOverlay tracker = markerTrackers.getOrDefault(input, null);
             if (tracker != null) {
-                MarkerOverlay newMarker = this.drawing.drawMarker(tracker.getPoint(), tracker.getColor());
+                MarkerOverlay newMarker = this.drawing.drawMarker(tracker.getPoint(),
+                        tracker.getColor());
                 markerTrackers.put(input, newMarker);
                 newMarker.setVisible(tracker.isVisible());
                 tracker.delete();
