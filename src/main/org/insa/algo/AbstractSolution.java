@@ -2,6 +2,12 @@ package org.insa.algo;
 
 import java.time.Duration;
 
+/**
+ * Base class for solution classes returned by the algorithm. This class
+ * contains the basic information that any solution should have: status of the
+ * solution (unknown, infeasible, etc.), solving time and the original input
+ * data.
+ */
 public abstract class AbstractSolution {
 
     /**
@@ -13,13 +19,13 @@ public abstract class AbstractSolution {
     };
 
     // Status of the solution.
-    Status status;
+    private final Status status;
 
     // Solving time for the solution.
-    Duration solvingTime;
+    private Duration solvingTime;
 
     // Original input of the solution.
-    AbstractInputData data;
+    private final AbstractInputData data;
 
     /**
      * Create a new abstract solution with unknown status.

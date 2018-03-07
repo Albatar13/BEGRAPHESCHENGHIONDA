@@ -3,8 +3,23 @@ package org.insa.graph;
 import java.util.EnumMap;
 import java.util.EnumSet;
 
+/**
+ * Class containing access restrictions for roads/arcs.
+ * 
+ * This class maps transport modes to their restriction and provide interface
+ * based on EnumSet to query restrictions.
+ * 
+ * To each transport is associated at most one restriction per road (no
+ * restriction corresponds to {@link AccessRestriction#UNKNOWN} but a road can
+ * have different restrictions for different modes.
+ *
+ */
 public class AccessRestrictions {
 
+    /**
+     * List of managed transport modes.
+     *
+     */
     public enum AccessMode {
 
         // Specific modes
@@ -17,18 +32,28 @@ public class AccessRestrictions {
         HEAVY_GOODS,
         PUBLIC_TRANSPORT;
 
-        // All available modes
+        /**
+         * EnumSet containing all the possible transport modes.
+         */
         public static final EnumSet<AccessMode> ALL = EnumSet.allOf(AccessMode.class);
 
-        // Vehicle
+        /**
+         * EnumSet containing all the vehicle transport modes.
+         */
         public static final EnumSet<AccessMode> VEHICLE = EnumSet.range(AccessMode.BICYCLE,
                 AccessMode.PUBLIC_TRANSPORT);
 
-        // Motor vehicle
+        /**
+         * EnumSet containing all the motorized vehicle transport modes.
+         */
         public static final EnumSet<AccessMode> MOTOR_VEHICLE = EnumSet
                 .range(AccessMode.SMALL_MOTORCYCLE, AccessMode.PUBLIC_TRANSPORT);
     }
 
+    /**
+     * Possible restrictions for the roads/arcs.
+     *
+     */
     public enum AccessRestriction {
         ALLOWED, FORBIDDEN, PRIVATE, DESTINATION, DELIVERY, CUSTOMERS, FORESTRY, UNKNOWN;
 
@@ -44,7 +69,7 @@ public class AccessRestrictions {
     private final EnumMap<AccessMode, AccessRestriction> restrictions;
 
     /**
-     * Create new access restrictions with unknown restrictions.
+     * Create new AccessRestrictions instances with unknown restrictions.
      */
     public AccessRestrictions() {
         this.restrictions = new EnumMap<>(AccessMode.class);
@@ -54,16 +79,19 @@ public class AccessRestrictions {
     }
 
     /**
-     * Create a new instance of access restrictions with the given restrictions.
+     * Create a new AccessRestrictions instances with the given restrictions.
      * 
-     * @param restrictions
+     * @param restrictions Map of restrictions for this instance of
+     * AccessRestrictions.
      */
     public AccessRestrictions(EnumMap<AccessMode, AccessRestriction> restrictions) {
         this.restrictions = restrictions;
     }
 
     /**
-     * @param mode
+     * Retrieve the restriction corresponding to the given mode.
+     * 
+     * @param mode Mode for which the restriction should be retrieved.
      * 
      * @return Restriction for the given mode.
      */
@@ -72,28 +100,39 @@ public class AccessRestrictions {
     }
 
     /**
-     * @param mode
-     * @param restrictions
+     * Check if the restriction associated with the given mode is one of the given
+     * restrictions.
      * 
-     * @return true if the given mode is allowed for any of the given restrictions.
+     * @param mode Mode for which to check the restrictions.
+     * @param restrictions List of queried restrictions for the mode.
+     * 
+     * @return true if the restriction of the given mode is one of the given
+     * restrictions.
      */
     public boolean isAllowedForAny(AccessMode mode, EnumSet<AccessRestriction> restrictions) {
         return restrictions.contains(getRestrictionFor(mode));
     }
 
     /**
-     * @param mode
-     * @param restriction
+     * Check if the restriction for the given mode corresponds to the given
+     * restriction.
      * 
-     * @return true if the given mode is allowed for the given restriction.
+     * @param mode Mode for which the restriction should be checked.
+     * @param restriction Restriction to check against.
+     * 
+     * @return true if the restriction of the given mode corresponds to the given
+     * restriction.
      */
     public boolean isAllowedFor(AccessMode mode, AccessRestriction restriction) {
         return getRestrictionFor(mode).equals(restriction);
     }
 
     /**
-     * @param modes
-     * @param restrictions
+     * Check if the restriction associated to each given mode is one of the
+     * restrictions. The restriction may not be the same for all modes.
+     * 
+     * @param modes Modes for which restrictions should be checked.
+     * @param restrictions Set of wanted restrictions for the modes.
      * 
      * @return true if all the given modes are allowed for any of the given
      * restrictions.
