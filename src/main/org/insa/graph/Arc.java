@@ -7,6 +7,11 @@ import java.util.List;
  * class to allow us to represent two-ways roads in a memory efficient manner
  * (without having to duplicate attributes).
  * 
+ * Arc should never be created manually but always using the
+ * {@link Node#linkNodes(Node, Node, int, RoadInformation, java.util.ArrayList)}
+ * method to ensure proper instantiation of the {@link ArcForward} and
+ * {@link ArcBackward} classes.
+ * 
  * @see ArcForward
  * @see ArcBackward
  *

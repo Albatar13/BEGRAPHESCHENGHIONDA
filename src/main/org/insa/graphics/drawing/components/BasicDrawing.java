@@ -22,7 +22,6 @@ import java.util.List;
 import javax.swing.JPanel;
 
 import org.insa.graph.Arc;
-import org.insa.graph.ArcForward;
 import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Path;
@@ -395,7 +394,6 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.insa.graphics.drawing.Drawing#clear()
      */
     @Override
@@ -411,7 +409,6 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.insa.graphics.drawing.Drawing#clearOverlays()
      */
     @Override
@@ -472,7 +469,6 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.insa.graphics.drawing.Drawing#addDrawingClickListener(org.insa.graphics.
      * drawing.DrawingClickListener)
@@ -484,7 +480,6 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.insa.graphics.drawing.Drawing#removeDrawingClickListener(org.insa.
      * graphics.drawing.DrawingClickListener)
      */
@@ -528,9 +523,9 @@ public class BasicDrawing extends JPanel implements Drawing {
      * 
      * @param arc Arc to draw.
      * @param palette Palette to use to retrieve color and width for arc, or null to
-     *        use current settings.
+     * use current settings.
      */
-    protected void drawArc(ArcForward arc, GraphPalette palette, boolean repaint) {
+    protected void drawArc(Arc arc, GraphPalette palette, boolean repaint) {
         List<Point> pts = arc.getPoints();
         if (!pts.isEmpty()) {
             if (palette != null) {
@@ -645,8 +640,11 @@ public class BasicDrawing extends JPanel implements Drawing {
 
         for (Node node: graph.getNodes()) {
             for (Arc arc: node.getSuccessors()) {
-                if (arc instanceof ArcForward) { // draw only "true" arcs
-                    drawArc((ArcForward) arc, palette, false);
+                // Draw arcs only if there are one-way arcs or if origin is lower than
+                // destination, avoid drawing two-ways arc twice.
+                if (arc.getRoadInformation().isOneWay()
+                        || arc.getOrigin().compareTo(arc.getDestination()) < 0) {
+                    drawArc(arc, palette, false);
                 }
             }
             if (node.getId() % repaintModulo == 0) {

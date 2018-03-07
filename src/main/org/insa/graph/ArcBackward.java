@@ -10,7 +10,7 @@ import java.util.List;
  * the original arc.
  *
  */
-public class ArcBackward implements Arc {
+class ArcBackward implements Arc {
 
     // Original arc
     private final ArcForward originalArc;
@@ -19,9 +19,9 @@ public class ArcBackward implements Arc {
      * Create a new backward arc which corresponds to the reverse arc of the given
      * arc.
      * 
-     * @param originalArc
+     * @param originalArc Original forwarc arc corresponding to this backward arc.
      */
-    public ArcBackward(ArcForward originalArc) {
+    protected ArcBackward(ArcForward originalArc) {
         this.originalArc = originalArc;
         this.originalArc.getDestination().addSuccessor(this);
     }

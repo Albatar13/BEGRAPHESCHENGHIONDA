@@ -3,6 +3,9 @@ package org.insa.graph;
 /**
  * Class containing information for road that may be shared by multiple arcs.
  * 
+ * Sharing information between arcs reduces memory footprints of the program - A
+ * long road is often split into multiple arcs at each intersection.
+ * 
  */
 public class RoadInformation {
 
@@ -45,6 +48,16 @@ public class RoadInformation {
     // Name of the road.
     private final String name;
 
+    /**
+     * Create a new RoadInformation instance containing the given parameters.
+     * 
+     * @param roadType Type of the road (see {@link RoadType}).
+     * @param access Access restrictions for the road (see
+     * {@link AccessRestrictions}).
+     * @param isOneWay true if this road is a one way road, false otherwise.
+     * @param maxSpeed Maximum speed for the road (in kilometers-per-hour).
+     * @param name Name of the road.
+     */
     public RoadInformation(RoadType roadType, AccessRestrictions access, boolean isOneWay,
             int maxSpeed, String name) {
         this.type = roadType;
@@ -55,7 +68,7 @@ public class RoadInformation {
     }
 
     /**
-     * @return true if this is a private road.
+     * @return Access restrictions for this road.
      */
     public AccessRestrictions getAccessRestrictions() {
         return this.access;
@@ -69,14 +82,14 @@ public class RoadInformation {
     }
 
     /**
-     * @return true if this is a one-way road.
+     * @return true if the road is a one-way road.
      */
     public boolean isOneWay() {
         return oneway;
     }
 
     /**
-     * @return Maximum speed for this road (in kmph).
+     * @return Maximum speed for this road (in kilometers-per-hour).
      */
     public int getMaximumSpeed() {
         return maxSpeed;
@@ -89,10 +102,6 @@ public class RoadInformation {
         return name;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         String typeAsString = "road";

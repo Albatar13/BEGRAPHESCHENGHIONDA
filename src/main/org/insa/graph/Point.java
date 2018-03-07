@@ -1,20 +1,23 @@
 package org.insa.graph;
 
 /**
- * Class representing a point on Earth.
+ * Class representing a point (position) on Earth.
  *
  */
 public final class Point {
 
-    // Earth radius, in meters;
-    private static final double EARTH_RADIUS = 6378137.0;
+    /**
+     * Approximated Earth radius (in meters).
+     */
+    public static final double EARTH_RADIUS = 6378137.0;
 
     /**
      * Compute the distance in meters between the two given points.
      * 
-     * @param p1, p2
+     * @param p1 First point.
+     * @param p2 second point.
      * 
-     * @return Distance between the two given points, in meters.
+     * @return Distance between the two given points (in meters).
      */
     public static double distance(Point p1, Point p2) {
         double sinLat = Math.sin(Math.toRadians(p1.getLatitude()))
@@ -29,9 +32,10 @@ public final class Point {
     private final float longitude, latitude;
 
     /**
+     * Create a new point corresponding to the given (longitude, latitude) position.
      * 
-     * @param longitude Longitude of the point, in degrees.
-     * @param latitude Latitude of the point, in degrees.
+     * @param longitude Longitude of the point (in degrees).
+     * @param latitude Latitude of the point (in degrees).
      */
     public Point(float longitude, float latitude) {
         this.longitude = longitude;
@@ -55,7 +59,7 @@ public final class Point {
     /**
      * Compute the distance from this point to the given point
      * 
-     * @param target Target point.
+     * @param target Target point to compute distance to.
      * 
      * @return Distance between this point and the target point, in meters.
      */
@@ -63,11 +67,6 @@ public final class Point {
         return distance(this, target);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return String.format("Point(%f, %f)", getLongitude(), getLatitude());

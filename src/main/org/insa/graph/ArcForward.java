@@ -24,7 +24,7 @@ public class ArcForward implements Arc {
     private final ArrayList<Point> points;
 
     /**
-     * Create a new arc and automatically link it with the given origin.
+     * Create a new ArcForward with the given attributes.
      * 
      * @param origin Origin of this arc.
      * @param dest Destination of this arc.
@@ -32,54 +32,44 @@ public class ArcForward implements Arc {
      * @param roadInformation Road information for this arc.
      * @param points Points representing this arc.
      */
-    public ArcForward(Node origin, Node dest, int length, RoadInformation roadInformation,
+    protected ArcForward(Node origin, Node dest, int length, RoadInformation roadInformation,
             ArrayList<Point> points) {
         this.origin = origin;
         this.destination = dest;
         this.length = length;
         this.info = roadInformation;
         this.points = points;
-        origin.addSuccessor(this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public Node getOrigin() {
         return origin;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public Node getDestination() {
         return destination;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+
     public int getLength() {
         return length;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+
     public double getMinimumTravelTime() {
         return getLength() * 3600.0 / (info.getMaximumSpeed() * 1000.0);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+
     public RoadInformation getRoadInformation() {
         return info;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public List<Point> getPoints() {
         return Collections.unmodifiableList(points);
     }

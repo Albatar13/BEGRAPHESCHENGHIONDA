@@ -8,10 +8,9 @@ import java.util.EnumMap;
 import org.insa.graph.AccessRestrictions;
 import org.insa.graph.AccessRestrictions.AccessMode;
 import org.insa.graph.AccessRestrictions.AccessRestriction;
-import org.insa.graph.ArcBackward;
-import org.insa.graph.ArcForward;
+import org.insa.graph.Arc;
 import org.insa.graph.Graph;
-import org.insa.graph.GraphInformation;
+import org.insa.graph.GraphStatistics;
 import org.insa.graph.Node;
 import org.insa.graph.Point;
 import org.insa.graph.RoadInformation;
@@ -41,7 +40,7 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
         // the order correspond to the 4 bits value (i.e. FORBIDDEN is 0 or PRIVATE is
         // 2) - UKNOWN is not included because value above 6 (FORESTRY) are all
         // considered unknown.
-        final AccessRestriction[] allRestrictions = new AccessRestriction[] {
+        final AccessRestriction[] allRestrictions = new AccessRestriction[]{
                 AccessRestriction.FORBIDDEN, AccessRestriction.ALLOWED, AccessRestriction.PRIVATE,
                 AccessRestriction.DESTINATION, AccessRestriction.DELIVERY,
                 AccessRestriction.CUSTOMERS, AccessRestriction.FORESTRY };
@@ -49,7 +48,7 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
         // The order of values inside this array is VERY IMPORTANT: The order is such
         // that each 4-bits group of the long value is processed in the correct order,
         // i.e. FOOT is processed first (4 lowest bits), and so on.
-        final AccessMode[] allModes = new AccessMode[] { AccessMode.FOOT, null, AccessMode.BICYCLE,
+        final AccessMode[] allModes = new AccessMode[]{ AccessMode.FOOT, null, AccessMode.BICYCLE,
                 AccessMode.SMALL_MOTORCYCLE, AccessMode.AGRICULTURAL, AccessMode.MOTORCYCLE,
                 AccessMode.MOTORCAR, AccessMode.HEAVY_GOODS, null, AccessMode.PUBLIC_TRANSPORT };
 
@@ -240,16 +239,7 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
                 Node dest = nodes.get(destNode);
 
                 // Add successor to initial arc.
-                ArcForward arc = new ArcForward(orig, dest, length, info, points);
-
-                // And reverse arc if its a two-way road.
-                if (!info.isOneWay()) {
-                    // Add without segments.
-                    // ArrayList<Point> rPoints = new ArrayList<Point>(points);
-                    // Collections.reverse(rPoints);
-                    // new Arc(dest, orig, length, info, null);
-                    new ArcBackward(arc);
-                }
+                Arc arc = Node.linkNodes(orig, dest, length, info, points);
                 observers.forEach((observer) -> observer.notifyNewArcRead(arc));
             }
         }
@@ -261,7 +251,7 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
 
         this.dis.close();
 
-        return new Graph(mapId, mapName, nodes, new GraphInformation(maxSpeed, maxLength));
+        return new Graph(mapId, mapName, nodes, new GraphStatistics(maxSpeed, maxLength));
     }
 
     /**

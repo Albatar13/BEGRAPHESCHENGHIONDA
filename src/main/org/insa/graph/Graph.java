@@ -3,6 +3,13 @@ package org.insa.graph;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Main graph class.
+ * 
+ * This class acts as a object-oriented adjacency list for a graph, i.e. it
+ * holds a list of nodes and each node holds a list of its successors.
+ *
+ */
 public class Graph {
 
     // Map identifier.
@@ -15,35 +22,39 @@ public class Graph {
     private final List<Node> nodes;
 
     // Graph information of this graph.
-    private final GraphInformation graphInfo;
+    private final GraphStatistics graphStatistics;
 
     /**
-     * @param mapId ID of this graph.
-     * @param list List of nodes for this graph.
+     * Create a new graph with the given ID, name, nodes and information.
+     * 
+     * @param mapId ID of the map corresponding to this graph.
+     * @param mapName Name of the map corresponding to this graph.
+     * @param nodes List of nodes for this graph.
+     * @param graphStatistics Information for this graph.
      */
-    public Graph(String mapId, String mapName, List<Node> list, GraphInformation graphInformation) {
+    public Graph(String mapId, String mapName, List<Node> nodes, GraphStatistics graphStatistics) {
         this.mapId = mapId;
         this.mapName = mapName;
-        this.nodes = list;
-        this.graphInfo = graphInformation;
+        this.nodes = nodes;
+        this.graphStatistics = graphStatistics;
     }
 
     /**
-     * @return GraphInformation of this graph.
+     * @return The GraphStatistics instance associated with this graph.
      */
-    public GraphInformation getGraphInformation() {
-        return this.graphInfo;
+    public GraphStatistics getGraphInformation() {
+        return this.graphStatistics;
     }
 
     /**
-     * @return Immutable list of nodes of this graph.
+     * @return Immutable view of the list of nodes of this graph.
      */
     public List<Node> getNodes() {
         return Collections.unmodifiableList(nodes);
     }
 
     /**
-     * @return Map ID of this graph.
+     * @return ID of the map associated with this graph.
      */
     public String getMapId() {
         return mapId;
@@ -57,7 +68,7 @@ public class Graph {
     }
 
     /**
-     * @return Return the transpose graph of this graph.
+     * @return Transpose graph of this graph.
      */
     public Graph transpose() {
         // TODO:
