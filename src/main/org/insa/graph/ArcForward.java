@@ -9,7 +9,7 @@ import java.util.List;
  * arc implementation that stores data relative to the arc.
  *
  */
-public class ArcForward implements Arc {
+class ArcForward implements Arc {
 
     // Destination node.
     private final Node origin, destination;
