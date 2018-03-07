@@ -57,7 +57,7 @@ import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsAlgorithm;
 import org.insa.algo.weakconnectivity.WeaklyConnectedComponentsData;
 import org.insa.graph.Graph;
 import org.insa.graph.Path;
-import org.insa.graph.io.BinaryGraphReaderInsa2018;
+import org.insa.graph.io.BinaryGraphReader;
 import org.insa.graph.io.BinaryPathReader;
 import org.insa.graph.io.GraphReader;
 import org.insa.graph.io.MapMismatchException;
@@ -613,7 +613,7 @@ public class MainWindow extends JFrame {
                                 "Cannot open the selected file.");
                         return;
                     }
-                    loadGraph(new BinaryGraphReaderInsa2018(stream));
+                    loadGraph(new BinaryGraphReader(stream));
                 }
             }
         }));

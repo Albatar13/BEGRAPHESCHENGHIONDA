@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 
 import org.insa.graph.AccessRestrictions;
 import org.insa.graph.AccessRestrictions.AccessMode;
@@ -16,7 +17,11 @@ import org.insa.graph.Point;
 import org.insa.graph.RoadInformation;
 import org.insa.graph.RoadInformation.RoadType;
 
-public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphReader {
+/**
+ * Implementation of {@link GraphReader} to read graph in binary format.
+ *
+ */
+public class BinaryGraphReader extends BinaryReader implements GraphReader {
 
     // Map version and magic number targeted for this reader.
     private static final int VERSION = 5;
@@ -25,13 +30,17 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
     // Length of the map id field (in bytes)
     protected static final int MAP_ID_FIELD_LENGTH = 32;
 
+    // List of observers
+    protected List<GraphReaderObserver> observers = new ArrayList<>();
+
     /**
-     * Create a new access information by parsing the given value (V6 version).
+     * Parse the given long value into a new instance of AccessRestrictions.
      * 
-     * @param access
-     * @return
+     * @param access The value to parse.
+     * 
+     * @return New instance of access restrictions parsed from the given value.
      */
-    protected static AccessRestrictions toAccessInformationV7(final long access) {
+    protected static AccessRestrictions toAccessInformation(final long access) {
 
         // See the following for more information:
         // https://github.com/Holt59/OSM2Graph/blob/master/src/main/org/laas/osm2graph/model/AccessData.java
@@ -77,9 +86,8 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
      * 
      * @param ch Character to convert.
      * 
-     * @return Road type corresponding to ch.
+     * @return Road type corresponding to the given character.
      * 
-     * @see http://wiki.openstreetmap.org/wiki/Highway_tag_usage.
      */
     protected static RoadType toRoadType(char ch) {
         switch (ch) {
@@ -125,12 +133,17 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
     }
 
     /**
-     * Create a new BinaryGraphReader using the given DataInputStream.
+     * Create a new BinaryGraphReader that read from the given input stream.
      * 
-     * @param dis
+     * @param dis Input stream to read from.
      */
-    public BinaryGraphReaderInsa2018(DataInputStream dis) {
+    public BinaryGraphReader(DataInputStream dis) {
         super(MAGIC_NUMBER, VERSION, dis);
+    }
+
+    @Override
+    public void addObserver(GraphReaderObserver observer) {
+        observers.add(observer);
     }
 
     @Override
@@ -257,14 +270,16 @@ public class BinaryGraphReaderInsa2018 extends BinaryReader implements GraphRead
     /**
      * Read the next road information from the stream.
      * 
-     * @throws IOException
+     * @return The next RoadInformation in the stream.
+     * 
+     * @throws IOException if an error occurs while reading from the stream.
      */
     private RoadInformation readRoadInformation() throws IOException {
         char type = (char) dis.readUnsignedByte();
         int x = dis.readUnsignedByte();
         AccessRestrictions access = new AccessRestrictions();
         if (getCurrentVersion() >= 7) {
-            access = toAccessInformationV7(dis.readLong());
+            access = toAccessInformation(dis.readLong());
         }
         else if (getCurrentVersion() >= 6) {
             // TODO: Try to create something...

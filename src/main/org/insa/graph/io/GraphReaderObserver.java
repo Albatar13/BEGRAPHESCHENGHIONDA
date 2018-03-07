@@ -4,6 +4,11 @@ import org.insa.graph.Arc;
 import org.insa.graph.Node;
 import org.insa.graph.RoadInformation;
 
+/**
+ * Base interface that should be implemented by classes that want to observe the
+ * reading of a graph by a {@link GraphReader}.
+ *
+ */
 public interface GraphReaderObserver {
 
     /**
@@ -29,7 +34,7 @@ public interface GraphReaderObserver {
     /**
      * Notify that a new nodes has been read.
      * 
-     * @param node
+     * @param node read.
      */
     public void notifyNewNodeRead(Node node);
 
@@ -43,7 +48,7 @@ public interface GraphReaderObserver {
     /**
      * Notify that a new descriptor has been read.
      * 
-     * @param desc
+     * @param desc Descriptor read.
      */
     public void notifyNewDescriptorRead(RoadInformation desc);
 
@@ -57,7 +62,7 @@ public interface GraphReaderObserver {
     /**
      * Notify that a new arc has been read.
      * 
-     * @param arc
+     * @param arc Arc read.
      */
     public void notifyNewArcRead(Arc arc);
 

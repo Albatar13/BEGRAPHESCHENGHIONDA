@@ -7,10 +7,16 @@ import java.util.Arrays;
 import org.insa.graph.Arc;
 import org.insa.graph.Path;
 
+/**
+ * Implementation of {@link PathWriter} to write paths in binary format.
+ *
+ */
 public class BinaryPathWriter extends BinaryWriter implements PathWriter {
 
     /**
-     * @param dos
+     * Create a new BinaryPathWriter that writes to the given output stream.
+     * 
+     * @param dos Output stream to write to.
      */
     public BinaryPathWriter(DataOutputStream dos) {
         super(dos);
@@ -25,7 +31,7 @@ public class BinaryPathWriter extends BinaryWriter implements PathWriter {
 
         // Write map id.
         byte[] bytes = Arrays.copyOf(path.getGraph().getMapId().getBytes("UTF-8"),
-                BinaryGraphReaderInsa2018.MAP_ID_FIELD_LENGTH);
+                BinaryGraphReader.MAP_ID_FIELD_LENGTH);
         dos.write(bytes);
 
         // Write number of arcs

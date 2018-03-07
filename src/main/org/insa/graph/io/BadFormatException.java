@@ -2,20 +2,23 @@ package org.insa.graph.io;
 
 import java.io.IOException;
 
+/**
+ * Exception thrown when a format-error is detected when reading a graph (e.g.,
+ * non-matching check bytes).
+ *
+ */
 public class BadFormatException extends IOException {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5455552814725826052L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * 
-	 * @param actualVersion
-	 * @param expectedVersion
-	 */
-	public BadFormatException() {
-		super();
-	}
+    /**
+     *
+     */
+    public BadFormatException() {
+        super();
+    }
 
 }

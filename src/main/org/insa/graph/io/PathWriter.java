@@ -4,14 +4,18 @@ import java.io.IOException;
 
 import org.insa.graph.Path;
 
+/**
+ * Base interface that should be implemented by class used to write paths.
+ *
+ */
 public interface PathWriter {
 
     /**
-     * Write a path.
+     * Write the given path.
      * 
      * @param path Path to write.
      * 
-     * @throws Exception
+     * @throws IOException When an error occurs while writing the path.
      */
     public void writePath(Path path) throws IOException;
 
