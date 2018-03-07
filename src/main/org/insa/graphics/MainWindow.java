@@ -44,6 +44,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.insa.algo.AbstractSolution;
 import org.insa.algo.AlgorithmFactory;
+import org.insa.algo.carpooling.CarPoolingAlgorithm;
+import org.insa.algo.packageswitch.PackageSwitchAlgorithm;
 import org.insa.algo.shortestpath.ShortestPathAlgorithm;
 import org.insa.algo.shortestpath.ShortestPathData;
 import org.insa.algo.shortestpath.ShortestPathGraphicObserver;
@@ -112,7 +114,7 @@ public class MainWindow extends JFrame {
 
     // Algorithm panels
     private final List<AlgorithmPanel> algoPanels = new ArrayList<>();
-    private final AlgorithmPanel wccPanel, spPanel;
+    private final AlgorithmPanel wccPanel, spPanel, cpPanel, psPanel;
 
     // Path panel
     private final PathsPanel pathPanel;
@@ -161,7 +163,7 @@ public class MainWindow extends JFrame {
         this.currentPalette = this.basicPalette;
 
         wccPanel = new AlgorithmPanel(this, WeaklyConnectedComponentsAlgorithm.class,
-                "Weakly-Connected Components", new String[] {}, false, false);
+                "Weakly-Connected Components", new String[]{}, false, false);
         wccPanel.addStartActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -206,7 +208,7 @@ public class MainWindow extends JFrame {
         });
 
         spPanel = new AlgorithmPanel(this, ShortestPathAlgorithm.class, "Shortest-Path",
-                new String[] { "Origin", "Destination" }, true, true);
+                new String[]{ "Origin", "Destination" }, true, true);
         spPanel.addStartActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -258,21 +260,35 @@ public class MainWindow extends JFrame {
             }
         });
 
+        cpPanel = new AlgorithmPanel(
+                this, CarPoolingAlgorithm.class, "Car-Pooling", new String[]{ "Origin Car",
+                        "Origin Pedestrian", "Destination Car", "Destination Pedestrian" },
+                true, true);
+
+        psPanel = new AlgorithmPanel(this, PackageSwitchAlgorithm.class, "Car-Pooling",
+                new String[]{ "Oribin A", "Origin B", "Destination A", "Destination B" }, true,
+                true);
+
         // add algorithm panels
         algoPanels.add(wccPanel);
         algoPanels.add(spPanel);
+        algoPanels.add(cpPanel);
+        algoPanels.add(psPanel);
 
         this.pathPanel = new PathsPanel(this);
 
         // Add click listeners to both drawing.
-        basicDrawing.addDrawingClickListener(spPanel.nodesInputPanel);
-        mapViewDrawing.addDrawingClickListener(spPanel.nodesInputPanel);
 
-        this.graphChangeListeneres.add(spPanel.nodesInputPanel);
-        this.graphChangeListeneres.add(spPanel.solutionPanel);
+        for (AlgorithmPanel panel: algoPanels) {
+            this.basicDrawing.addDrawingClickListener(panel.nodesInputPanel);
+            this.mapViewDrawing.addDrawingClickListener(panel.nodesInputPanel);
+            this.graphChangeListeneres.add(panel.nodesInputPanel);
+            this.graphChangeListeneres.add(panel.solutionPanel);
+            this.drawingChangeListeners.add(panel.nodesInputPanel);
+            this.drawingChangeListeners.add(panel.solutionPanel);
+        }
+
         this.graphChangeListeneres.add(pathPanel);
-        this.drawingChangeListeners.add(spPanel.nodesInputPanel);
-        this.drawingChangeListeners.add(spPanel.solutionPanel);
         this.drawingChangeListeners.add(pathPanel);
 
         // Create action factory.
@@ -738,19 +754,42 @@ public class MainWindow extends JFrame {
         }));
 
         // Shortest path
-        JMenuItem spItem = new JMenuItem("Shortest Path");
+        JMenuItem spItem = new JMenuItem("Shortest-Path");
         spItem.addActionListener(baf.createBlockingAction(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 enableAlgorithmPanel(spPanel);
             }
         }));
+
+        // Car pooling
+        JMenuItem cpItem = new JMenuItem("Car Pooling");
+        cpItem.addActionListener(baf.createBlockingAction(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                enableAlgorithmPanel(cpPanel);
+            }
+        }));
+
+        // Car pooling
+        JMenuItem psItem = new JMenuItem("Package Switch");
+        psItem.addActionListener(baf.createBlockingAction(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                enableAlgorithmPanel(psPanel);
+            }
+        }));
+
         graphLockItems.add(wccItem);
         graphLockItems.add(spItem);
+        graphLockItems.add(cpItem);
+        graphLockItems.add(psItem);
 
         algoMenu.add(wccItem);
         algoMenu.addSeparator();
         algoMenu.add(spItem);
+        algoMenu.add(cpItem);
+        algoMenu.add(psItem);
 
         // Create the menu bar.
         JMenuBar menuBar = new JMenuBar();

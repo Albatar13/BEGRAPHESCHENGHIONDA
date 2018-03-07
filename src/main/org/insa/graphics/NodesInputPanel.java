@@ -59,7 +59,7 @@ public class NodesInputPanel extends JPanel
          * @param point
          * 
          * @return the closest node to the given point, or null if no node is "close
-         *         enough".
+         * enough".
          */
         public Node findClosestNode(Point point) {
             Node minNode = null;
@@ -293,7 +293,7 @@ public class NodesInputPanel extends JPanel
 
     /**
      * @return The node for the given text field, or null if the content of the text
-     *         field is invalid.
+     * field is invalid.
      */
     protected Node getNodeForInput(JTextField textfield) {
         try {
@@ -307,7 +307,7 @@ public class NodesInputPanel extends JPanel
 
     /**
      * @return List of nodes associated with the input. Some nodes may be null if
-     *         their associated input is invalid.
+     * their associated input is invalid.
      */
     public List<Node> getNodeForInputs() {
         List<Node> nodes = new ArrayList<>(nodeInputs.size());

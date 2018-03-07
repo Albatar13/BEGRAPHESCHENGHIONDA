@@ -162,7 +162,6 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
             colorButton = new JButton(icon);
             colorButton.setFocusable(false);
             colorButton.setFocusPainted(false);
-            colorButton.setBorderPainted(false);
             colorButton.setMinimumSize(size);
             colorButton.setPreferredSize(size);
             colorButton.setMaximumSize(size);
@@ -211,7 +210,6 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
             JButton saveButton = new JButton(UIManager.getIcon("FileView.floppyDriveIcon"));
             saveButton.setFocusPainted(false);
             saveButton.setFocusable(false);
-            saveButton.setBorderPainted(false);
             saveButton.setMinimumSize(size);
             saveButton.setPreferredSize(size);
             saveButton.setMaximumSize(size);
@@ -249,7 +247,6 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
             JButton deleteButton = new JButton(new ImageIcon(newimg));
             deleteButton.setFocusPainted(false);
             deleteButton.setFocusable(false);
-            deleteButton.setBorderPainted(false);
             deleteButton.setMinimumSize(size);
             deleteButton.setPreferredSize(size);
             deleteButton.setMaximumSize(size);
@@ -287,7 +284,6 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
 
         /*
          * (non-Javadoc)
-         * 
          * @see java.lang.Object#toString()
          */
         public String toString() {
