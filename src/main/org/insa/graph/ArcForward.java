@@ -52,19 +52,16 @@ class ArcForward implements Arc {
     }
 
     @Override
-
     public int getLength() {
         return length;
     }
 
     @Override
-
     public double getMinimumTravelTime() {
         return getLength() * 3600.0 / (info.getMaximumSpeed() * 1000.0);
     }
 
     @Override
-
     public RoadInformation getRoadInformation() {
         return info;
     }
