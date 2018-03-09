@@ -15,7 +15,7 @@ class ArcForward implements Arc {
     private final Node origin, destination;
 
     // Length of the road (in meters).
-    private final int length;
+    private final float length;
 
     // Road information.
     private final RoadInformation info;
@@ -32,7 +32,7 @@ class ArcForward implements Arc {
      * @param roadInformation Road information for this arc.
      * @param points Points representing this arc.
      */
-    protected ArcForward(Node origin, Node dest, int length, RoadInformation roadInformation,
+    protected ArcForward(Node origin, Node dest, float length, RoadInformation roadInformation,
             ArrayList<Point> points) {
         this.origin = origin;
         this.destination = dest;
@@ -53,7 +53,7 @@ class ArcForward implements Arc {
 
     @Override
 
-    public int getLength() {
+    public float getLength() {
         return length;
     }
 

@@ -14,7 +14,7 @@ public class GraphStatistics {
     private final int maximumSpeed;
 
     // Maximum length of any arc on this graph.
-    private final int maximumLength;
+    private final float maximumLength;
 
     /**
      * Create a new GraphStatistics instance with the given value.
@@ -23,7 +23,7 @@ public class GraphStatistics {
      * be used to indicate that this graph has no maximum limitation.
      * @param maximumLength Maximum length of any arc of the graph.
      */
-    public GraphStatistics(int maximumSpeed, int maximumLength) {
+    public GraphStatistics(int maximumSpeed, float maximumLength) {
         this.maximumLength = maximumLength;
         this.maximumSpeed = maximumSpeed;
     }
@@ -39,7 +39,7 @@ public class GraphStatistics {
     /**
      * @return Maximum length of any arc in the graph.
      */
-    public int getMaximumLength() {
+    public float getMaximumLength() {
         return this.maximumLength;
     }
 

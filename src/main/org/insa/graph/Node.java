@@ -31,7 +31,7 @@ public class Node implements Comparable<Node> {
      * 
      * @return The newly created forward arc (origin to destination).
      */
-    public static Arc linkNodes(Node origin, Node destination, int length,
+    public static Arc linkNodes(Node origin, Node destination, float length,
             RoadInformation roadInformation, ArrayList<Point> points) {
         ArcForward arc = new ArcForward(origin, destination, length, roadInformation, points);
         origin.addSuccessor(arc);

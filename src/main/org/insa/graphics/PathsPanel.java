@@ -126,9 +126,9 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
             String info = "";
 
             // Display length
-            int length = path.getLength();
+            float length = path.getLength();
             if (length < 2000) {
-                info += String.format("Length = %d meters", length);
+                info += String.format("Length = %.1f meters", length);
             }
             else {
                 info += String.format("Length = %.3f kilometers", length / 1000.);
