@@ -22,7 +22,7 @@ public class PathTest {
 
     // List of arcs in the graph, a2b is the arc from node A (0) to B (1).
     @SuppressWarnings("unused")
-    private static ArcForward a2b, a2c, a2e, b2c, c2d_1, c2d_2, c2d_3, c2a, d2a, d2e, e2d;
+    private static Arc a2b, a2c, a2e, b2c, c2d_1, c2d_2, c2d_3, c2a, d2a, d2e, e2d;
 
     // Some paths...
     private static Path emptyPath, shortPath, longPath, loopPath, longLoopPath, invalidPath;
@@ -41,26 +41,26 @@ public class PathTest {
         }
 
         // Add arcs...
-        a2b = new ArcForward(nodes[0], nodes[1], 10, speed10, null);
-        a2c = new ArcForward(nodes[0], nodes[2], 15, speed10, null);
-        a2e = new ArcForward(nodes[0], nodes[4], 15, speed20, null);
-        b2c = new ArcForward(nodes[1], nodes[2], 10, speed10, null);
-        c2d_1 = new ArcForward(nodes[2], nodes[3], 20, speed10, null);
-        c2d_2 = new ArcForward(nodes[2], nodes[3], 10, speed10, null);
-        c2d_3 = new ArcForward(nodes[2], nodes[3], 15, speed20, null);
-        d2a = new ArcForward(nodes[3], nodes[0], 15, speed10, null);
-        d2e = new ArcForward(nodes[3], nodes[4], 20, speed20, null);
-        e2d = new ArcForward(nodes[4], nodes[0], 10, speed10, null);
+        a2b = Node.linkNodes(nodes[0], nodes[1], 10, speed10, null);
+        a2c = Node.linkNodes(nodes[0], nodes[2], 15, speed10, null);
+        a2e = Node.linkNodes(nodes[0], nodes[4], 15, speed20, null);
+        b2c = Node.linkNodes(nodes[1], nodes[2], 10, speed10, null);
+        c2d_1 = Node.linkNodes(nodes[2], nodes[3], 20, speed10, null);
+        c2d_2 = Node.linkNodes(nodes[2], nodes[3], 10, speed10, null);
+        c2d_3 = Node.linkNodes(nodes[2], nodes[3], 15, speed20, null);
+        d2a = Node.linkNodes(nodes[3], nodes[0], 15, speed10, null);
+        d2e = Node.linkNodes(nodes[3], nodes[4], 20, speed20, null);
+        e2d = Node.linkNodes(nodes[4], nodes[0], 10, speed10, null);
 
         graph = new Graph("ID", "", Arrays.asList(nodes), null);
 
         emptyPath = new Path(graph, new ArrayList<Arc>());
-        shortPath = new Path(graph, Arrays.asList(new ArcForward[]{ a2b, b2c, c2d_1 }));
-        longPath = new Path(graph, Arrays.asList(new ArcForward[]{ a2b, b2c, c2d_1, d2e }));
-        loopPath = new Path(graph, Arrays.asList(new ArcForward[]{ a2b, b2c, c2d_1, d2a }));
+        shortPath = new Path(graph, Arrays.asList(new Arc[]{ a2b, b2c, c2d_1 }));
+        longPath = new Path(graph, Arrays.asList(new Arc[]{ a2b, b2c, c2d_1, d2e }));
+        loopPath = new Path(graph, Arrays.asList(new Arc[]{ a2b, b2c, c2d_1, d2a }));
         longLoopPath = new Path(graph,
-                Arrays.asList(new ArcForward[]{ a2b, b2c, c2d_1, d2a, a2c, c2d_3, d2a, a2b, b2c }));
-        invalidPath = new Path(graph, Arrays.asList(new ArcForward[]{ a2b, c2d_1, d2e }));
+                Arrays.asList(new Arc[]{ a2b, b2c, c2d_1, d2a, a2c, c2d_3, d2a, a2b, b2c }));
+        invalidPath = new Path(graph, Arrays.asList(new Arc[]{ a2b, c2d_1, d2e }));
 
     }
 
@@ -103,11 +103,11 @@ public class PathTest {
 
     @Test
     public void testGetLength() {
-        assertEquals(emptyPath.getLength(), 0);
-        assertEquals(shortPath.getLength(), 40);
-        assertEquals(longPath.getLength(), 60);
-        assertEquals(loopPath.getLength(), 55);
-        assertEquals(longLoopPath.getLength(), 120);
+        assertEquals(emptyPath.getLength(), 0, 1e-6);
+        assertEquals(shortPath.getLength(), 40, 1e-6);
+        assertEquals(longPath.getLength(), 60, 1e-6);
+        assertEquals(loopPath.getLength(), 55, 1e-6);
+        assertEquals(longLoopPath.getLength(), 120, 1e-6);
     }
 
     @Test
@@ -122,12 +122,12 @@ public class PathTest {
     @Test
     public void testCreateFastestPathFromNodes() {
         Path path;
-        ArcForward[] expected;
+        Arc[] expected;
 
         // Simple construction
         path = Path.createFastestPathFromNodes(graph,
                 Arrays.asList(new Node[]{ nodes[0], nodes[1], nodes[2] }));
-        expected = new ArcForward[]{ a2b, b2c };
+        expected = new Arc[]{ a2b, b2c };
         assertEquals(expected.length, path.getArcs().size());
         for (int i = 0; i < expected.length; ++i) {
             assertEquals(expected[i], path.getArcs().get(i));
@@ -136,7 +136,7 @@ public class PathTest {
         // Not so simple construction
         path = Path.createFastestPathFromNodes(graph,
                 Arrays.asList(new Node[]{ nodes[0], nodes[1], nodes[2], nodes[3] }));
-        expected = new ArcForward[]{ a2b, b2c, c2d_3 };
+        expected = new Arc[]{ a2b, b2c, c2d_3 };
         assertEquals(expected.length, path.getArcs().size());
         for (int i = 0; i < expected.length; ++i) {
             assertEquals(expected[i], path.getArcs().get(i));
@@ -146,12 +146,12 @@ public class PathTest {
     @Test
     public void testCreateShortestPathFromNodes() {
         Path path;
-        ArcForward[] expected;
+        Arc[] expected;
 
         // Simple construction
         path = Path.createShortestPathFromNodes(graph,
                 Arrays.asList(new Node[]{ nodes[0], nodes[1], nodes[2] }));
-        expected = new ArcForward[]{ a2b, b2c };
+        expected = new Arc[]{ a2b, b2c };
         assertEquals(expected.length, path.getArcs().size());
         for (int i = 0; i < expected.length; ++i) {
             assertEquals(expected[i], path.getArcs().get(i));
@@ -160,7 +160,7 @@ public class PathTest {
         // Not so simple construction
         path = Path.createShortestPathFromNodes(graph,
                 Arrays.asList(new Node[]{ nodes[0], nodes[1], nodes[2], nodes[3] }));
-        expected = new ArcForward[]{ a2b, b2c, c2d_2 };
+        expected = new Arc[]{ a2b, b2c, c2d_2 };
         assertEquals(expected.length, path.getArcs().size());
         for (int i = 0; i < expected.length; ++i) {
             assertEquals(expected[i], path.getArcs().get(i));

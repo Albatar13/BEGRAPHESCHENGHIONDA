@@ -212,7 +212,7 @@ public class BinaryGraphReader extends BinaryReader implements GraphReader {
         checkByteOrThrow(254);
 
         // Read successors and convert to arcs.
-        int maxLength = 0;
+        float maxLength = 0;
         final int copyNbTotalSuccesors = nbTotalSuccessors; // Stupid Java...
         observers.forEach((observer) -> observer.notifyStartReadingArcs(copyNbTotalSuccesors));
         for (int node = 0; node < nbNodes; ++node) {
@@ -225,7 +225,13 @@ public class BinaryGraphReader extends BinaryReader implements GraphReader {
                 int descrNum = this.read24bits();
 
                 // Length of the arc.
-                int length = dis.readUnsignedShort();
+                float length;
+                if (getCurrentVersion() < 8) {
+                    length = dis.readUnsignedShort();
+                }
+                else {
+                    length = dis.readInt() / 1000.0f;
+                }
                 maxLength = Math.max(length, maxLength);
 
                 // Number of segments.

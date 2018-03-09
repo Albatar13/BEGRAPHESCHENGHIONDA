@@ -31,7 +31,7 @@ public interface Arc {
     /**
      * @return Length of this arc, in meters.
      */
-    public int getLength();
+    public float getLength();
 
     /**
      * @return Minimum time required to travel this arc, in seconds.

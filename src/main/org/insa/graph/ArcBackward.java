@@ -37,7 +37,7 @@ class ArcBackward implements Arc {
     }
 
     @Override
-    public int getLength() {
+    public float getLength() {
         return this.originalArc.getLength();
     }
 
