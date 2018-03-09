@@ -20,7 +20,7 @@ public abstract class AbstractInputData {
     }
 
     /**
-     * Filtering inteface for arcs - This class can be used to indicate to an
+     * Filtering interface for arcs - This class can be used to indicate to an
      * algorithm which arc can be used.
      *
      */
