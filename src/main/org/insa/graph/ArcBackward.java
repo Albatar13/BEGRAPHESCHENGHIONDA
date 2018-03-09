@@ -10,7 +10,7 @@ import java.util.List;
  * the original arc.
  *
  */
-class ArcBackward implements Arc {
+class ArcBackward extends Arc {
 
     // Original arc
     private final ArcForward originalArc;
@@ -37,13 +37,8 @@ class ArcBackward implements Arc {
     }
 
     @Override
-    public float getLength() {
+    public double getLength() {
         return this.originalArc.getLength();
-    }
-
-    @Override
-    public double getMinimumTravelTime() {
-        return this.originalArc.getMinimumTravelTime();
     }
 
     @Override

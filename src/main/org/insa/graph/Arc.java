@@ -16,35 +16,51 @@ import java.util.List;
  * @see ArcBackward
  *
  */
-public interface Arc {
+public abstract class Arc {
 
     /**
      * @return Origin node of this arc.
      */
-    public Node getOrigin();
+    public abstract Node getOrigin();
 
     /**
      * @return Destination node of this arc.
      */
-    public Node getDestination();
+    public abstract Node getDestination();
 
     /**
      * @return Length of this arc, in meters.
      */
-    public float getLength();
+    public abstract double getLength();
+
+    /**
+     * Compute the time required to travel this arc if moving at the given speed.
+     * 
+     * @param speed Speed to compute the travel time.
+     * 
+     * @return Time (in seconds) required to travel this arc at the given speed (in
+     *         kilometers-per-hour).
+     */
+    public double getTravelTime(double speed) {
+        return getLength() * 3600.0 / (speed * 1000.0);
+    }
 
     /**
      * @return Minimum time required to travel this arc, in seconds.
+     * 
+     * @see Arc#getTravelTime(double)
      */
-    public double getMinimumTravelTime();
+    public double getMinimumTravelTime() {
+        return getTravelTime(getRoadInformation().getMaximumSpeed());
+    }
 
     /**
      * @return Road information for this arc.
      */
-    public RoadInformation getRoadInformation();
+    public abstract RoadInformation getRoadInformation();
 
     /**
      * @return Points representing segments of this arc.
      */
-    public List<Point> getPoints();
+    public abstract List<Point> getPoints();
 }

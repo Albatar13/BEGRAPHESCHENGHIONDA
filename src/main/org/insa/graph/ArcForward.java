@@ -9,7 +9,7 @@ import java.util.List;
  * arc implementation that stores data relative to the arc.
  *
  */
-class ArcForward implements Arc {
+class ArcForward extends Arc {
 
     // Destination node.
     private final Node origin, destination;
@@ -52,13 +52,8 @@ class ArcForward implements Arc {
     }
 
     @Override
-    public float getLength() {
+    public double getLength() {
         return length;
-    }
-
-    @Override
-    public double getMinimumTravelTime() {
-        return getLength() * 3600.0 / (info.getMaximumSpeed() * 1000.0);
     }
 
     @Override
