@@ -163,7 +163,7 @@ public class MainWindow extends JFrame {
         this.currentPalette = this.basicPalette;
 
         wccPanel = new AlgorithmPanel(this, WeaklyConnectedComponentsAlgorithm.class,
-                "Weakly-Connected Components", new String[]{}, false, false);
+                "Weakly-Connected Components", new String[] {}, false, false);
         wccPanel.addStartActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -208,7 +208,7 @@ public class MainWindow extends JFrame {
         });
 
         spPanel = new AlgorithmPanel(this, ShortestPathAlgorithm.class, "Shortest-Path",
-                new String[]{ "Origin", "Destination" }, true, true);
+                new String[] { "Origin", "Destination" }, true, true);
         spPanel.addStartActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -261,12 +261,12 @@ public class MainWindow extends JFrame {
         });
 
         cpPanel = new AlgorithmPanel(
-                this, CarPoolingAlgorithm.class, "Car-Pooling", new String[]{ "Origin Car",
+                this, CarPoolingAlgorithm.class, "Car-Pooling", new String[] { "Origin Car",
                         "Origin Pedestrian", "Destination Car", "Destination Pedestrian" },
                 true, true);
 
         psPanel = new AlgorithmPanel(this, PackageSwitchAlgorithm.class, "Car-Pooling",
-                new String[]{ "Oribin A", "Origin B", "Destination A", "Destination B" }, true,
+                new String[] { "Oribin A", "Origin B", "Destination A", "Destination B" }, true,
                 true);
 
         // add algorithm panels
@@ -463,7 +463,10 @@ public class MainWindow extends JFrame {
             }
         }
 
+        Runnable runnable = null;
+
         if (isMapView && mfile != null) {
+            final File mfileFinal = mfile;
             // It is a mapview drawing and the file was found, so:
             // 1. We create the drawing if necessary.
             if (drawing != mapViewDrawing) {
@@ -473,16 +476,17 @@ public class MainWindow extends JFrame {
                 mainPanel.setDividerLocation(oldLocation);
                 notifyDrawingLoaded(basicDrawing, mapViewDrawing);
                 drawing.clear();
-                ((MapViewDrawing) drawing).drawGraph(mfile);
+                isNewGraph = true;
             }
-            else if (isNewGraph) {
+            if (isNewGraph) {
                 drawing.clear();
-                ((MapViewDrawing) drawing).drawGraph(mfile);
+                runnable = new Runnable() {
+                    public void run() {
+                        ((MapViewDrawing) drawing).drawGraph(mfileFinal);
+                        notifyRedrawRequest();
+                    }
+                };
             }
-            else {
-                drawing.clearOverlays();
-            }
-            notifyRedrawRequest();
 
         }
         else if (!isMapView || (isMapView && mfile == null && isNewGraph)) {
@@ -492,18 +496,25 @@ public class MainWindow extends JFrame {
                 mainPanel.setLeftComponent(basicDrawing);
                 mainPanel.setDividerLocation(oldLocation);
                 notifyDrawingLoaded(mapViewDrawing, basicDrawing);
+                isNewGraph = true;
+            }
+            if (isNewGraph || palette != this.currentPalette) {
                 this.currentPalette = palette;
                 drawing.clear();
-                drawing.drawGraph(graph, palette);
+                runnable = new Runnable() {
+                    public void run() {
+                        drawing.drawGraph(graph, palette);
+                        notifyRedrawRequest();
+                    }
+                };
             }
-            else if (isNewGraph || palette != this.currentPalette) {
-                this.currentPalette = palette;
-                drawing.clear();
-                drawing.drawGraph(graph, palette);
-            }
-            else {
-                drawing.clearOverlays();
-            }
+        }
+
+        if (runnable != null) {
+            launchThread(runnable, false);
+        }
+        else {
+            drawing.clearOverlays();
             notifyRedrawRequest();
         }
 
@@ -696,12 +707,7 @@ public class MainWindow extends JFrame {
         drawGraphItem.addActionListener(baf.createBlockingAction(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                launchThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        drawGraph(BasicDrawing.class, basicPalette);
-                    }
-                });
+                drawGraph(BasicDrawing.class, basicPalette);
             }
         }));
         graphLockItems.add(drawGraphItem);
@@ -710,12 +716,7 @@ public class MainWindow extends JFrame {
         drawGraphBWItem.addActionListener(baf.createBlockingAction(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                launchThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        drawGraph(BasicDrawing.class, blackAndWhitePalette);
-                    }
-                });
+                drawGraph(BasicDrawing.class, blackAndWhitePalette);
             }
         }));
         graphLockItems.add(drawGraphBWItem);
@@ -725,12 +726,7 @@ public class MainWindow extends JFrame {
         drawGraphMapsforgeItem.addActionListener(baf.createBlockingAction(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                launchThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        drawGraph(MapViewDrawing.class);
-                    }
-                });
+                drawGraph(MapViewDrawing.class);
             }
         }));
         graphLockItems.add(drawGraphMapsforgeItem);
