@@ -20,27 +20,37 @@ import java.util.ArrayList;
  */
 public class BinaryHeap<E extends Comparable<E>> {
 
-    private int currentSize; // Number of elements in heap
+    // Number of elements in heap.
+    private int currentSize;
 
-    // Java genericity does not work with arrays.
-    // We have to use an ArrayList
-    private ArrayList<E> array; // The heap array
+    // The heap array. Java genericity does not work with arrays so we have to use
+    // an ArrayList.
+    private ArrayList<E> array;
 
     /**
-     * Construct the binary heap.
+     * Construct a new empty binary heap.
      */
     public BinaryHeap() {
         this.currentSize = 0;
         this.array = new ArrayList<E>();
     }
 
-    // Constructor used for debug.
+    /**
+     * Construct a copy of the given heap.
+     * 
+     * @param heap Binary heap to copy.
+     */
     public BinaryHeap(BinaryHeap<E> heap) {
         this.currentSize = heap.currentSize;
         this.array = new ArrayList<E>(heap.array);
     }
 
-    // Sets an element in the array
+    /**
+     * Set an element at the given index.
+     * 
+     * @param index Index at which the element should be set.
+     * @param value Element to set.
+     */
     private void arraySet(int index, E value) {
         if (index == this.array.size()) {
             this.array.add(value);
@@ -51,41 +61,37 @@ public class BinaryHeap<E extends Comparable<E>> {
     }
 
     /**
-     * Test if the heap is logically empty.
-     * 
-     * @return true if empty, false otherwise.
+     * @return true if the heap is empty, false otherwise.
      */
     public boolean isEmpty() {
         return this.currentSize == 0;
     }
 
     /**
-     * Returns size.
-     * 
-     * @return current size.
+     * @return Current size (number of elements) of this heap.
      */
     public int size() {
         return this.currentSize;
     }
 
     /**
-     * Returns index of parent.
+     * @return Index of the parent of the given index.
      */
     private int index_parent(int index) {
         return (index - 1) / 2;
     }
 
     /**
-     * Returns index of left child.
+     * @return Index of the left child of the given index.
      */
     private int index_left(int index) {
         return index * 2 + 1;
     }
 
     /**
-     * Insert into the heap.
+     * Insert the given element into the heap.
      * 
-     * @param x the item to insert.
+     * @param x Item to insert.
      */
     public void insert(E x) {
         int index = this.currentSize++;
@@ -96,7 +102,7 @@ public class BinaryHeap<E extends Comparable<E>> {
     /**
      * Internal method to percolate up in the heap.
      * 
-     * @param index the index at which the percolate begins.
+     * @param index Index at which the percolate begins.
      */
     private void percolateUp(int index) {
         E x = this.array.get(index);
@@ -114,7 +120,7 @@ public class BinaryHeap<E extends Comparable<E>> {
     /**
      * Internal method to percolate down in the heap.
      * 
-     * @param index the index at which the percolate begins.
+     * @param index Index at which the percolate begins.
      */
     private void percolateDown(int index) {
         int ileft = index_left(index);
@@ -148,7 +154,7 @@ public class BinaryHeap<E extends Comparable<E>> {
     /**
      * Find the smallest item in the heap.
      * 
-     * @return the smallest item in the heap.
+     * @return The smallest item in the heap.
      * 
      * @throws RuntimeException if this heap is empty.
      */
@@ -161,7 +167,7 @@ public class BinaryHeap<E extends Comparable<E>> {
     /**
      * Remove the smallest item from the heap.
      * 
-     * @return the smallest item in the heap.
+     * @return The smallest item in the heap.
      * 
      * @throws RuntimeException if this heap is empty.
      */

@@ -17,7 +17,7 @@ public class WeaklyConnectedComponentsAlgorithm
         extends AbstractAlgorithm<WeaklyConnectedComponentObserver> {
 
     /**
-     * @param data
+     * @param data Input data for this algorithm.
      */
     public WeaklyConnectedComponentsAlgorithm(WeaklyConnectedComponentsData data) {
         super(data);
@@ -69,7 +69,7 @@ public class WeaklyConnectedComponentsAlgorithm
 
     /**
      * @return An adjacency list for the undirected graph equivalent to the stored
-     * graph.
+     *         graph.
      */
     protected ArrayList<HashSet<Integer>> createUndirectedGraph() {
         int nNodes = getInputData().getGraph().getNodes().size();

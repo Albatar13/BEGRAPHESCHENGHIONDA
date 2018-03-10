@@ -6,8 +6,7 @@ import org.insa.graph.Graph;
 public class WeaklyConnectedComponentsData extends AbstractInputData {
 
     /**
-     * 
-     * @param graph
+     * @param graph Graph for which components should be retrieved.
      */
     public WeaklyConnectedComponentsData(Graph graph) {
         super(graph);
