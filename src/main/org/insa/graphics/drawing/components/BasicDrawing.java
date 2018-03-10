@@ -449,11 +449,15 @@ public class BasicDrawing extends JPanel implements Drawing {
      * Return the longitude and latitude corresponding to the given position of the
      * MouseEvent.
      * 
-     * @param event
+     * @param event MouseEvent from which longitude/latitude should be retrieved.
      * 
-     * @return
+     * @return Point representing the projection of the MouseEvent position in the
+     *         graph/map.
+     * 
+     * @throws NoninvertibleTransformException if the actual transformation is
+     *         invalid.
      */
-    public Point getLongitudeLatitude(MouseEvent event) throws NoninvertibleTransformException {
+    protected Point getLongitudeLatitude(MouseEvent event) throws NoninvertibleTransformException {
         // Get the point using the inverse transform of the Zoom/Pan object, this gives
         // us
         // a point within the drawing box (between [0, 0] and [width, height]).

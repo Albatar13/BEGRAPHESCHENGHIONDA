@@ -12,6 +12,15 @@ import org.mapsforge.core.model.LatLong;
 import org.mapsforge.map.awt.graphics.AwtGraphicFactory;
 import org.mapsforge.map.layer.overlay.Polyline;
 
+/**
+ * Class extending the default Mapsforge's {@link Polyline} with auto-scaling.
+ * 
+ * Mapsforge's Polylines do not scale with zoom level, this class aims at
+ * correcting this. When a redraw is requested, the width of the line is
+ * recomputed for the current zoom level.
+ * 
+ * @see PaintUtils#getStrokeWidth(int, byte)
+ */
 public class PolylineAutoScaling extends Polyline {
 
     // Graphic factory.
@@ -21,8 +30,12 @@ public class PolylineAutoScaling extends Polyline {
     private final int width;
 
     /**
-     * @param width
-     * @param color
+     * Create a new PolylineAutoScaling with the given width and color.
+     * 
+     * @param width Original width of the line (independent of the zoom level).
+     * @param color Color of the line.
+     * 
+     * @see PaintUtils#getStrokeWidth(int, byte)
      */
     public PolylineAutoScaling(int width, Color color) {
         super(GRAPHIC_FACTORY.createPaint(), GRAPHIC_FACTORY);
@@ -48,14 +61,14 @@ public class PolylineAutoScaling extends Polyline {
     }
 
     /**
-     * @param point
+     * @param point Point to add to this line.
      */
     public void add(Point point) {
         getLatLongs().add(new LatLong(point.getLatitude(), point.getLongitude()));
     }
 
     /**
-     * @param points
+     * @param points Points to add to this line.
      */
     public void add(List<Point> points) {
         for (Point point: points) {

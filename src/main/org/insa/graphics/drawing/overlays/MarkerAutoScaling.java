@@ -11,11 +11,27 @@ import org.mapsforge.core.model.Point;
 import org.mapsforge.map.awt.graphics.AwtBitmap;
 import org.mapsforge.map.layer.overlay.Marker;
 
+/**
+ * Class extending the default Mapsforge's {@link Marker} with auto-scaling.
+ * 
+ * Mapsforge's Markers do not scale with zoom level, this class aims at
+ * correcting this. Internally, this image stores an {@link Image} instance and
+ * scale it when a redraw is requested.
+ * 
+ * @see MarkerUtils#getMarkerForColor(java.awt.Color)
+ * @see PaintUtils#getStrokeWidth(int, byte)
+ */
 public class MarkerAutoScaling extends Marker {
 
     // Original image.
     private Image image;
 
+    /**
+     * Create a new MarkerAutoScaling at the given position with the given image.
+     * 
+     * @param latLong Initial position of the marker.
+     * @param image Image for this marker.
+     */
     public MarkerAutoScaling(LatLong latLong, Image image) {
         super(latLong, null, 0, 0);
         this.image = image;

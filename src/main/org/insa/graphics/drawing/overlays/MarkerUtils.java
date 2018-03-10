@@ -11,15 +11,17 @@ public class MarkerUtils {
     private static final String MARKER_MASK_FILE = "res/marker_mask.bin";
 
     /**
-     * Create a Bitmap representing a marker of the given color.
+     * Create an Image representing a marker of the given color.
      * 
-     * @param color
-     * @return
+     * @param color Color of the marker.
+     * 
+     * @return A new Image representing a marker with the given color.
      */
     public static Image getMarkerForColor(Color color) {
         // create image
         int[][] mask = readMarkerMask();
-        BufferedImage image = new BufferedImage(mask[0].length, mask.length, BufferedImage.TYPE_4BYTE_ABGR);
+        BufferedImage image = new BufferedImage(mask[0].length, mask.length,
+                BufferedImage.TYPE_4BYTE_ABGR);
 
         // Color[] map = getColorMapping(color);
         int rgb = color.getRGB() & 0x00ffffff;

@@ -11,6 +11,12 @@ package org.insa.graph;
 public class GraphStatistics {
 
     /**
+     * Special value used to indicate that the graph has no maximum speed limit
+     * (some roads are not limited).
+     */
+    public static final int NO_MAXIMUM_SPEED = -1;
+
+    /**
      * Class representing a bounding box for a graph (a rectangle that contains all
      * nodes in the graph).
      *
@@ -59,8 +65,10 @@ public class GraphStatistics {
     /**
      * Create a new GraphStatistics instance with the given value.
      * 
-     * @param maximumSpeed Maximum speed of any road of the graph. A value of 0 may
-     *        be used to indicate that this graph has no maximum limitation.
+     * @param boundingBox Bounding-box for the graph.
+     * @param maximumSpeed Maximum speed of any road of the graph. You can use
+     *        {@link #NO_MAXIMUM_SPEED} to indicate that the graph has no maximum
+     *        speed limit.
      * @param maximumLength Maximum length of any arc of the graph.
      */
     public GraphStatistics(BoundingBox boundingBox, int maximumSpeed, float maximumLength) {
@@ -77,8 +85,15 @@ public class GraphStatistics {
     }
 
     /**
-     * @return Maximum speed of any arc in the graph, or 0 if some road have no
-     *         speed limitations.
+     * @return true if this graph has a maximum speed limit, false otherwise.
+     */
+    public boolean hasMaximumSpeed() {
+        return this.maximumLength != NO_MAXIMUM_SPEED;
+    }
+
+    /**
+     * @return Maximum speed of any arc in the graph, or {@link #NO_MAXIMUM_SPEED}
+     *         if some roads have no speed limitation.
      */
     public int getMaximumSpeed() {
         return this.maximumSpeed;

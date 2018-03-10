@@ -7,7 +7,7 @@ public interface DrawingClickListener {
     /**
      * Event triggered when a click is made on the map.
      * 
-     * @param point
+     * @param point Position (on the map) of the mouse click.
      */
     public void mouseClicked(Point point);
 

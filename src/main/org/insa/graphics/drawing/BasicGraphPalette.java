@@ -8,19 +8,10 @@ import org.insa.graph.RoadInformation.RoadType;
 public class BasicGraphPalette implements GraphPalette {
 
     // Color types for arc.
-    static final Color motorway = Color.RED;
-    static final Color bigroad = new Color(255, 105, 0);
-    static final Color smallroad = new Color(255, 234, 0);
-    static final Color coastline = Color.BLUE;
-
-    // Default point width
-    static final int DEFAULT_POINT_WIDTH = 1;
-
-    /**
-     * 
-     */
-    public BasicGraphPalette() {
-    }
+    private static final Color MOTORWAY_COLOR = Color.RED;
+    private static final Color BIG_ROAD_COLOR = new Color(255, 105, 0);
+    private static final Color SMALL_ROAD_COLOR = new Color(255, 234, 0);
+    private static final Color COASTLINE_COLOR = Color.BLUE;
 
     @Override
     public int getDefaultPointWidth() {
@@ -35,19 +26,16 @@ public class BasicGraphPalette implements GraphPalette {
     @Override
     public Color getColorForArc(Arc arc) {
         RoadType type = arc.getRoadInformation().getType();
-        Color color = Color.BLACK;
         switch (type) {
         case MOTORWAY:
-            color = motorway;
-            break;
+            return MOTORWAY_COLOR;
         case TRUNK:
         case PRIMARY:
         case SECONDARY:
         case MOTORWAY_LINK:
         case TRUNK_LINK:
         case PRIMARY_LINK:
-            color = bigroad;
-            break;
+            return BIG_ROAD_COLOR;
         case SECONDARY_LINK:
         case TERTIARY:
         case RESIDENTIAL:
@@ -58,14 +46,12 @@ public class BasicGraphPalette implements GraphPalette {
         case PEDESTRIAN:
         case CYCLEWAY:
         case TRACK:
-            color = smallroad;
-            break;
+            return SMALL_ROAD_COLOR;
         case COASTLINE:
-            color = coastline;
-            break;
+            return COASTLINE_COLOR;
         }
 
-        return color;
+        return Color.BLACK;
     }
 
     @Override

@@ -8,7 +8,7 @@ import java.util.List;
  * (without having to duplicate attributes).
  * 
  * Arc should never be created manually but always using the
- * {@link Node#linkNodes(Node, Node, int, RoadInformation, java.util.ArrayList)}
+ * {@link Node#linkNodes(Node, Node, float, RoadInformation, java.util.ArrayList)}
  * method to ensure proper instantiation of the {@link ArcForward} and
  * {@link ArcBackward} classes.
  * 

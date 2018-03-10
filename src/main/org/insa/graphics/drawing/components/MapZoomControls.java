@@ -111,7 +111,7 @@ public class MapZoomControls {
     /**
      * Add a zoom-in listener.
      * 
-     * @param listener
+     * @param listener Zoom-in listener to add to this MapZoomControls instance.
      */
     public void addZoomInListener(ActionListener listener) {
         this.zoomInListeners.add(listener);
@@ -120,7 +120,7 @@ public class MapZoomControls {
     /**
      * Add a zoom-out listener.
      * 
-     * @param listener
+     * @param listener Zoom-out listener to add to this MapZoomControls instance.
      */
     public void addZoomOutListener(ActionListener listener) {
         this.zoomOutListeners.add(listener);
@@ -134,9 +134,9 @@ public class MapZoomControls {
     }
 
     /**
-     * Set the current zoom level.
+     * Set the current zoom level without requesting a redraw.
      * 
-     * @param level
+     * @param level Zoom level to set.
      */
     public void setZoomLevel(int level) {
         this.currentLevel = level;
@@ -161,10 +161,10 @@ public class MapZoomControls {
      * Check if a point is contained inside an element of this zoom controls, useful
      * to avoid spurious click listeners.
      * 
-     * @param point
+     * @param point Point to check.
      * 
      * @return true if the given point correspond to an element of this zoom
-     * controls.
+     *         controls.
      */
     public boolean contains(Point point) {
         return zoomInRect.contains(point) || zoomOutRect.contains(point);
