@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -155,7 +157,7 @@ public class MainWindow extends JFrame {
         // Create drawing and action listeners...
         this.basicDrawing = new BasicDrawing();
         this.mapViewDrawing = new MapViewDrawing();
-        this.drawing = this.basicDrawing;
+        this.drawing = basicDrawing;
 
         // Createa palettes
         this.basicPalette = new BasicGraphPalette();
@@ -297,7 +299,53 @@ public class MainWindow extends JFrame {
         this.baf.addAction(currentThread);
 
         // Click adapter
-        setJMenuBar(createMenuBar());
+        ActionListener openMapActionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser chooser = new JFileChooser();
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("Graph files",
+                        "mapgr");
+                File mapFolder = new File(
+                        preferences.get(DEFAULT_MAP_FOLDER_KEY, DEFAULT_MAP_FOLDER_INSA));
+                if (!mapFolder.exists()) {
+                    mapFolder = new File(System.getProperty("user.dir"));
+                }
+                chooser.setCurrentDirectory(mapFolder);
+                chooser.setFileFilter(filter);
+                if (chooser.showOpenDialog(MainWindow.this) == JFileChooser.APPROVE_OPTION) {
+                    graphFilePath = chooser.getSelectedFile().getAbsolutePath();
+
+                    // Check...
+                    if (chooser.getSelectedFile().exists()) {
+                        preferences.put(DEFAULT_MAP_FOLDER_KEY,
+                                chooser.getSelectedFile().getParent());
+                    }
+
+                    DataInputStream stream;
+                    try {
+                        stream = new DataInputStream(new BufferedInputStream(
+                                new FileInputStream(chooser.getSelectedFile())));
+                    }
+                    catch (IOException e1) {
+                        JOptionPane.showMessageDialog(MainWindow.this,
+                                "Cannot open the selected file.");
+                        return;
+                    }
+                    loadGraph(new BinaryGraphReader(stream));
+                }
+            }
+        };
+
+        setJMenuBar(createMenuBar(openMapActionListener));
+
+        JPanel openPanel = new JPanel();
+        openPanel.setLayout(new BoxLayout(openPanel, BoxLayout.PAGE_AXIS));
+        JButton openButton = new JButton("Open Map... ");
+        openButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        openButton.addActionListener(openMapActionListener);
+        openPanel.add(Box.createVerticalGlue());
+        openPanel.add(openButton);
+        openPanel.add(Box.createVerticalGlue());
 
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -351,7 +399,7 @@ public class MainWindow extends JFrame {
         mainPanel.setDividerSize(5);
 
         mainPanel.setBackground(Color.WHITE);
-        mainPanel.setLeftComponent((Component) this.drawing);
+        mainPanel.setLeftComponent(openPanel);
         mainPanel.setRightComponent(rightComponent);
         this.add(mainPanel, BorderLayout.CENTER);
 
@@ -431,8 +479,15 @@ public class MainWindow extends JFrame {
      * Draw the stored graph on the drawing.
      */
     private void drawGraph(Class<? extends Drawing> newClass, GraphPalette palette) {
+
         // Save old divider location
         int oldLocation = mainPanel.getDividerLocation();
+
+        // Set drawing if not set
+        if (!(mainPanel.getLeftComponent() instanceof Drawing)) {
+            mainPanel.setLeftComponent((Component) this.drawing);
+            mainPanel.setDividerLocation(oldLocation);
+        }
 
         boolean isNewGraph = newClass == null;
         boolean isMapView = (isNewGraph && drawing == mapViewDrawing)
@@ -587,47 +642,12 @@ public class MainWindow extends JFrame {
         mainPanel.setDividerLocation(dividerLocation);
     }
 
-    private JMenuBar createMenuBar() {
+    private JMenuBar createMenuBar(ActionListener openMapActionListener) {
 
         // Open Map item...
         JMenuItem openMapItem = new JMenuItem("Open Map... ", KeyEvent.VK_O);
         openMapItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.ALT_MASK));
-        openMapItem.addActionListener(baf.createBlockingAction(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser chooser = new JFileChooser();
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("Graph files",
-                        "mapgr");
-                File mapFolder = new File(
-                        preferences.get(DEFAULT_MAP_FOLDER_KEY, DEFAULT_MAP_FOLDER_INSA));
-                if (!mapFolder.exists()) {
-                    mapFolder = new File(System.getProperty("user.dir"));
-                }
-                chooser.setCurrentDirectory(mapFolder);
-                chooser.setFileFilter(filter);
-                if (chooser.showOpenDialog(MainWindow.this) == JFileChooser.APPROVE_OPTION) {
-                    graphFilePath = chooser.getSelectedFile().getAbsolutePath();
-
-                    // Check...
-                    if (chooser.getSelectedFile().exists()) {
-                        preferences.put(DEFAULT_MAP_FOLDER_KEY,
-                                chooser.getSelectedFile().getParent());
-                    }
-
-                    DataInputStream stream;
-                    try {
-                        stream = new DataInputStream(new BufferedInputStream(
-                                new FileInputStream(chooser.getSelectedFile())));
-                    }
-                    catch (IOException e1) {
-                        JOptionPane.showMessageDialog(MainWindow.this,
-                                "Cannot open the selected file.");
-                        return;
-                    }
-                    loadGraph(new BinaryGraphReader(stream));
-                }
-            }
-        }));
+        openMapItem.addActionListener(baf.createBlockingAction(openMapActionListener));
 
         // Open Path item...
         JMenuItem openPathItem = new JMenuItem("Open Path... ", KeyEvent.VK_P);
