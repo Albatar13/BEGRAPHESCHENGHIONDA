@@ -403,12 +403,12 @@ public class MapViewDrawing extends MapView implements Drawing {
 
     @Override
     public void drawGraph(Graph graph, GraphPalette palette) {
-        // drawGraph(graph, null);
+        throw new RuntimeException("Not implemented, use drawGraph(File).");
     }
 
     @Override
     public void drawGraph(Graph graph) {
-        // drawGraph(graph, null);
+        throw new RuntimeException("Not implemented, use drawGraph(File).");
     }
 
     @Override
