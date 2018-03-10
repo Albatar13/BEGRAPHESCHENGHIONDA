@@ -338,11 +338,13 @@ public class MainWindow extends JFrame {
 
         setJMenuBar(createMenuBar(openMapActionListener));
 
+        // Initial panel to show "Open Map... "
         JPanel openPanel = new JPanel();
         openPanel.setLayout(new BoxLayout(openPanel, BoxLayout.PAGE_AXIS));
         JButton openButton = new JButton("Open Map... ");
         openButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         openButton.addActionListener(openMapActionListener);
+        openButton.setFocusPainted(false);
         openPanel.add(Box.createVerticalGlue());
         openPanel.add(openButton);
         openPanel.add(Box.createVerticalGlue());

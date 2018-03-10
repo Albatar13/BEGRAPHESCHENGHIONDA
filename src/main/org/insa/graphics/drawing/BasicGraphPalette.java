@@ -14,16 +14,6 @@ public class BasicGraphPalette implements GraphPalette {
     private static final Color COASTLINE_COLOR = Color.BLUE;
 
     @Override
-    public int getDefaultPointWidth() {
-        return 2;
-    }
-
-    @Override
-    public Color getDefaultPointColor() {
-        return Color.GREEN;
-    }
-
-    @Override
     public Color getColorForArc(Arc arc) {
         RoadType type = arc.getRoadInformation().getType();
         switch (type) {

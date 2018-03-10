@@ -7,16 +7,6 @@ import org.insa.graph.Arc;
 public interface GraphPalette {
 
     /**
-     * @return The default point width for this palette.
-     */
-    public int getDefaultPointWidth();
-
-    /**
-     * @return The default point color for this palette.
-     */
-    public Color getDefaultPointColor();
-
-    /**
      * @param arc Arc for which color should be retrieved.
      * 
      * @return Color associated with the given arc.

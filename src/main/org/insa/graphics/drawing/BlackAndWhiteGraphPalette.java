@@ -11,11 +11,6 @@ public class BlackAndWhiteGraphPalette extends BasicGraphPalette {
             new Color(80, 80, 80), new Color(40, 40, 40), new Color(30, 30, 30) };
 
     @Override
-    public Color getDefaultPointColor() {
-        return Color.BLACK;
-    }
-
-    @Override
     public Color getColorForArc(Arc arc) {
         int width = getWidthForArc(arc);
         return ROAD_COLOR_FROM_WIDTH[width];
