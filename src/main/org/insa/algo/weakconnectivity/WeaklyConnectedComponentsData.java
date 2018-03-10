@@ -5,12 +5,17 @@ import org.insa.graph.Graph;
 
 public class WeaklyConnectedComponentsData extends AbstractInputData {
 
-	/**
-	 * 
-	 * @param graph
-	 */
-	public WeaklyConnectedComponentsData(Graph graph) {
-		super(graph);
-	}
-	
+    /**
+     * 
+     * @param graph
+     */
+    public WeaklyConnectedComponentsData(Graph graph) {
+        super(graph);
+    }
+
+    @Override
+    public String toString() {
+        return "Weakly-connected components from #0.";
+    }
+
 }
