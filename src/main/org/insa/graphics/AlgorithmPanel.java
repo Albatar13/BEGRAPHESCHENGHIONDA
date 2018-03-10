@@ -32,13 +32,15 @@ import org.insa.algo.AlgorithmFactory;
 import org.insa.algo.ArcFilterFactory;
 import org.insa.graph.Node;
 import org.insa.graphics.NodesInputPanel.InputChangedEvent;
+import org.insa.graphics.drawing.Drawing;
+import org.insa.graphics.drawing.components.MapViewDrawing;
 
-public class AlgorithmPanel extends JPanel {
+public class AlgorithmPanel extends JPanel implements DrawingChangeListener {
 
     /**
      * 
      */
-    private static final long serialVersionUID = 406148710808045035L;
+    private static final long serialVersionUID = 1L;
 
     public class StartActionEvent extends ActionEvent {
 
@@ -125,6 +127,12 @@ public class AlgorithmPanel extends JPanel {
     // Component that can be enabled/disabled.
     private ArrayList<JComponent> components = new ArrayList<>();
 
+    // Graphic / Text checkbox observer
+    private final JCheckBox graphicObserverCheckbox, textualObserverCheckbox;
+
+    // Drawing
+    private Drawing drawing = null;
+
     private JButton startAlgoButton;
 
     // Start listeners
@@ -171,9 +179,9 @@ public class AlgorithmPanel extends JPanel {
         group.add(lengthModeButton);
         group.add(timeModeButton);
 
-        JCheckBox graphicObserver = new JCheckBox("Graphic");
-        graphicObserver.setSelected(true);
-        JCheckBox textObserver = new JCheckBox("Textual");
+        graphicObserverCheckbox = new JCheckBox("Graphic");
+        graphicObserverCheckbox.setSelected(true);
+        textualObserverCheckbox = new JCheckBox("Textual");
 
         GridBagConstraints c = new GridBagConstraints();
 
@@ -198,10 +206,10 @@ public class AlgorithmPanel extends JPanel {
         modeAndObserverPanel.add(new JLabel("Visualization: "), c);
         c.gridx = 1;
         c.weightx = 1;
-        modeAndObserverPanel.add(graphicObserver, c);
+        modeAndObserverPanel.add(graphicObserverCheckbox, c);
         c.gridx = 2;
         c.weightx = 1;
-        modeAndObserverPanel.add(textObserver, c);
+        modeAndObserverPanel.add(textualObserverCheckbox, c);
 
         if (enableArcFilterSelection) {
             c.gridy = 1;
@@ -217,8 +225,7 @@ public class AlgorithmPanel extends JPanel {
         components.add(timeModeButton);
         components.add(lengthModeButton);
         components.add(arcFilterSelect);
-        components.add(graphicObserver);
-        components.add(textObserver);
+        components.add(textualObserverCheckbox);
 
         add(modeAndObserverPanel);
 
@@ -247,7 +254,8 @@ public class AlgorithmPanel extends JPanel {
                                     (String) algoSelect.getSelectedItem()),
                             nodesInputPanel.getNodeForInputs(), mode,
                             (AbstractInputData.ArcFilter) arcFilterSelect.getSelectedItem(),
-                            graphicObserver.isSelected(), textObserver.isSelected()));
+                            graphicObserverCheckbox.isSelected(),
+                            textualObserverCheckbox.isSelected()));
                 }
             }
         });
@@ -366,6 +374,7 @@ public class AlgorithmPanel extends JPanel {
         for (JComponent component: components) {
             component.setEnabled(enabled);
         }
+        graphicObserverCheckbox.setEnabled(enabled && !(drawing instanceof MapViewDrawing));
         enabled = enabled && allNotNull(this.nodesInputPanel.getNodeForInputs());
         startAlgoButton.setEnabled(enabled);
     }
@@ -377,6 +386,23 @@ public class AlgorithmPanel extends JPanel {
      */
     public void addStartActionListener(ActionListener listener) {
         this.startActionListeners.add(listener);
+    }
+
+    @Override
+    public void onDrawingLoaded(Drawing oldDrawing, Drawing newDrawing) {
+        if (newDrawing instanceof MapViewDrawing) {
+            graphicObserverCheckbox.setSelected(false);
+            graphicObserverCheckbox.setEnabled(false);
+        }
+        else {
+            graphicObserverCheckbox.setSelected(true);
+            graphicObserverCheckbox.setEnabled(true);
+        }
+        this.drawing = newDrawing;
+    }
+
+    @Override
+    public void onRedrawRequest() {
     }
 
 }

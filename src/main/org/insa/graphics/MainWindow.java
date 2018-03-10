@@ -288,6 +288,7 @@ public class MainWindow extends JFrame {
             this.graphChangeListeneres.add(panel.solutionPanel);
             this.drawingChangeListeners.add(panel.nodesInputPanel);
             this.drawingChangeListeners.add(panel.solutionPanel);
+            this.drawingChangeListeners.add(panel);
         }
 
         this.graphChangeListeneres.add(pathPanel);
