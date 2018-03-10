@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 
 import org.insa.graph.Arc;
 import org.insa.graph.Graph;
+import org.insa.graph.GraphStatistics.BoundingBox;
 import org.insa.graph.Node;
 import org.insa.graph.Path;
 import org.insa.graph.Point;
@@ -394,6 +395,7 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.insa.graphics.drawing.Drawing#clear()
      */
     @Override
@@ -409,6 +411,7 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.insa.graphics.drawing.Drawing#clearOverlays()
      */
     @Override
@@ -469,6 +472,7 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     /*
      * (non-Javadoc)
+     * 
      * @see
      * org.insa.graphics.drawing.Drawing#addDrawingClickListener(org.insa.graphics.
      * drawing.DrawingClickListener)
@@ -480,6 +484,7 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.insa.graphics.drawing.Drawing#removeDrawingClickListener(org.insa.
      * graphics.drawing.DrawingClickListener)
      */
@@ -523,7 +528,7 @@ public class BasicDrawing extends JPanel implements Drawing {
      * 
      * @param arc Arc to draw.
      * @param palette Palette to use to retrieve color and width for arc, or null to
-     * use current settings.
+     *        use current settings.
      */
     protected void drawArc(Arc arc, GraphPalette palette, boolean repaint) {
         List<Point> pts = arc.getPoints();
@@ -561,24 +566,13 @@ public class BasicDrawing extends JPanel implements Drawing {
         // Clear everything.
         this.clear();
 
+        BoundingBox box = graph.getGraphInformation().getBoundingBox();
+
         // Find minimum/maximum longitude and latitude.
-        double minLon = Double.POSITIVE_INFINITY, minLat = Double.POSITIVE_INFINITY,
-                maxLon = Double.NEGATIVE_INFINITY, maxLat = Double.NEGATIVE_INFINITY;
-        for (Node node: graph.getNodes()) {
-            Point pt = node.getPoint();
-            if (pt.getLatitude() < minLat) {
-                minLat = pt.getLatitude();
-            }
-            if (pt.getLatitude() > maxLat) {
-                maxLat = pt.getLatitude();
-            }
-            if (pt.getLongitude() < minLon) {
-                minLon = pt.getLongitude();
-            }
-            if (pt.getLongitude() > maxLon) {
-                maxLon = pt.getLongitude();
-            }
-        }
+        double minLon = box.getTopLeftPoint().getLongitude(),
+                maxLon = box.getBottomRightPoint().getLongitude(),
+                minLat = box.getBottomRightPoint().getLatitude(),
+                maxLat = box.getTopLeftPoint().getLatitude();
 
         // Add a little delta to avoid drawing on the edge...
         double diffLon = maxLon - minLon, diffLat = maxLat - minLat;

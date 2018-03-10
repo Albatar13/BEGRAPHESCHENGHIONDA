@@ -12,6 +12,7 @@ import org.insa.graph.AccessRestrictions.AccessRestriction;
 import org.insa.graph.Arc;
 import org.insa.graph.Graph;
 import org.insa.graph.GraphStatistics;
+import org.insa.graph.GraphStatistics.BoundingBox;
 import org.insa.graph.Node;
 import org.insa.graph.Point;
 import org.insa.graph.RoadInformation;
@@ -49,7 +50,7 @@ public class BinaryGraphReader extends BinaryReader implements GraphReader {
         // the order correspond to the 4 bits value (i.e. FORBIDDEN is 0 or PRIVATE is
         // 2) - UKNOWN is not included because value above 6 (FORESTRY) are all
         // considered unknown.
-        final AccessRestriction[] allRestrictions = new AccessRestriction[]{
+        final AccessRestriction[] allRestrictions = new AccessRestriction[] {
                 AccessRestriction.FORBIDDEN, AccessRestriction.ALLOWED, AccessRestriction.PRIVATE,
                 AccessRestriction.DESTINATION, AccessRestriction.DELIVERY,
                 AccessRestriction.CUSTOMERS, AccessRestriction.FORESTRY };
@@ -57,7 +58,7 @@ public class BinaryGraphReader extends BinaryReader implements GraphReader {
         // The order of values inside this array is VERY IMPORTANT: The order is such
         // that each 4-bits group of the long value is processed in the correct order,
         // i.e. FOOT is processed first (4 lowest bits), and so on.
-        final AccessMode[] allModes = new AccessMode[]{ AccessMode.FOOT, null, AccessMode.BICYCLE,
+        final AccessMode[] allModes = new AccessMode[] { AccessMode.FOOT, null, AccessMode.BICYCLE,
                 AccessMode.SMALL_MOTORCYCLE, AccessMode.AGRICULTURAL, AccessMode.MOTORCYCLE,
                 AccessMode.MOTORCAR, AccessMode.HEAVY_GOODS, null, AccessMode.PUBLIC_TRANSPORT };
 
@@ -179,12 +180,25 @@ public class BinaryGraphReader extends BinaryReader implements GraphReader {
         ArrayList<Node> nodes = new ArrayList<Node>(nbNodes);
 
         // Read nodes.
+        float minLongitude = Float.POSITIVE_INFINITY, minLatitude = Float.POSITIVE_INFINITY,
+                maxLongitude = Float.NEGATIVE_INFINITY, maxLatitude = Float.NEGATIVE_INFINITY;
         observers.forEach((observer) -> observer.notifyStartReadingNodes(nbNodes));
         for (int node = 0; node < nbNodes; ++node) {
+            // Read longitude / latitude.
             float longitude = ((float) dis.readInt()) / 1E6f;
             float latitude = ((float) dis.readInt()) / 1E6f;
+
+            // Update minimum / maximum.
+            minLongitude = Math.min(longitude, minLongitude);
+            minLatitude = Math.min(latitude, minLatitude);
+            maxLongitude = Math.max(longitude, maxLongitude);
+            maxLatitude = Math.max(latitude, maxLatitude);
+
+            // Update information.
             nbSuccessors[node] = dis.readUnsignedByte();
             nbTotalSuccessors += nbSuccessors[node];
+
+            // Create node.
             final Node aNode = new Node(node, new Point(longitude, latitude));
             nodes.add(aNode);
             observers.forEach((observer) -> observer.notifyNewNodeRead(aNode));
@@ -270,7 +284,9 @@ public class BinaryGraphReader extends BinaryReader implements GraphReader {
 
         this.dis.close();
 
-        return new Graph(mapId, mapName, nodes, new GraphStatistics(maxSpeed, maxLength));
+        return new Graph(mapId, mapName, nodes,
+                new GraphStatistics(new BoundingBox(new Point(minLongitude, maxLatitude),
+                        new Point(maxLongitude, minLatitude)), maxSpeed, maxLength));
     }
 
     /**
