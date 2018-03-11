@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -42,7 +41,6 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.insa.algo.AbstractSolution;
 import org.insa.algo.AlgorithmFactory;
@@ -70,6 +68,8 @@ import org.insa.graphics.drawing.Drawing;
 import org.insa.graphics.drawing.GraphPalette;
 import org.insa.graphics.drawing.components.BasicDrawing;
 import org.insa.graphics.drawing.components.MapViewDrawing;
+import org.insa.graphics.utils.FileUtils;
+import org.insa.graphics.utils.FileUtils.FolderType;
 
 public class MainWindow extends JFrame {
 
@@ -87,15 +87,6 @@ public class MainWindow extends JFrame {
      * 
      */
     private static final int THREAD_TIMER_DELAY = 1000; // in milliseconds
-
-    private static final String DEFAULT_MAP_FOLDER_KEY = "DefaultMapFolder";
-    private static final String DEFAULT_MAP_FOLDER_INSA = "/home/commetud/...";
-
-    private static final String DEFAULT_PATH_FOLDER_KEY = "DefaultPathFolder";
-    private static final String DEFAULT_PATH_FOLDER_INSA = "/home/commetud/...";
-
-    // Preferences
-    private Preferences preferences = Preferences.userRoot().node(getClass().getName());
 
     // Current graph.
     protected Graph graph;
@@ -303,25 +294,9 @@ public class MainWindow extends JFrame {
         ActionListener openMapActionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser chooser = new JFileChooser();
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("Graph files",
-                        "mapgr");
-                File mapFolder = new File(
-                        preferences.get(DEFAULT_MAP_FOLDER_KEY, DEFAULT_MAP_FOLDER_INSA));
-                if (!mapFolder.exists()) {
-                    mapFolder = new File(System.getProperty("user.dir"));
-                }
-                chooser.setCurrentDirectory(mapFolder);
-                chooser.setFileFilter(filter);
+                JFileChooser chooser = FileUtils.createFileChooser(FolderType.Map);
                 if (chooser.showOpenDialog(MainWindow.this) == JFileChooser.APPROVE_OPTION) {
                     graphFilePath = chooser.getSelectedFile().getAbsolutePath();
-
-                    // Check...
-                    if (chooser.getSelectedFile().exists()) {
-                        preferences.put(DEFAULT_MAP_FOLDER_KEY,
-                                chooser.getSelectedFile().getParent());
-                    }
-
                     DataInputStream stream;
                     try {
                         stream = new DataInputStream(new BufferedInputStream(
@@ -659,24 +634,8 @@ public class MainWindow extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser chooser = new JFileChooser();
-                FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                        "Path & compressed path files", "path");
-                File pathFolder = new File(
-                        preferences.get(DEFAULT_PATH_FOLDER_KEY, DEFAULT_PATH_FOLDER_INSA));
-                if (!pathFolder.exists()) {
-                    pathFolder = new File(System.getProperty("user.dir"));
-                }
-                chooser.setCurrentDirectory(pathFolder);
-                chooser.setFileFilter(filter);
+                JFileChooser chooser = FileUtils.createFileChooser(FolderType.PathInput);
                 if (chooser.showOpenDialog(MainWindow.this) == JFileChooser.APPROVE_OPTION) {
-
-                    // Check & Update
-                    if (chooser.getSelectedFile().exists()) {
-                        preferences.put(DEFAULT_PATH_FOLDER_KEY,
-                                chooser.getSelectedFile().getParent());
-                    }
-
                     BinaryPathReader reader;
                     try {
                         reader = new BinaryPathReader(new DataInputStream(new BufferedInputStream(

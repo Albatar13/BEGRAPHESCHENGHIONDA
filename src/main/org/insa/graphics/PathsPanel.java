@@ -37,6 +37,8 @@ import org.insa.graph.Path;
 import org.insa.graph.io.BinaryPathWriter;
 import org.insa.graphics.drawing.Drawing;
 import org.insa.graphics.drawing.overlays.PathOverlay;
+import org.insa.graphics.utils.FileUtils;
+import org.insa.graphics.utils.FileUtils.FolderType;
 
 public class PathsPanel extends JPanel implements DrawingChangeListener, GraphChangeListener {
 
@@ -216,18 +218,15 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
             saveButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String filepath = System.getProperty("user.dir");
-                    filepath += File.separator + String.format("path_%s_%d_%d.path",
+                    String filepath = String.format("path_%s_%d_%d.path",
                             path.getGraph().getMapId().toLowerCase().replaceAll("[^a-z0-9_]", "_"),
                             path.getOrigin().getId(), path.getDestination().getId());
-                    JFileChooser fileChooser = new JFileChooser();
-                    fileChooser.setSelectedFile(new File(filepath));
-                    fileChooser.setApproveButtonText("Save");
-                    fileChooser.setToolTipText("Save");
+                    JFileChooser chooser = FileUtils.createFileChooser(FolderType.PathOutput,
+                            filepath);
 
-                    if (fileChooser
+                    if (chooser
                             .showSaveDialog(getTopLevelAncestor()) == JFileChooser.APPROVE_OPTION) {
-                        File file = fileChooser.getSelectedFile();
+                        File file = chooser.getSelectedFile();
                         try {
                             BinaryPathWriter writer = new BinaryPathWriter(new DataOutputStream(
                                     new BufferedOutputStream(new FileOutputStream(file))));
@@ -284,6 +283,7 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
 
         /*
          * (non-Javadoc)
+         * 
          * @see java.lang.Object#toString()
          */
         public String toString() {
