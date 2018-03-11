@@ -48,6 +48,7 @@ public class BinaryPathWriter extends BinaryWriter implements PathWriter {
         }
 
         dos.flush();
+        dos.close();
     }
 
 }

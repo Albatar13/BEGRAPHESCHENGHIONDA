@@ -54,6 +54,8 @@ public class BinaryPathReader extends BinaryReader implements PathReader {
             nodes.add(readNode(graph));
         }
 
+        this.dis.close();
+
         return Path.createFastestPathFromNodes(graph, nodes);
     }
 
