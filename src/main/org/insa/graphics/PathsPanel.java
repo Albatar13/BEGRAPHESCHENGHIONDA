@@ -219,7 +219,7 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     String filepath = String.format("path_%s_%d_%d.path",
-                            path.getGraph().getMapId().toLowerCase().replaceAll("[^a-z0-9_]", "_"),
+                            path.getGraph().getMapId().toLowerCase().replaceAll("[^a-z0-9_]", ""),
                             path.getOrigin().getId(), path.getDestination().getId());
                     JFileChooser chooser = FileUtils.createFileChooser(FolderType.PathOutput,
                             filepath);
