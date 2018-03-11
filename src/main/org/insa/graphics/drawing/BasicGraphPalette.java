@@ -10,7 +10,7 @@ public class BasicGraphPalette implements GraphPalette {
     // Color types for arc.
     private static final Color MOTORWAY_COLOR = Color.RED;
     private static final Color BIG_ROAD_COLOR = new Color(255, 105, 0);
-    private static final Color SMALL_ROAD_COLOR = new Color(255, 234, 0);
+    private static final Color SMALL_ROAD_COLOR = new Color(255, 200, 0);
     private static final Color COASTLINE_COLOR = Color.BLUE;
 
     @Override

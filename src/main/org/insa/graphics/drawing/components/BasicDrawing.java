@@ -321,6 +321,7 @@ public class BasicDrawing extends JPanel implements Drawing {
      */
     public BasicDrawing() {
         setLayout(null);
+        this.setBackground(new Color(240, 240, 240));
         this.zoomAndPanListener = new ZoomAndPanListener(this,
                 ZoomAndPanListener.DEFAULT_MIN_ZOOM_LEVEL, 20, 1.2);
 
@@ -370,7 +371,8 @@ public class BasicDrawing extends JPanel implements Drawing {
         super.paintComponent(g1);
         Graphics2D g = (Graphics2D) g1;
         AffineTransform sTransform = g.getTransform();
-        g.clearRect(0, 0, getWidth(), getHeight());
+        g.setColor(this.getBackground());
+        g.fillRect(0, 0, getWidth(), getHeight());
         g.setTransform(zoomAndPanListener.getCoordTransform());
 
         if (graphImage != null) {
@@ -573,7 +575,7 @@ public class BasicDrawing extends JPanel implements Drawing {
                 BufferedImage.TYPE_3BYTE_BGR);
         this.graphImage = img;
         this.graphGraphics = img.createGraphics();
-        this.graphGraphics.setBackground(Color.WHITE);
+        this.graphGraphics.setBackground(this.getBackground());
         this.graphGraphics.clearRect(0, 0, this.width, this.height);
 
         // Set the zoom and pan listener
