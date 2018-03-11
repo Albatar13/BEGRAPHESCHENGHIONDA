@@ -414,9 +414,11 @@ public class MapViewDrawing extends MapView implements Drawing {
     @Override
     public PathOverlay drawPath(Path path, Color color, boolean markers) {
         PolylineAutoScaling line = new PolylineAutoScaling(1, DEFAULT_PATH_COLOR);
+        ArrayList<Point> points = new ArrayList<>(path.getArcs().size() * 4);
         for (Arc arc: path.getArcs()) {
-            line.add(arc.getPoints());
+            points.addAll(arc.getPoints());
         }
+        line.addAll(points);
         PathOverlay overlay = null;
         if (markers) {
             MarkerAutoScaling origin = createMarker(path.getOrigin().getPoint(),

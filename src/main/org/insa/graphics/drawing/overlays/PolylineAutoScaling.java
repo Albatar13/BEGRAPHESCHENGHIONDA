@@ -1,7 +1,8 @@
 package org.insa.graphics.drawing.overlays;
 
 import java.awt.Color;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.insa.graph.Point;
 import org.mapsforge.core.graphics.Canvas;
@@ -70,10 +71,12 @@ public class PolylineAutoScaling extends Polyline {
     /**
      * @param points Points to add to this line.
      */
-    public void add(List<Point> points) {
+    public void addAll(Collection<? extends Point> points) {
+        ArrayList<LatLong> latlongs = new ArrayList<>(points.size());
         for (Point point: points) {
-            add(point);
+            latlongs.add(new LatLong(point.getLatitude(), point.getLongitude()));
         }
+        getLatLongs().addAll(latlongs);
     }
 
     @Override
