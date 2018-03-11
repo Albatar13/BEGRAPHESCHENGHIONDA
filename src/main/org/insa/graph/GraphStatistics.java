@@ -51,6 +51,36 @@ public class GraphStatistics {
             return topLeft;
         }
 
+        /**
+         * Create a new bounding box by extending the current one according to the given
+         * value for each side.
+         * 
+         * @param left Extra size to add to the left of the box.
+         * @param top Extra size to add to the top of the box.
+         * @param right Extra size to add to the right of the box.
+         * @param bottom Extra size to add to the bottom of the box.
+         * 
+         * @return New bounding box corresponding to an extension of the current one.
+         */
+        public BoundingBox extend(float left, float top, float right, float bottom) {
+            return new BoundingBox(
+                    new Point(this.topLeft.getLongitude() - left, this.topLeft.getLatitude() + top),
+                    new Point(this.bottomRight.getLongitude() + right,
+                            this.bottomRight.getLatitude() - bottom));
+        }
+
+        /**
+         * Create a new bounding box by extending the current one according by the given
+         * value on each side.
+         * 
+         * @param size Extra size to add to each side of this box.
+         * 
+         * @return New bounding box corresponding to an extension of the current one.
+         */
+        public BoundingBox extend(float size) {
+            return this.extend(size, size, size, size);
+        }
+
     }
 
     // Bounding box for this graph.

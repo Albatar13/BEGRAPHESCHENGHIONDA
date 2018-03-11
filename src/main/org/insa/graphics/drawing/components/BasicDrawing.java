@@ -31,6 +31,7 @@ import org.insa.graphics.drawing.BasicGraphPalette;
 import org.insa.graphics.drawing.Drawing;
 import org.insa.graphics.drawing.DrawingClickListener;
 import org.insa.graphics.drawing.GraphPalette;
+import org.insa.graphics.drawing.MercatorProjection;
 import org.insa.graphics.drawing.overlays.MarkerOverlay;
 import org.insa.graphics.drawing.overlays.MarkerUtils;
 import org.insa.graphics.drawing.overlays.Overlay;
@@ -146,8 +147,8 @@ public class BasicDrawing extends JPanel implements Drawing {
         @Override
         public void drawImpl(Graphics2D graphics) {
 
-            int px = BasicDrawing.this.projx(getPoint().getLongitude());
-            int py = BasicDrawing.this.projy(getPoint().getLatitude());
+            int px = projection.longitudeToPixelX(getPoint().getLongitude());
+            int py = projection.latitudeToPixelY(getPoint().getLatitude());
 
             graphics.drawImage(this.image, px - MARKER_WIDTH / 2, py - MARKER_HEIGHT, MARKER_WIDTH,
                     MARKER_HEIGHT, BasicDrawing.this);
@@ -193,10 +194,10 @@ public class BasicDrawing extends JPanel implements Drawing {
                 while (itPoint.hasNext()) {
                     Point curr = itPoint.next();
 
-                    int x1 = BasicDrawing.this.projx(prev.getLongitude());
-                    int x2 = BasicDrawing.this.projx(curr.getLongitude());
-                    int y1 = BasicDrawing.this.projy(prev.getLatitude());
-                    int y2 = BasicDrawing.this.projy(curr.getLatitude());
+                    int x1 = projection.longitudeToPixelX(prev.getLongitude());
+                    int x2 = projection.longitudeToPixelX(curr.getLongitude());
+                    int y1 = projection.latitudeToPixelY(prev.getLatitude());
+                    int y2 = projection.latitudeToPixelY(curr.getLatitude());
 
                     graphics.drawLine(x1, y1, x2, y2);
 
@@ -253,8 +254,8 @@ public class BasicDrawing extends JPanel implements Drawing {
 
         @Override
         public void addPoint(Point point) {
-            int x = BasicDrawing.this.projx(point.getLongitude()) - this.width / 2;
-            int y = BasicDrawing.this.projy(point.getLatitude()) - this.width / 2;
+            int x = projection.longitudeToPixelX(point.getLongitude()) - this.width / 2;
+            int y = projection.latitudeToPixelY(point.getLatitude()) - this.width / 2;
             this.graphics.fillOval(x, y, this.width, this.width);
             BasicDrawing.this.repaint();
         }
@@ -294,7 +295,7 @@ public class BasicDrawing extends JPanel implements Drawing {
     // Maximum width for the drawing (in pixels).
     private static final int MAXIMUM_DRAWING_WIDTH = 2000;
 
-    private double long1, long2, lat1, lat2;
+    private MercatorProjection projection;
 
     // Width and height of the image
     private int width, height;
@@ -430,22 +431,6 @@ public class BasicDrawing extends JPanel implements Drawing {
     }
 
     /**
-     * @param lon
-     * @return
-     */
-    private int projx(double lon) {
-        return (int) (width * (lon - this.long1) / (this.long2 - this.long1));
-    }
-
-    /**
-     * @param lat
-     * @return
-     */
-    private int projy(double lat) {
-        return (int) (height * (1 - (lat - this.lat1) / (this.lat2 - this.lat1)));
-    }
-
-    /**
      * Return the longitude and latitude corresponding to the given position of the
      * MouseEvent.
      * 
@@ -465,13 +450,8 @@ public class BasicDrawing extends JPanel implements Drawing {
                 .inverseTransform(event.getPoint(), null);
 
         // Inverse the "projection" on x/y to get longitude and latitude.
-        double lon = ptDst.getX();
-        double lat = ptDst.getY();
-        lon = (lon / this.width) * (this.long2 - this.long1) + this.long1;
-        lat = (1 - lat / this.height) * (this.lat2 - this.lat1) + this.lat1;
-
-        // Return a new point.
-        return new Point((float) lon, (float) lat);
+        return new Point(projection.pixelXToLongitude(ptDst.getX()),
+                projection.pixelYToLatitude(ptDst.getY()));
     }
 
     /*
@@ -546,10 +526,10 @@ public class BasicDrawing extends JPanel implements Drawing {
             while (it1.hasNext()) {
                 Point curr = it1.next();
 
-                int x1 = this.projx(prev.getLongitude());
-                int x2 = this.projx(curr.getLongitude());
-                int y1 = this.projy(prev.getLatitude());
-                int y2 = this.projy(curr.getLatitude());
+                int x1 = projection.longitudeToPixelX(prev.getLongitude());
+                int x2 = projection.longitudeToPixelX(curr.getLongitude());
+                int y1 = projection.latitudeToPixelY(prev.getLatitude());
+                int y2 = projection.latitudeToPixelY(curr.getLatitude());
 
                 graphGraphics.drawLine(x1, y1, x2, y2);
                 prev = curr;
@@ -573,30 +553,20 @@ public class BasicDrawing extends JPanel implements Drawing {
         BoundingBox box = graph.getGraphInformation().getBoundingBox();
 
         // Find minimum/maximum longitude and latitude.
-        double minLon = box.getTopLeftPoint().getLongitude(),
+        float minLon = box.getTopLeftPoint().getLongitude(),
                 maxLon = box.getBottomRightPoint().getLongitude(),
                 minLat = box.getBottomRightPoint().getLatitude(),
                 maxLat = box.getTopLeftPoint().getLatitude();
 
         // Add a little delta to avoid drawing on the edge...
-        double diffLon = maxLon - minLon, diffLat = maxLat - minLat;
-        double deltaLon = 0.01 * diffLon, deltaLat = 0.01 * diffLat;
+        float diffLon = maxLon - minLon, diffLat = maxLat - minLat;
+        float deltaLon = 0.01f * diffLon, deltaLat = 0.01f * diffLat;
 
-        this.long1 = minLon - deltaLon;
-        this.long2 = maxLon + deltaLon;
-        this.lat1 = minLat - deltaLat;
-        this.lat2 = maxLat + deltaLat;
-
-        // Compute width/height for the image
-
-        if (diffLat < diffLon) {
-            this.width = MAXIMUM_DRAWING_WIDTH;
-            this.height = (int) (this.width * diffLat / diffLon);
-        }
-        else {
-            this.height = MAXIMUM_DRAWING_WIDTH;
-            this.width = (int) (this.height * diffLon / diffLat);
-        }
+        // Create the projection and retrieve width and height for the box.
+        projection = new MercatorProjection(box.extend(deltaLon, deltaLat, deltaLon, deltaLat),
+                MAXIMUM_DRAWING_WIDTH);
+        this.width = (int) projection.getImageWidth();
+        this.height = (int) projection.getImageHeight();
 
         // Create the image
         BufferedImage img = new BufferedImage(this.width, this.height,
