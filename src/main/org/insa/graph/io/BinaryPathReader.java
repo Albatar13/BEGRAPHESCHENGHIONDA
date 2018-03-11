@@ -35,8 +35,7 @@ public class BinaryPathReader extends BinaryReader implements PathReader {
         checkVersionOrThrow(dis.readInt());
 
         // Read map ID and check against graph.
-        String mapId = readFixedLengthString(BinaryGraphReader.MAP_ID_FIELD_LENGTH,
-                "UTF-8");
+        String mapId = readFixedLengthString(BinaryGraphReader.MAP_ID_FIELD_LENGTH, "UTF-8");
 
         if (!mapId.equals(graph.getMapId())) {
             throw new MapMismatchException(mapId, graph.getMapId());
@@ -69,10 +68,7 @@ public class BinaryPathReader extends BinaryReader implements PathReader {
      * @throws IndexOutOfBoundsException if the node is not in the graph.
      */
     protected Node readNode(Graph graph) throws IOException {
-        // Discard zone.
-        dis.readUnsignedByte();
-
-        return graph.getNodes().get(read24bits());
+        return graph.getNodes().get(dis.readInt());
     }
 
 }
