@@ -228,6 +228,7 @@ public class BinaryGraphReader extends BinaryReader implements GraphReader {
         // Read successors and convert to arcs.
         float maxLength = 0;
         final int copyNbTotalSuccesors = nbTotalSuccessors; // Stupid Java...
+        int nbOneWayRoad = 0;
         observers.forEach((observer) -> observer.notifyStartReadingArcs(copyNbTotalSuccesors));
         for (int node = 0; node < nbNodes; ++node) {
             for (int succ = 0; succ < nbSuccessors[node]; ++succ) {
@@ -273,6 +274,9 @@ public class BinaryGraphReader extends BinaryReader implements GraphReader {
 
                 // Add successor to initial arc.
                 Arc arc = Node.linkNodes(orig, dest, length, info, points);
+                if (info.isOneWay()) {
+                    nbOneWayRoad++;
+                }
                 observers.forEach((observer) -> observer.notifyNewArcRead(arc));
             }
         }
@@ -285,8 +289,10 @@ public class BinaryGraphReader extends BinaryReader implements GraphReader {
         this.dis.close();
 
         return new Graph(mapId, mapName, nodes,
-                new GraphStatistics(new BoundingBox(new Point(minLongitude, maxLatitude),
-                        new Point(maxLongitude, minLatitude)), maxSpeed, maxLength));
+                new GraphStatistics(
+                        new BoundingBox(new Point(minLongitude, maxLatitude),
+                                new Point(maxLongitude, minLatitude)),
+                        nbOneWayRoad, nbTotalSuccessors - nbOneWayRoad, maxSpeed, maxLength));
     }
 
     /**

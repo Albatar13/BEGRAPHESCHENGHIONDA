@@ -86,6 +86,9 @@ public class GraphStatistics {
     // Bounding box for this graph.
     private final BoundingBox boundingBox;
 
+    // Number of roads
+    private final int nbRoadOneWay, nbRoadTwoWays;
+
     // Maximum speed on this graph (in kmph).
     private final int maximumSpeed;
 
@@ -96,13 +99,18 @@ public class GraphStatistics {
      * Create a new GraphStatistics instance with the given value.
      * 
      * @param boundingBox Bounding-box for the graph.
+     * @param nbRoadOneWay Number of one-way roads in the graph.
+     * @param nbRoadTwoTayws Number of two-ways roads in the graph.
      * @param maximumSpeed Maximum speed of any road of the graph. You can use
      *        {@link #NO_MAXIMUM_SPEED} to indicate that the graph has no maximum
      *        speed limit.
      * @param maximumLength Maximum length of any arc of the graph.
      */
-    public GraphStatistics(BoundingBox boundingBox, int maximumSpeed, float maximumLength) {
+    public GraphStatistics(BoundingBox boundingBox, int nbRoadOneWay, int nbRoadTwoWays,
+            int maximumSpeed, float maximumLength) {
         this.boundingBox = boundingBox;
+        this.nbRoadOneWay = nbRoadOneWay;
+        this.nbRoadTwoWays = nbRoadTwoWays;
         this.maximumLength = maximumLength;
         this.maximumSpeed = maximumSpeed;
     }
@@ -112,6 +120,30 @@ public class GraphStatistics {
      */
     public BoundingBox getBoundingBox() {
         return this.boundingBox;
+    }
+
+    /**
+     * @return Amount of one-way roads in this graph.
+     */
+    public int getOneWayRoadCount() {
+        return this.nbRoadOneWay;
+    }
+
+    /**
+     * @return Amount of two-ways roads in this graph.
+     */
+    public int getTwoWaysRoadCount() {
+        return this.nbRoadTwoWays;
+    }
+
+    /**
+     * @return Number of arcs in this graph.
+     * 
+     * @see #getOneWayRoadCount()
+     * @see #getTwoWaysRoadCount()
+     */
+    public int getArcCount() {
+        return getOneWayRoadCount() + 2 * getTwoWaysRoadCount();
     }
 
     /**

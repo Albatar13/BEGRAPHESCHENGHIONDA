@@ -593,7 +593,8 @@ public class MainWindow extends JFrame {
                     // name that are right-to-left (e.g. arabic names).
                     info += " - " + graph.getMapName() + "\u200e";
                 }
-                info += ", " + graph.getNodes().size() + " nodes";
+                info += ", " + graph.getNodes().size() + " nodes, "
+                        + graph.getGraphInformation().getArcCount() + " arcs.";
                 graphInfoPanel.setText(info);
 
                 drawGraph();
