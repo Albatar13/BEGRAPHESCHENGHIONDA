@@ -4,12 +4,15 @@
 # Java specific files and folders
 bin
 target
+doc
+*.jar
 
 # Editor specific files and folders
 *~
+.project
 
 # Project speicific files and folders
-*.map
+*.mapfg
+*.mapgr
 *.path
-Maps
-Paths
+*.tgz
