@@ -1,5 +1,6 @@
 package org.insa.graph;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -71,8 +72,28 @@ public class Graph {
      * @return Transpose graph of this graph.
      */
     public Graph transpose() {
-        // TODO:
-        return null;
+        ArrayList<Node> trNodes = new ArrayList<>(nodes.size());
+        for (Node node: nodes) {
+            trNodes.add(new Node(node.getId(), node.getPoint()));
+        }
+        for (Node node: nodes) {
+            Node orig = trNodes.get(node.getId());
+            for (Arc arc: node.getSuccessors()) {
+                if (arc.getRoadInformation().isOneWay()) {
+                    Node dest = trNodes.get(arc.getDestination().getId());
+                    dest.addSuccessor(new ArcBackward(new ArcForward(orig, dest, arc.getLength(),
+                            arc.getRoadInformation(), arc.getPoints())));
+                }
+                else if (arc instanceof ArcForward) {
+                    Node dest = trNodes.get(arc.getDestination().getId());
+                    Arc newArc = new ArcForward(orig, dest, arc.getLength(),
+                            arc.getRoadInformation(), arc.getPoints());
+                    dest.addSuccessor(new ArcBackward(newArc));
+                    orig.addSuccessor(newArc);
+                }
+            }
+        }
+        return new Graph("R/" + mapId, mapName, trNodes, graphStatistics);
     }
 
 }
