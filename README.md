@@ -5,7 +5,7 @@
 You will not be able to use this repository to save your work, thus you need to copy / import it to 
 your favorite repository platform.
 
-### Importing to [Github](https://github.com), [Bitbucket](https://bitbucket.org) or [Gitlab](https://gitlab.com).
+### Importing to [Github](https://github.com), [Bitbucket](https://bitbucket.org) or [Gitlab](https://gitlab.com):
 
 You first need to register on one of these platform, the steps to import the project are detailed below for each platform.
 
@@ -53,3 +53,27 @@ You first need to register on one of these platform, the steps to import the pro
 5. Click *Create project*.
 
 6. Wait for completion... Done!
+
+### Importing to another repository provider:
+
+1. Create a new **empty** repository (no README, no LICENSE) on your provider. Let's assume the URL of your repository is `$URL_REPOSITORY`.
+
+2. Clone this repository somewhere:
+
+    ```bash
+git clone https://gitea.typename.fr/INSA/be-graphes.git
+```
+
+3. Go inside the newly cloned repository and update the **remote**:
+
+    ```bash
+cd be-graphes
+git remote remove origin
+git remote add origin $URL_REPOSITORY
+```
+
+4. Push to your repository:
+
+    ```bash
+push -u origin master
+```
