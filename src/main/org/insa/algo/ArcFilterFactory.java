@@ -47,6 +47,21 @@ public class ArcFilterFactory {
             }
         });
 
+        // 3. Non-private roads for pedestrian and bicycle:
+        filters.add(new ArcFilter() {
+            @Override
+            public boolean isAllowed(Arc arc) {
+                return arc.getRoadInformation().getAccessRestrictions()
+                        .isAllowedForAny(AccessMode.FOOT, EnumSet.complementOf(EnumSet
+                                .of(AccessRestriction.FORBIDDEN, AccessRestriction.PRIVATE)));
+            }
+
+            @Override
+            public String toString() {
+                return "Non-private roads for pedestrian.";
+            }
+        });
+
         // 3. Add your own filters here (do not forget to implement toString() to get an
         // understandable output!):
 
