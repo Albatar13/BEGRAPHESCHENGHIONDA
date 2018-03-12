@@ -33,10 +33,23 @@ public class Node implements Comparable<Node> {
      */
     public static Arc linkNodes(Node origin, Node destination, float length,
             RoadInformation roadInformation, ArrayList<Point> points) {
-        ArcForward arc = new ArcForward(origin, destination, length, roadInformation, points);
-        origin.addSuccessor(arc);
-        if (!roadInformation.isOneWay()) {
-            destination.addSuccessor(new ArcBackward(arc));
+        Arc arc = null;
+        if (roadInformation.isOneWay()) {
+            arc = new ArcForward(origin, destination, length, roadInformation, points);
+            origin.addSuccessor(arc);
+        }
+        else {
+            Arc d2o;
+            if (origin.getId() < destination.getId()) {
+                arc = new ArcForward(origin, destination, length, roadInformation, points);
+                d2o = new ArcBackward(arc);
+            }
+            else {
+                d2o = new ArcForward(destination, origin, length, roadInformation, points);
+                arc = new ArcBackward(d2o);
+            }
+            origin.addSuccessor(arc);
+            destination.addSuccessor(d2o);
         }
         return arc;
     }
