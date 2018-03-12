@@ -31,7 +31,7 @@ public abstract class Arc {
     /**
      * @return Length of this arc, in meters.
      */
-    public abstract double getLength();
+    public abstract float getLength();
 
     /**
      * Compute the time required to travel this arc if moving at the given speed.

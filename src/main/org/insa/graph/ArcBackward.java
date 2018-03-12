@@ -13,7 +13,7 @@ import java.util.List;
 class ArcBackward extends Arc {
 
     // Original arc
-    private final ArcForward originalArc;
+    private final Arc originalArc;
 
     /**
      * Create a new backward arc which corresponds to the reverse arc of the given
@@ -21,9 +21,8 @@ class ArcBackward extends Arc {
      * 
      * @param originalArc Original forwarc arc corresponding to this backward arc.
      */
-    protected ArcBackward(ArcForward originalArc) {
+    protected ArcBackward(Arc originalArc) {
         this.originalArc = originalArc;
-        this.originalArc.getDestination().addSuccessor(this);
     }
 
     @Override
@@ -37,7 +36,7 @@ class ArcBackward extends Arc {
     }
 
     @Override
-    public double getLength() {
+    public float getLength() {
         return this.originalArc.getLength();
     }
 

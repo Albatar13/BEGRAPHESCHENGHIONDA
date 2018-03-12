@@ -1,6 +1,5 @@
 package org.insa.graph;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,7 +20,7 @@ class ArcForward extends Arc {
     private final RoadInformation info;
 
     // Segments.
-    private final ArrayList<Point> points;
+    private final List<Point> points;
 
     /**
      * Create a new ArcForward with the given attributes.
@@ -33,7 +32,7 @@ class ArcForward extends Arc {
      * @param points Points representing this arc.
      */
     protected ArcForward(Node origin, Node dest, float length, RoadInformation roadInformation,
-            ArrayList<Point> points) {
+            List<Point> points) {
         this.origin = origin;
         this.destination = dest;
         this.length = length;
@@ -52,7 +51,7 @@ class ArcForward extends Arc {
     }
 
     @Override
-    public double getLength() {
+    public float getLength() {
         return length;
     }
 
