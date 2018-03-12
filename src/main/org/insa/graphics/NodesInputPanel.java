@@ -59,7 +59,7 @@ public class NodesInputPanel extends JPanel
          * @param point
          * 
          * @return the closest node to the given point, or null if no node is "close
-         * enough".
+         *         enough".
          */
         public Node findClosestNode(Point point) {
             Node minNode = null;
@@ -124,14 +124,23 @@ public class NodesInputPanel extends JPanel
     private NodeFinder nodeFinder;
 
     /**
-     * @param drawing Original drawing used (see {@link:newDrawingLoaded}).
-     * @param graph Original graph used (see {@link:newGraphLoaded});
+     * Create a new NodesInputPanel.
+     * 
      */
     public NodesInputPanel() {
         super(new GridBagLayout());
         initInputToFill();
     }
 
+    /**
+     * Add an InputChanged listener to this panel. This listener will be notified by
+     * a {@link InputChangedEvent} each time an input in this panel change (click,
+     * clear, manual input).
+     * 
+     * @param listener Listener to add.
+     * 
+     * @see InputChangedEvent
+     */
     public void addInputChangedListener(ActionListener listener) {
         inputChangeListeners.add(listener);
     }
@@ -293,7 +302,7 @@ public class NodesInputPanel extends JPanel
 
     /**
      * @return The node for the given text field, or null if the content of the text
-     * field is invalid.
+     *         field is invalid.
      */
     protected Node getNodeForInput(JTextField textfield) {
         try {
@@ -307,7 +316,7 @@ public class NodesInputPanel extends JPanel
 
     /**
      * @return List of nodes associated with the input. Some nodes may be null if
-     * their associated input is invalid.
+     *         their associated input is invalid.
      */
     public List<Node> getNodeForInputs() {
         List<Node> nodes = new ArrayList<>(nodeInputs.size());

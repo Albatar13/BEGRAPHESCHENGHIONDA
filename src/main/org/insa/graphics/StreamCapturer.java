@@ -12,8 +12,8 @@ public class StreamCapturer extends OutputStream {
     private JTextArea output;
 
     /**
-     * @param prefix
-     * @param output
+     * @param output Output JTextArea to which this stream should print.
+     * @param prefix Prefix to add to each line of this output.
      */
     public StreamCapturer(JTextArea output, String prefix) {
         this.prefix = prefix;
@@ -21,6 +21,11 @@ public class StreamCapturer extends OutputStream {
         this.output = output;
     }
 
+    /**
+     * Create a new StreamCapturer without prefix.
+     * 
+     * @param output Output JTextArea to which this stream should print.
+     */
     public StreamCapturer(JTextArea output) {
         this(output, null);
     }

@@ -139,6 +139,19 @@ public class AlgorithmPanel extends JPanel implements DrawingChangeListener {
     List<ActionListener> startActionListeners = new ArrayList<>();
 
     /**
+     * Create a new AlgorithmPanel with the given parameters.
+     * 
+     * @param parent Parent component for this panel. Only use for centering
+     *        dialogs.
+     * @param baseAlgorithm Base algorithm for this algorithm panel.
+     * @param title Title of the panel.
+     * @param nodeNames Names of the input nodes.
+     * @param enableModeSelection <code>true</code> to enable {@link Mode}
+     *        selection.
+     * @param enableArcFilterSelection <code>true</code> to enable {@link ArcFilter}
+     *        selection.
+     * 
+     * @see ArcFilterFactory
      */
     public AlgorithmPanel(Component parent, Class<? extends AbstractAlgorithm<?>> baseAlgorithm,
             String title, String[] nodeNames, boolean enableModeSelection,
@@ -312,7 +325,7 @@ public class AlgorithmPanel extends JPanel implements DrawingChangeListener {
      * 
      * @param title Title for the label.
      * 
-     * @return
+     * @return A new JLabel containing the given title with proper font.
      */
     protected JLabel createTitleLabel(String title) {
         JLabel titleLabel = new JLabel(title);
@@ -328,7 +341,12 @@ public class AlgorithmPanel extends JPanel implements DrawingChangeListener {
     /**
      * Create the combo box for the algorithm selection.
      * 
-     * @return
+     * @param baseAlgorithm Base algorithm for which the select box should be
+     *        created.
+     * 
+     * @return A new JComboBox containing algorithms for the given base algorithm.
+     * 
+     * @see AlgorithmFactory
      */
     protected JComboBox<String> createAlgoritmSelectComboBox(
             Class<? extends AbstractAlgorithm<?>> baseAlgorithm) {
@@ -343,8 +361,9 @@ public class AlgorithmPanel extends JPanel implements DrawingChangeListener {
     /**
      * Create a node input panel with the given node input names.
      * 
-     * @param nodeNames
-     * @return
+     * @param nodeNames Field names for the inputs to create.
+     * 
+     * @return A new NodesInputPanel containing inputs for the given names.
      */
     protected NodesInputPanel createNodesInputPanel(String[] nodeNames) {
         final Color[] nodeColors = { new Color(57, 172, 115), new Color(255, 77, 77),
@@ -358,6 +377,15 @@ public class AlgorithmPanel extends JPanel implements DrawingChangeListener {
         return panel;
     }
 
+    /**
+     * Check if the given list of nodes does not contain any <code>null</code>
+     * value.
+     * 
+     * @param nodes List of {@link Node} to check.
+     * 
+     * @return <code>true</code> if the list does not contain any <code>null</code>
+     *         value, <code>false</code> otherwise.
+     */
     protected boolean allNotNull(List<Node> nodes) {
         boolean allNotNull = true;
         for (Node node: nodes) {
@@ -382,7 +410,7 @@ public class AlgorithmPanel extends JPanel implements DrawingChangeListener {
     /**
      * Add a new start action listener to this class.
      * 
-     * @param listener
+     * @param listener Listener to add.
      */
     public void addStartActionListener(ActionListener listener) {
         this.startActionListeners.add(listener);

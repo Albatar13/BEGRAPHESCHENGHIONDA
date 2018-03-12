@@ -100,7 +100,7 @@ public class GraphStatistics {
      * 
      * @param boundingBox Bounding-box for the graph.
      * @param nbRoadOneWay Number of one-way roads in the graph.
-     * @param nbRoadTwoTayws Number of two-ways roads in the graph.
+     * @param nbRoadTwoWays Number of two-ways roads in the graph.
      * @param maximumSpeed Maximum speed of any road of the graph. You can use
      *        {@link #NO_MAXIMUM_SPEED} to indicate that the graph has no maximum
      *        speed limit.

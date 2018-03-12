@@ -16,8 +16,26 @@ public class FileUtils {
     // Preferences
     private static Preferences preferences = Preferences.userRoot().node(FileUtils.class.getName());
 
+    /**
+     * Type of folder with associated preferred folder and path filters.
+     *
+     */
     public enum FolderType {
-        Map, PathInput, PathOutput
+
+        /**
+         * Folder type for graph files input (*.mapgr).
+         */
+        Map,
+
+        /**
+         * Folder type for path inputs (*.path).
+         */
+        PathInput,
+
+        /**
+         * Folder type for path outputs (*.path).
+         */
+        PathOutput
     }
 
     private static class PreferencesEntry {
@@ -55,7 +73,11 @@ public class FileUtils {
     }
 
     /**
+     * @param folderType Type of folder to retrieve.
+     * 
      * @return A File instance pointing to the preferred folder for the given type.
+     * 
+     * @see FolderType
      */
     public static File getPreferredFolder(FolderType folderType) {
         PreferencesEntry entry = folderToEntry.get(folderType);
@@ -66,12 +88,18 @@ public class FileUtils {
         return folder;
     }
 
+    /**
+     * @param folderType Type of folder to update.
+     * @param newPreferredFolder New preferred folder.
+     */
     public static void updatePreferredFolder(FolderType folderType, File newPreferredFolder) {
         PreferencesEntry entry = folderToEntry.get(folderType);
         preferences.put(entry.key, newPreferredFolder.getAbsolutePath());
     }
 
     /**
+     * @param folderType Type of folder for which the filter should be retrieved.
+     * 
      * @return A FileFilter corresponding to input graph files.
      */
     public static FileFilter getFileFilter(FolderType folderType) {
@@ -79,8 +107,12 @@ public class FileUtils {
     }
 
     /**
-     * @param folderType
-     * @return
+     * @param folderType Type of folder for which a file chooser should be created.
+     * @param defaultFileName Default file name to show, or null to not show any
+     *        file.
+     * 
+     * @return A new JFileChooser pointing to the preferred folder for the given
+     *         folderType, with the given default file selected (if given).
      */
     public static JFileChooser createFileChooser(FolderType folderType, String defaultFileName) {
         JFileChooser chooser = new JFileChooser();
@@ -104,6 +136,14 @@ public class FileUtils {
         return chooser;
     }
 
+    /**
+     * @param folderType Type of folder for which a file chooser should be created.
+     * 
+     * @return A new JFileChooser pointing to the preferred folder for the given
+     *         folderType.
+     * 
+     * @see #createFileChooser(FolderType, String)
+     */
     public static JFileChooser createFileChooser(FolderType folderType) {
         return createFileChooser(folderType, null);
     }

@@ -398,7 +398,6 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.insa.graphics.drawing.Drawing#clear()
      */
     @Override
@@ -414,7 +413,6 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.insa.graphics.drawing.Drawing#clearOverlays()
      */
     @Override
@@ -458,7 +456,6 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.insa.graphics.drawing.Drawing#addDrawingClickListener(org.insa.graphics.
      * drawing.DrawingClickListener)
@@ -470,7 +467,6 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.insa.graphics.drawing.Drawing#removeDrawingClickListener(org.insa.
      * graphics.drawing.DrawingClickListener)
      */
