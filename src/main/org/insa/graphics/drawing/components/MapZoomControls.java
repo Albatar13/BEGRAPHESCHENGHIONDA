@@ -13,7 +13,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.ImageObserver;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,10 +64,10 @@ public class MapZoomControls {
     public MapZoomControls(Component component, final int defaultZoom, final int minZoom,
             final int maxZoom) throws IOException {
 
-        zoomIn = ImageIO.read(new File("res/zoomIn.png")).getScaledInstance(DEFAULT_HEIGHT,
-                DEFAULT_HEIGHT, Image.SCALE_SMOOTH);
-        zoomOut = ImageIO.read(new File("res/zoomOut.png")).getScaledInstance(DEFAULT_HEIGHT,
-                DEFAULT_HEIGHT, Image.SCALE_SMOOTH);
+        zoomIn = ImageIO.read(getClass().getResourceAsStream("/zoomIn.png"))
+                .getScaledInstance(DEFAULT_HEIGHT, DEFAULT_HEIGHT, Image.SCALE_SMOOTH);
+        zoomOut = ImageIO.read(getClass().getResourceAsStream("/zoomOut.png"))
+                .getScaledInstance(DEFAULT_HEIGHT, DEFAULT_HEIGHT, Image.SCALE_SMOOTH);
 
         this.currentLevel = defaultZoom;
         this.minLevel = minZoom;

@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -105,8 +106,10 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
          * 
          * @param path Path for this bundle, must not be null.
          * 
+         * @throws IOException If a resource was not found.
+         * 
          */
-        public PathPanel(Path path) {
+        public PathPanel(Path path) throws IOException {
             super();
             setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
             setBorder(BorderFactory.createCompoundBorder(
@@ -241,8 +244,8 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
                 }
             });
 
-            Image newimg = new ImageIcon("res/cross_mark.png").getImage().getScaledInstance(14, 14,
-                    java.awt.Image.SCALE_SMOOTH);
+            Image newimg = ImageIO.read(getClass().getResourceAsStream("/cross_mark.png"))
+                    .getScaledInstance(14, 14, java.awt.Image.SCALE_SMOOTH);
             JButton deleteButton = new JButton(new ImageIcon(newimg));
             deleteButton.setFocusPainted(false);
             deleteButton.setFocusable(false);
@@ -283,7 +286,6 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
 
         /*
          * (non-Javadoc)
-         * 
          * @see java.lang.Object#toString()
          */
         public String toString() {
@@ -307,10 +309,15 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
     }
 
     public void addPath(Path path) {
-        this.add(new PathPanel(path));
-        this.setVisible(true);
-        this.revalidate();
-        this.repaint();
+        try {
+            this.add(new PathPanel(path));
+            this.setVisible(true);
+            this.revalidate();
+            this.repaint();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     protected void removePath(PathPanel panel) {

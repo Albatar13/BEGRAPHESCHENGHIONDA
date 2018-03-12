@@ -4,11 +4,8 @@ import java.awt.Color;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.DataInputStream;
-import java.io.FileInputStream;
 
 public class MarkerUtils {
-
-    private static final String MARKER_MASK_FILE = "res/marker_mask.bin";
 
     /**
      * Create an Image representing a marker of the given color.
@@ -44,7 +41,8 @@ public class MarkerUtils {
     private static int[][] readMarkerMask() {
         if (MASK_CACHE == null) {
             try {
-                DataInputStream dis = new DataInputStream(new FileInputStream(MARKER_MASK_FILE));
+                DataInputStream dis = new DataInputStream(
+                        MarkerUtils.class.getResourceAsStream("/marker_mask.bin"));
 
                 int nrows = dis.readInt();
                 int ncols = dis.readInt();
