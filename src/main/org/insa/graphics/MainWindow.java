@@ -156,7 +156,7 @@ public class MainWindow extends JFrame {
         this.currentPalette = this.basicPalette;
 
         wccPanel = new AlgorithmPanel(this, WeaklyConnectedComponentsAlgorithm.class,
-                "Weakly-Connected Components", new String[] {}, false, false);
+                "Weakly-Connected Components", new String[]{}, false, false);
         wccPanel.addStartActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -201,7 +201,7 @@ public class MainWindow extends JFrame {
         });
 
         spPanel = new AlgorithmPanel(this, ShortestPathAlgorithm.class, "Shortest-Path",
-                new String[] { "Origin", "Destination" }, true, true);
+                new String[]{ "Origin", "Destination" }, true, true);
         spPanel.addStartActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -254,12 +254,12 @@ public class MainWindow extends JFrame {
         });
 
         cpPanel = new AlgorithmPanel(
-                this, CarPoolingAlgorithm.class, "Car-Pooling", new String[] { "Origin Car",
+                this, CarPoolingAlgorithm.class, "Car-Pooling", new String[]{ "Origin Car",
                         "Origin Pedestrian", "Destination Car", "Destination Pedestrian" },
                 true, true);
 
         psPanel = new AlgorithmPanel(this, PackageSwitchAlgorithm.class, "Car-Pooling",
-                new String[] { "Oribin A", "Origin B", "Destination A", "Destination B" }, true,
+                new String[]{ "Oribin A", "Origin B", "Destination A", "Destination B" }, true,
                 true);
 
         // add algorithm panels
@@ -465,6 +465,9 @@ public class MainWindow extends JFrame {
         if (!(mainPanel.getLeftComponent() instanceof Drawing)) {
             mainPanel.setLeftComponent((Component) this.drawing);
             mainPanel.setDividerLocation(oldLocation);
+            // Need to re-validate or the drawing will not have the
+            // correct size prior to drawing, which can cause issue.
+            this.revalidate();
         }
 
         boolean isNewGraph = newClass == null;
@@ -510,6 +513,7 @@ public class MainWindow extends JFrame {
                 notifyDrawingLoaded(basicDrawing, mapViewDrawing);
                 drawing.clear();
                 isNewGraph = true;
+                mainPanel.revalidate();
             }
             if (isNewGraph) {
                 drawing.clear();
