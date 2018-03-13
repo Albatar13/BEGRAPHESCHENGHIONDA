@@ -25,7 +25,7 @@ public class Path {
      * @throws IllegalArgumentException If the list of nodes is not valid, i.e. two
      *         consecutive nodes in the list are not connected in the graph.
      * 
-     * @deprecated Need to be implement.
+     * @deprecated Need to be implemented.
      */
     public static Path createFastestPathFromNodes(Graph graph, List<Node> nodes)
             throws IllegalArgumentException {
@@ -46,7 +46,7 @@ public class Path {
      * @throws IllegalArgumentException If the list of nodes is not valid, i.e. two
      *         consecutive nodes in the list are not connected in the graph.
      * 
-     * @deprecated Need to be implement.
+     * @deprecated Need to be implemented.
      */
     public static Path createShortestPathFromNodes(Graph graph, List<Node> nodes)
             throws IllegalArgumentException {
@@ -173,13 +173,18 @@ public class Path {
     /**
      * Check if this path is valid.
      * 
-     * A path is valid if it is empty, contains a single node (without arcs) or if
-     * the first arc has for origin the origin of the path and, for two consecutive
-     * arcs, the destination of the first one is the origin of the second one.
+     * A path is valid if any of the following is true:
+     * <ul>
+     * <li>it is empty;</li>
+     * <li>it contains a single node (without arcs);</li>
+     * <li>the first arc has for origin the origin of the path and, for two
+     * consecutive arcs, the destination of the first one is the origin of the
+     * second one.</li>
+     * </ul>
      * 
      * @return true if the path is valid, false otherwise.
      * 
-     * @deprecated Need to be implement.
+     * @deprecated Need to be implemented.
      */
     public boolean isValid() {
         // TODO:
@@ -187,9 +192,11 @@ public class Path {
     }
 
     /**
-     * @return Total length of the path.
+     * Compute the length of this path (in meters).
      * 
-     * @deprecated Need to be implement.
+     * @return Total length of the path (in meters).
+     * 
+     * @deprecated Need to be implemented.
      */
     public float getLength() {
         // TODO:
@@ -204,7 +211,7 @@ public class Path {
      * @return Time (in seconds) required to travel this path at the given speed (in
      *         kilometers-per-hour).
      * 
-     * @deprecated Need to be implement.
+     * @deprecated Need to be implemented.
      */
     public double getTravelTime(double speed) {
         // TODO:
@@ -212,9 +219,12 @@ public class Path {
     }
 
     /**
-     * @return Minimum travel time of the in seconds (assuming maximum speed).
+     * Compute the time to travel this path if moving at the maximum allowed speed
+     * on every arc.
      * 
-     * @deprecated Need to be implement.
+     * @return Minimum travel time to travel this path (in seconds).
+     * 
+     * @deprecated Need to be implemented.
      */
     public double getMinimumTravelTime() {
         // TODO:

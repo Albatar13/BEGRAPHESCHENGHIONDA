@@ -46,6 +46,9 @@ public abstract class Arc {
     }
 
     /**
+     * Compute and return the minimum time required to travel this arc, or the time
+     * required to travel this arc at the maximum speed allowed.
+     * 
      * @return Minimum time required to travel this arc, in seconds.
      * 
      * @see Arc#getTravelTime(double)
