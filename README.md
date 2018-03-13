@@ -77,3 +77,5 @@ You first need to register on one of these platform, the steps to import the pro
     ```bash
 	push -u origin master
 	```
+	
+Another way is to do a bare clone and then mirror to your repository : [https://help.github.com/articles/importing-a-git-repository-using-the-command-line/](https://help.github.com/articles/importing-a-git-repository-using-the-command-line/)
