@@ -119,8 +119,14 @@ public class MapViewDrawing extends MapView implements Drawing {
      */
     private class MapViewMarkerOverlay extends MapViewOverlay implements MarkerOverlay {
 
-        public MapViewMarkerOverlay(Marker marker, Color color) {
-            super(new Layer[] { marker }, color);
+        private final AlphaMode alphaMode;
+        private Color innerColor;
+
+        public MapViewMarkerOverlay(Marker marker, Color outer, Color innerColor,
+                AlphaMode alphaMode) {
+            super(new Layer[] { marker }, outer);
+            this.innerColor = innerColor;
+            this.alphaMode = alphaMode;
         }
 
         @Override
@@ -131,10 +137,11 @@ public class MapViewDrawing extends MapView implements Drawing {
         }
 
         @Override
-        public void setColor(Color color) {
+        public void setColor(Color outer) {
+            this.innerColor = this.innerColor.equals(this.color) ? outer : this.innerColor;
             super.setColor(color);
             MarkerAutoScaling marker = (MarkerAutoScaling) super.layers[0];
-            marker.setImage(MarkerUtils.getMarkerForColor(color));
+            marker.setImage(MarkerUtils.getMarkerForColor(color, this.innerColor, this.alphaMode));
         }
 
         @Override
@@ -167,8 +174,10 @@ public class MapViewDrawing extends MapView implements Drawing {
         public void setColor(Color color) {
             super.setColor(color);
             ((PolylineAutoScaling) this.layers[0]).setColor(color);
-            ((MarkerAutoScaling) this.layers[1]).setImage(MarkerUtils.getMarkerForColor(color));
-            ((MarkerAutoScaling) this.layers[2]).setImage(MarkerUtils.getMarkerForColor(color));
+            ((MarkerAutoScaling) this.layers[1])
+                    .setImage(MarkerUtils.getMarkerForColor(color, color, AlphaMode.TRANSPARENT));
+            ((MarkerAutoScaling) this.layers[2])
+                    .setImage(MarkerUtils.getMarkerForColor(color, color, AlphaMode.TRANSPARENT));
         }
 
     }
@@ -351,14 +360,16 @@ public class MapViewDrawing extends MapView implements Drawing {
         this.drawingClickListeners.remove(listener);
     }
 
-    protected MarkerAutoScaling createMarker(Point point, Color color) {
-        Image image = MarkerUtils.getMarkerForColor(color);
+    protected MarkerAutoScaling createMarker(Point point, Color outer, Color inner,
+            AlphaMode mode) {
+        Image image = MarkerUtils.getMarkerForColor(outer, inner, mode);
         return new MarkerAutoScaling(convertPoint(point), image);
     }
 
     @Override
-    public MarkerOverlay drawMarker(Point point, Color color) {
-        return new MapViewMarkerOverlay(createMarker(point, color), color);
+    public MarkerOverlay drawMarker(Point point, Color outer, Color inner, AlphaMode mode) {
+        return new MapViewMarkerOverlay(createMarker(point, outer, inner, mode), outer, inner,
+                mode);
     }
 
     @Override
@@ -421,10 +432,10 @@ public class MapViewDrawing extends MapView implements Drawing {
         line.addAll(points);
         PathOverlay overlay = null;
         if (markers) {
-            MarkerAutoScaling origin = createMarker(path.getOrigin().getPoint(),
-                    DEFAULT_PATH_COLOR),
-                    destination = createMarker(path.getDestination().getPoint(),
-                            DEFAULT_PATH_COLOR);
+            MarkerAutoScaling origin = createMarker(path.getOrigin().getPoint(), DEFAULT_PATH_COLOR,
+                    DEFAULT_PATH_COLOR, AlphaMode.TRANSPARENT),
+                    destination = createMarker(path.getDestination().getPoint(), DEFAULT_PATH_COLOR,
+                            DEFAULT_PATH_COLOR, AlphaMode.TRANSPARENT);
             overlay = new MapViewPathOverlay(line, origin, destination);
         }
         else {
