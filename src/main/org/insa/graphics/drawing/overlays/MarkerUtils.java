@@ -29,14 +29,27 @@ public class MarkerUtils {
 
         // Color[] map = getColorMapping(color);
         int outerRGB = outer.getRGB() & 0x00ffffff;
-        int innerRGB = inner.getRGB() & 0x00ffffff;
         for (int i = 0; i < image.getHeight(); ++i) {
             for (int j = 0; j < image.getWidth(); ++j) {
-                if (i >= MIN_Y_CENTER && i < MAX_Y_CENTER && j >= MIN_X_CENTER
-                        && j < MAX_X_CENTER) {
-                    image.setRGB(j, i, innerRGB
-                            | ((mode == AlphaMode.OPAQUE ? MAXIMUM_MAX_VALUE : mask[i][j]) << 24));
+
+                // If we are in the "inner" part of the marker...
+                if (i >= MIN_Y_CENTER && i < MAX_Y_CENTER && j >= MIN_X_CENTER && j < MAX_X_CENTER
+                        && mask[i][j] != MAXIMUM_INNER_MASK_VALUE) {
+                    // Don't ask... https://stackoverflow.com/a/29321264/2666289
+                    // Basically, this compute a "middle" color between outer and inner depending on
+                    // the current mask value.
+                    double t = 1 - (mask[i][j] - MINIMUM_INNER_MASK_VALUE)
+                            / (double) (MAXIMUM_INNER_MASK_VALUE - MINIMUM_INNER_MASK_VALUE);
+                    int r = (int) Math.sqrt((1 - t) * outer.getRed() * outer.getRed()
+                            + t * inner.getRed() * inner.getRed());
+                    int g = (int) Math.sqrt((1 - t) * outer.getGreen() * outer.getGreen()
+                            + t * inner.getGreen() * inner.getGreen());
+                    int b = (int) Math.sqrt((1 - t) * outer.getBlue() * outer.getBlue()
+                            + t * inner.getBlue() * inner.getBlue());
+                    int a = mode == AlphaMode.OPAQUE ? MAXIMUM_INNER_MASK_VALUE : mask[i][j];
+                    image.setRGB(j, i, (a << 24) | (r << 16) | (g << 8) | b);
                 }
+                // Otherwize, just fill with the outer color and set the alpha value properly.
                 else {
                     image.setRGB(j, i, outerRGB | (mask[i][j] << 24));
                 }
@@ -53,7 +66,7 @@ public class MarkerUtils {
     // with a different color.
     private static final int MIN_X_CENTER = 40, MAX_X_CENTER = 101, MIN_Y_CENTER = 40,
             MAX_Y_CENTER = 100;
-    private static final int MAXIMUM_MAX_VALUE = 249;
+    private static final int MINIMUM_INNER_MASK_VALUE = 116, MAXIMUM_INNER_MASK_VALUE = 249;
 
     /**
      * @return Retrieve the mask from the mask file or from the cache.

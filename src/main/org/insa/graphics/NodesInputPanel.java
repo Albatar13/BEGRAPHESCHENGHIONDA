@@ -248,8 +248,8 @@ public class NodesInputPanel extends JPanel
                 MarkerOverlay tracker = markerTrackers.getOrDefault(textField, null);
                 if (curnode != null) {
                     if (tracker == null) {
-                        tracker = drawing.drawMarker(curnode.getPoint(), markerColor, markerColor,
-                                AlphaMode.OPAQUE);
+                        tracker = drawing.drawMarker(curnode.getPoint(), markerColor, Color.BLACK,
+                                AlphaMode.TRANSPARENT);
                         markerTrackers.put(textField, tracker);
                     }
                     else {
@@ -414,7 +414,7 @@ public class NodesInputPanel extends JPanel
             MarkerOverlay tracker = markerTrackers.getOrDefault(input, null);
             if (tracker != null) {
                 MarkerOverlay newMarker = this.drawing.drawMarker(tracker.getPoint(),
-                        tracker.getColor(), tracker.getColor(), AlphaMode.OPAQUE);
+                        tracker.getColor(), Color.BLACK, AlphaMode.TRANSPARENT);
                 markerTrackers.put(input, newMarker);
                 newMarker.setVisible(tracker.isVisible());
                 tracker.delete();
