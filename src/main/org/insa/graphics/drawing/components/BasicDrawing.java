@@ -321,7 +321,7 @@ public class BasicDrawing extends JPanel implements Drawing {
      */
     public BasicDrawing() {
         setLayout(null);
-        this.setBackground(new Color(240, 240, 240));
+        this.setBackground(new Color(245, 245, 245));
         this.zoomAndPanListener = new ZoomAndPanListener(this,
                 ZoomAndPanListener.DEFAULT_MIN_ZOOM_LEVEL, 20, 1.2);
 
