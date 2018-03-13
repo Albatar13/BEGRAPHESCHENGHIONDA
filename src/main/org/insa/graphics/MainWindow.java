@@ -37,6 +37,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.border.CompoundBorder;
@@ -848,9 +849,14 @@ public class MainWindow extends JFrame {
         catch (Exception e) {
         }
 
-        MainWindow w = new MainWindow();
-        w.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        w.setVisible(true);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                MainWindow w = new MainWindow();
+                w.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                w.setVisible(true);
+            }
+        });
     }
 
 }
