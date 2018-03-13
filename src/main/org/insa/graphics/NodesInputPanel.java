@@ -25,6 +25,7 @@ import org.insa.graph.Graph;
 import org.insa.graph.Node;
 import org.insa.graph.Point;
 import org.insa.graphics.drawing.Drawing;
+import org.insa.graphics.drawing.Drawing.AlphaMode;
 import org.insa.graphics.drawing.DrawingClickListener;
 import org.insa.graphics.drawing.overlays.MarkerOverlay;
 
@@ -247,7 +248,8 @@ public class NodesInputPanel extends JPanel
                 MarkerOverlay tracker = markerTrackers.getOrDefault(textField, null);
                 if (curnode != null) {
                     if (tracker == null) {
-                        tracker = drawing.drawMarker(curnode.getPoint(), markerColor);
+                        tracker = drawing.drawMarker(curnode.getPoint(), markerColor, markerColor,
+                                AlphaMode.OPAQUE);
                         markerTrackers.put(textField, tracker);
                     }
                     else {
@@ -412,7 +414,7 @@ public class NodesInputPanel extends JPanel
             MarkerOverlay tracker = markerTrackers.getOrDefault(input, null);
             if (tracker != null) {
                 MarkerOverlay newMarker = this.drawing.drawMarker(tracker.getPoint(),
-                        tracker.getColor());
+                        tracker.getColor(), tracker.getColor(), AlphaMode.OPAQUE);
                 markerTrackers.put(input, newMarker);
                 newMarker.setVisible(tracker.isVisible());
                 tracker.delete();

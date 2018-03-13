@@ -120,11 +120,16 @@ public class BasicDrawing extends JPanel implements Drawing {
         // Image to draw
         private Image image;
 
-        public BasicMarkerOverlay(Point point, Color color) {
+        // Inner color and fill mode.
+        private Color innerColor;
+        private final AlphaMode alphaMode;
+
+        public BasicMarkerOverlay(Point point, Color color, Color inner, AlphaMode alphaMode) {
             super(color);
             this.point = point;
-            this.color = color;
-            this.image = MarkerUtils.getMarkerForColor(color);
+            this.image = MarkerUtils.getMarkerForColor(color, inner, alphaMode);
+            this.innerColor = inner;
+            this.alphaMode = alphaMode;
         }
 
         @Override
@@ -134,8 +139,9 @@ public class BasicDrawing extends JPanel implements Drawing {
 
         @Override
         public void setColor(Color color) {
+            this.innerColor = this.innerColor.equals(this.color) ? color : innerColor;
             super.setColor(color);
-            this.image = MarkerUtils.getMarkerForColor(color);
+            this.image = MarkerUtils.getMarkerForColor(color, this.innerColor, alphaMode);
         }
 
         @Override
@@ -347,6 +353,7 @@ public class BasicDrawing extends JPanel implements Drawing {
         }
 
         this.addMouseListener(new MouseAdapter() {
+
             @Override
             public void mouseClicked(MouseEvent evt) {
                 if (zoomControls.contains(evt.getPoint())) {
@@ -363,6 +370,7 @@ public class BasicDrawing extends JPanel implements Drawing {
                     listener.mouseClicked(lonlat);
                 }
             }
+
         });
     }
 
@@ -398,6 +406,7 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.insa.graphics.drawing.Drawing#clear()
      */
     @Override
@@ -413,6 +422,7 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.insa.graphics.drawing.Drawing#clearOverlays()
      */
     @Override
@@ -456,6 +466,7 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     /*
      * (non-Javadoc)
+     * 
      * @see
      * org.insa.graphics.drawing.Drawing#addDrawingClickListener(org.insa.graphics.
      * drawing.DrawingClickListener)
@@ -467,6 +478,7 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.insa.graphics.drawing.Drawing#removeDrawingClickListener(org.insa.
      * graphics.drawing.DrawingClickListener)
      */
@@ -475,13 +487,13 @@ public class BasicDrawing extends JPanel implements Drawing {
         this.drawingClickListeners.remove(listener);
     }
 
-    public BasicMarkerOverlay createMarker(Point point, Color color) {
-        return new BasicMarkerOverlay(point, color);
+    public BasicMarkerOverlay createMarker(Point point, Color outer, Color inner, AlphaMode mode) {
+        return new BasicMarkerOverlay(point, outer, inner, mode);
     }
 
     @Override
-    public MarkerOverlay drawMarker(Point point, Color color) {
-        BasicMarkerOverlay marker = createMarker(point, color);
+    public MarkerOverlay drawMarker(Point point, Color outer, Color inner, AlphaMode mode) {
+        BasicMarkerOverlay marker = createMarker(point, outer, inner, mode);
         synchronized (overlays) {
             this.overlays.add(marker);
         }
@@ -646,8 +658,9 @@ public class BasicDrawing extends JPanel implements Drawing {
         }
         BasicMarkerOverlay origin = null, destination = null;
         if (markers && !path.isEmpty()) {
-            origin = createMarker(path.getOrigin().getPoint(), color);
-            destination = createMarker(path.getDestination().getPoint(), color);
+            origin = createMarker(path.getOrigin().getPoint(), color, color, AlphaMode.TRANSPARENT);
+            destination = createMarker(path.getDestination().getPoint(), color, color,
+                    AlphaMode.TRANSPARENT);
         }
         BasicPathOverlay overlay = new BasicPathOverlay(points, color, origin, destination);
         synchronized (overlays) {

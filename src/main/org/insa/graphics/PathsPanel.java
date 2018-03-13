@@ -38,6 +38,7 @@ import org.insa.graph.Path;
 import org.insa.graph.io.BinaryPathWriter;
 import org.insa.graphics.drawing.Drawing;
 import org.insa.graphics.drawing.overlays.PathOverlay;
+import org.insa.graphics.utils.ColorUtils;
 import org.insa.graphics.utils.FileUtils;
 import org.insa.graphics.utils.FileUtils.FolderType;
 
@@ -109,14 +110,14 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
          * @throws IOException If a resource was not found.
          * 
          */
-        public PathPanel(Path path) throws IOException {
+        public PathPanel(Path path, Color color) throws IOException {
             super();
             setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
             setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY),
                     new EmptyBorder(5, 0, 5, 0)));
             this.path = path;
-            this.overlay = drawing.drawPath(this.path);
+            this.overlay = drawing.drawPath(this.path, color);
 
             JCheckBox checkbox = new JCheckBox();
             checkbox.setSelected(true);
@@ -286,6 +287,7 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
 
         /*
          * (non-Javadoc)
+         * 
          * @see java.lang.Object#toString()
          */
         public String toString() {
@@ -310,7 +312,7 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
 
     public void addPath(Path path) {
         try {
-            this.add(new PathPanel(path));
+            this.add(new PathPanel(path, ColorUtils.getColor(this.getComponentCount())));
             this.setVisible(true);
             this.revalidate();
             this.repaint();

@@ -12,6 +12,23 @@ import org.insa.graphics.drawing.overlays.PointSetOverlay;
 public interface Drawing {
 
     /**
+     * Available fill mode for the creation of markers, see the documentation of
+     * each value for more details.
+     */
+    enum AlphaMode {
+
+        /**
+         * Do not use the original transparency of the inner part to fill it.
+         */
+        OPAQUE,
+
+        /**
+         * Use the original transparency of the inner part to fill it.
+         */
+        TRANSPARENT
+    }
+
+    /**
      * Add a listener to click to this drawing.
      * 
      * @param listener DrawingClickListener to add to this Drawing.
@@ -36,14 +53,17 @@ public interface Drawing {
     public void clearOverlays();
 
     /**
-     * Draw a marker at the given position with the given color.
+     * Draw a marker at the given position using the given colors and according to
+     * the given mode.
      * 
      * @param point Position of the marker to draw.
-     * @param color Color of the marker to draw.
+     * @param outer Color for the outer part of the marker to draw.
+     * @param inner Color for the inner part of the marker to draw.
+     * @param mode Mode for filling the inner par of the marker.
      * 
      * @return A MarkerOverlay instance representing the newly drawn marker.
      */
-    public MarkerOverlay drawMarker(Point point, Color color);
+    public MarkerOverlay drawMarker(Point point, Color outer, Color inner, AlphaMode mode);
 
     /**
      * Create a new PointSetOverlay that can be used to add overlay points to this

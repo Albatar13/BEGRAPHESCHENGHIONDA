@@ -83,7 +83,7 @@ public class AlgorithmFactory {
             Class<?>[] params = c.getParameterTypes();
             if (params.length == 1 && params[0].isAssignableFrom(data.getClass())) {
                 c.setAccessible(true);
-                constructed = (AbstractAlgorithm<?>) c.newInstance(new Object[]{ data });
+                constructed = (AbstractAlgorithm<?>) c.newInstance(new Object[] { data });
                 break;
             }
         }

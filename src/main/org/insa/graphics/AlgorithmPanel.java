@@ -34,6 +34,7 @@ import org.insa.graph.Node;
 import org.insa.graphics.NodesInputPanel.InputChangedEvent;
 import org.insa.graphics.drawing.Drawing;
 import org.insa.graphics.drawing.components.MapViewDrawing;
+import org.insa.graphics.utils.ColorUtils;
 
 public class AlgorithmPanel extends JPanel implements DrawingChangeListener {
 
@@ -366,12 +367,10 @@ public class AlgorithmPanel extends JPanel implements DrawingChangeListener {
      * @return A new NodesInputPanel containing inputs for the given names.
      */
     protected NodesInputPanel createNodesInputPanel(String[] nodeNames) {
-        final Color[] nodeColors = { new Color(57, 172, 115), new Color(255, 77, 77),
-                new Color(77, 77, 255), new Color(77, 255, 77) };
         NodesInputPanel panel = new NodesInputPanel();
         panel.setAlignmentX(Component.LEFT_ALIGNMENT);
         for (int i = 0; i < nodeNames.length; ++i) {
-            panel.addTextField(nodeNames[i] + ": ", nodeColors[i % nodeColors.length]);
+            panel.addTextField(nodeNames[i] + ": ", ColorUtils.getColor(i));
         }
         panel.setEnabled(false);
         return panel;
