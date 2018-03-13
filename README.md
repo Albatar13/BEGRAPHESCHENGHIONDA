@@ -61,19 +61,19 @@ You first need to register on one of these platform, the steps to import the pro
 2. Clone this repository somewhere:
 
     ```bash
-git clone https://gitea.typename.fr/INSA/be-graphes.git
-```
+	git clone https://gitea.typename.fr/INSA/be-graphes.git
+	```
 
 3. Go inside the newly cloned repository and update the **remote**:
 
     ```bash
-cd be-graphes
-git remote remove origin
-git remote add origin $URL_REPOSITORY
-```
+	cd be-graphes
+	git remote remove origin
+	git remote add origin $URL_REPOSITORY
+	```
 
 4. Push to your repository:
 
     ```bash
-push -u origin master
-```
+	push -u origin master
+	```
