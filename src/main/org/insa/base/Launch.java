@@ -42,7 +42,7 @@ public class Launch {
 
         // Visit these directory to see the list of available files on Commetud.
         String mapName = "/home/commetud/3eme Annee MIC/Graphes-et-Algorithmes/Maps/insa.mapgr";
-        String pathName = "/home/commetud/3eme Annee MIC/Graphes-et-Algorithmes/path/path_fr31insa_rangueil_r2.path";
+        String pathName = "/home/commetud/3eme Annee MIC/Graphes-et-Algorithmes/Paths/path_fr31insa_rangueil_r2.path";
 
         // Create a graph reader.
         GraphReader reader = new BinaryGraphReader(
