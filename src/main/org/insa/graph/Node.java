@@ -45,6 +45,7 @@ public class Node implements Comparable<Node> {
                 d2o = new ArcBackward(arc);
             }
             else {
+                Collections.reverse(points);
                 d2o = new ArcForward(destination, origin, length, roadInformation, points);
                 arc = new ArcBackward(d2o);
             }
