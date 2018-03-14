@@ -28,7 +28,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -213,7 +212,9 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
                 }
             });
 
-            JButton saveButton = new JButton(UIManager.getIcon("FileView.floppyDriveIcon"));
+            Image saveImg = ImageIO.read(getClass().getResourceAsStream("/save-icon.png"))
+                    .getScaledInstance(14, 14, java.awt.Image.SCALE_SMOOTH);
+            JButton saveButton = new JButton(new ImageIcon(saveImg));
             saveButton.setFocusPainted(false);
             saveButton.setFocusable(false);
             saveButton.setMinimumSize(size);
@@ -245,7 +246,7 @@ public class PathsPanel extends JPanel implements DrawingChangeListener, GraphCh
                 }
             });
 
-            Image newimg = ImageIO.read(getClass().getResourceAsStream("/cross_mark.png"))
+            Image newimg = ImageIO.read(getClass().getResourceAsStream("/delete-icon.png"))
                     .getScaledInstance(14, 14, java.awt.Image.SCALE_SMOOTH);
             JButton deleteButton = new JButton(new ImageIcon(newimg));
             deleteButton.setFocusPainted(false);
