@@ -424,7 +424,7 @@ public class MapViewDrawing extends MapView implements Drawing {
 
     @Override
     public PathOverlay drawPath(Path path, Color color, boolean markers) {
-        PolylineAutoScaling line = new PolylineAutoScaling(1, DEFAULT_PATH_COLOR);
+        PolylineAutoScaling line = new PolylineAutoScaling(1, color);
         ArrayList<Point> points = new ArrayList<>(path.getArcs().size() * 4);
         for (Arc arc: path.getArcs()) {
             points.addAll(arc.getPoints());
@@ -432,10 +432,10 @@ public class MapViewDrawing extends MapView implements Drawing {
         line.addAll(points);
         PathOverlay overlay = null;
         if (markers) {
-            MarkerAutoScaling origin = createMarker(path.getOrigin().getPoint(), DEFAULT_PATH_COLOR,
-                    DEFAULT_PATH_COLOR, AlphaMode.TRANSPARENT),
-                    destination = createMarker(path.getDestination().getPoint(), DEFAULT_PATH_COLOR,
-                            DEFAULT_PATH_COLOR, AlphaMode.TRANSPARENT);
+            MarkerAutoScaling origin = createMarker(path.getOrigin().getPoint(), color, color,
+                    AlphaMode.TRANSPARENT),
+                    destination = createMarker(path.getDestination().getPoint(), color, color,
+                            AlphaMode.TRANSPARENT);
             overlay = new MapViewPathOverlay(line, origin, destination);
         }
         else {
