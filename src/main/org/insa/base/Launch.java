@@ -1,5 +1,6 @@
 package org.insa.base;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -29,10 +30,12 @@ public class Launch {
             @Override
             public void run() {
                 JFrame frame = new JFrame("BE Graphes - Launch");
-                frame.setContentPane(basicDrawing);
+                frame.setLayout(new BorderLayout());
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setVisible(true);
                 frame.setSize(new Dimension(800, 600));
+                frame.setContentPane(basicDrawing);
+                frame.validate();
             }
         });
         return basicDrawing;
