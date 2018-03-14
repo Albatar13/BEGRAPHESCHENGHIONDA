@@ -1,7 +1,6 @@
 package org.insa.graphics;
 
 import java.awt.Component;
-import java.awt.Dimension;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -38,7 +37,7 @@ public class GraphReaderProgressBar extends JDialog implements GraphReaderObserv
     private final JProgressBar[] progressBars = new JProgressBar[3];
 
     // Current element read, and modulo.
-    private int[] counters = new int[]{ 0, 0, 0 };
+    private int[] counters = new int[] { 0, 0, 0 };
     private int[] modulos = new int[3];
 
     public GraphReaderProgressBar(JFrame owner) {
@@ -63,13 +62,8 @@ public class GraphReaderProgressBar extends JDialog implements GraphReaderObserv
         }
 
         pane.add(Box.createVerticalGlue());
-
-        pane.setPreferredSize(new Dimension(300, 120));
-
         setContentPane(pane);
-
         pack();
-
     }
 
     @Override
