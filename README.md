@@ -1,17 +1,17 @@
-# Graph & Algorithm projects
+# Graph & Algorithm project &mdash; INSA Toulouse
 
 ## How to start?
 
-You will not be able to use this repository to save your work, thus you need to copy / import it to 
-your favorite repository platform.
+You will not be able to use this repository to save your work, you need to copy / import / fork it to 
+your favorite Git platform.
 
 ### Importing to [Github](https://github.com), [Bitbucket](https://bitbucket.org) or [Gitlab](https://gitlab.com):
 
-You first need to register on one of these platform, the steps to import the project are detailed below for each platform.
+You first need to register and then log in to the platform you want. The steps to import the project are detailed below:
 
 #### Github
 
-1. In the upper-right corner of any page, click the **"+"** icon, then click **Import repository**, or directlyu go to [https://github.com/new/import](https://github.com/new/import). 
+1. In the upper-right corner of any page, click the **"+"** icon, then click **Import repository**, or go to [https://github.com/new/import](https://github.com/new/import). 
 
 2. Paste the following URL in the first input:
  
@@ -25,13 +25,13 @@ You first need to register on one of these platform, the steps to import the pro
 
 #### Bitbucket
 
-1. On the left panel of any page, click the **"+"** icon, then **Repository**, and then **Import** or directly go to [https://bitbucket.org/repo/import](https://bitbucket.org/repo/import). 
+1. On the left panel of any page, click the **"+"** icon, then **Repository**, and then **Import**, or directly go to [https://bitbucket.org/repo/import](https://bitbucket.org/repo/import). 
 
 2. Paste the following URL in the first input (select Git as source if not already selected):
  
     [https://gitea.typename.fr/INSA/be-graphes.git](https://gitea.typename.fr/INSA/be-graphes.git)
 
-3. Choose the name you want for repository, and select Git for the *Version control system*.
+3. Choose the name you want for repository, and select Git as the *Version control system*.
 
 4. Click *Import repository*.
 
@@ -54,7 +54,7 @@ You first need to register on one of these platform, the steps to import the pro
 
 6. Wait for completion... Done!
 
-### Importing to another repository provider:
+### Importing to another repository provider *[not recommended]*:
 
 1. Create a new **empty** repository (no README, no LICENSE) on your provider. Let's assume the URL of your repository is `$URL_REPOSITORY`.
 
@@ -78,4 +78,4 @@ You first need to register on one of these platform, the steps to import the pro
 	push -u origin master
 	```
 	
-Another way is to do a bare clone and then mirror to your repository : [https://help.github.com/articles/importing-a-git-repository-using-the-command-line/](https://help.github.com/articles/importing-a-git-repository-using-the-command-line/)
+Another way is to do a bare clone and then mirror it to your repository: [https://help.github.com/articles/importing-a-git-repository-using-the-command-line/](https://help.github.com/articles/importing-a-git-repository-using-the-command-line/)
