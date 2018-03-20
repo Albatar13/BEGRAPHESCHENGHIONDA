@@ -167,7 +167,16 @@ public class Path {
      * @return true if this path is empty, false otherwise.
      */
     public boolean isEmpty() {
-        return arcs.isEmpty();
+        return this.origin == null;
+    }
+
+    /**
+     * Get the number of <b>nodes</b> in this path.
+     * 
+     * @return Number of nodes in this path.
+     */
+    public int size() {
+        return 1 + this.arcs.size();
     }
 
     /**
