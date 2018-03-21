@@ -576,8 +576,10 @@ public class BasicDrawing extends JPanel implements Drawing {
 
         // Create the projection and retrieve width and height for the box.
         BoundingBox extendedBox = box.extend(deltaLon, deltaLat, deltaLon, deltaLat);
+
+        // Special projection for non-realistic maps...
         if (graph.getMapId().startsWith("0x")) {
-            projection = new PlateCarreProjection(extendedBox, MAXIMUM_DRAWING_WIDTH);
+            projection = new PlateCarreProjection(extendedBox, MAXIMUM_DRAWING_WIDTH / 4);
         }
         else {
             projection = new MercatorProjection(extendedBox, MAXIMUM_DRAWING_WIDTH);
