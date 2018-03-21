@@ -93,6 +93,16 @@ public class PathTest {
         assertFalse(longLoopPath.isEmpty());
         assertFalse(invalidPath.isEmpty());
     }
+    
+    @Test
+    public void testSize() {
+        assertEquals(emptyPath.size(), 0);
+        assertEquals(singleNodePath.size(), 1);
+        assertEquals(shortPath.size(), 4);
+        assertEquals(longPath.size(), 5);
+        assertEquals(loopPath.size(), 5);
+        assertEquals(longLoopPath.size(), 10);
+    }
 
     @Test
     public void testIsValid() {

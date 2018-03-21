@@ -176,7 +176,7 @@ public class Path {
      * @return Number of nodes in this path.
      */
     public int size() {
-        return 1 + this.arcs.size();
+        return isEmpty() ? 0 : 1 + this.arcs.size();
     }
 
     /**
