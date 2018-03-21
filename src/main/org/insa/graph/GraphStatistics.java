@@ -81,6 +81,31 @@ public class GraphStatistics {
             return this.extend(size, size, size, size);
         }
 
+        /**
+         * @param point Point to check
+         * 
+         * @return true if this box contains the given point.
+         */
+        public boolean contains(Point point) {
+            return this.bottomRight.getLatitude() <= point.getLatitude()
+                    && this.topLeft.getLatitude() >= point.getLatitude()
+                    && this.topLeft.getLongitude() <= point.getLongitude()
+                    && this.bottomRight.getLongitude() >= point.getLongitude();
+        }
+
+        /**
+         * @return true if this box contains the given box.
+         */
+        public boolean contains(BoundingBox other) {
+            return this.contains(other.bottomRight) && this.contains(other.topLeft);
+        }
+
+        @Override
+        public String toString() {
+            return "BoundingBox(topLeft=" + this.topLeft + ", bottomRight=" + this.bottomRight
+                    + ")";
+        }
+
     }
 
     // Bounding box for this graph.

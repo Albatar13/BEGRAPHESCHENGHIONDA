@@ -4,7 +4,7 @@ import java.awt.Dimension;
 
 import org.insa.graph.GraphStatistics.BoundingBox;
 
-public class MercatorProjection {
+public class MercatorProjection implements Projection {
 
     public static final double MAX_LATITUDE = 82;
 
@@ -50,20 +50,6 @@ public class MercatorProjection {
     }
 
     /**
-     * @return Image width for this projection to work properly.
-     */
-    public double getImageWidth() {
-        return this.width;
-    }
-
-    /**
-     * @return Image weight for this projection to work properly.
-     */
-    public double getImageHeight() {
-        return this.height;
-    }
-
-    /**
      * Compute the projection (without scaling) of the given latitude.
      * 
      * @param latitude Latitude to project.
@@ -93,49 +79,35 @@ public class MercatorProjection {
                 : new Dimension(maxSize, (int) (maxSize * propHeight / propWidth));
     }
 
-    /**
-     * Project the given latitude on the image.
-     * 
-     * @param latitude Latitude to project.
-     * 
-     * @return Projected position of the latitude on the image.
-     */
+    @Override
+    public double getImageWidth() {
+        return this.width;
+    }
+
+    @Override
+    public double getImageHeight() {
+        return this.height;
+    }
+
+    @Override
     public int latitudeToPixelY(float latitude) {
         return (int) ((this.maxLatitudeProj - projectY(latitude))
                 / (this.maxLatitudeProj - this.minLatitudeProj) * this.height);
     }
 
-    /**
-     * Project the given longitude on the image.
-     * 
-     * @param longitude Longitude to project.
-     * 
-     * @return Projected position of the longitude on the image.
-     */
+    @Override
     public int longitudeToPixelX(float longitude) {
         return (int) (width * (longitude - minLongitude) / (maxLongitude - minLongitude));
     }
 
-    /**
-     * Retrieve the latitude associated to the given projected point.
-     * 
-     * @param py Projected y-position for which latitude should be retrieved.
-     * 
-     * @return The original latitude of the point.
-     */
+    @Override
     public float pixelYToLatitude(double py) {
         float y = (float) (this.maxLatitudeProj
                 - (py / this.height) * (this.maxLatitudeProj - this.minLatitudeProj));
         return (float) (180 * (2 * Math.atan(Math.exp(y)) - Math.PI / 2) / Math.PI);
     }
 
-    /**
-     * Retrieve the longitude associated to the given projected point.
-     * 
-     * @param px Projected x-position for which longitude should be retrieved.
-     * 
-     * @return The original longitude of the point.
-     */
+    @Override
     public float pixelXToLongitude(double px) {
         return (float) ((px / this.width) * (this.maxLongitude - this.minLongitude)
                 + this.minLongitude);
