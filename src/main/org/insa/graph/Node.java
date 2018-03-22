@@ -13,7 +13,7 @@ import java.util.Iterator;
  * Nodes are comparable based on their ID.
  *
  */
-public class Node implements Comparable<Node>, Iterable<Arc> {
+public final class Node implements Comparable<Node>, Iterable<Arc> {
 
     /**
      * Link the two given nodes with one or two arcs (depending on roadInformation),
@@ -109,7 +109,7 @@ public class Node implements Comparable<Node>, Iterable<Arc> {
 
     @Override
     public Iterator<Arc> iterator() {
-        return this.successors.iterator();
+        return Collections.unmodifiableList(this.successors).iterator();
     }
 
     /**

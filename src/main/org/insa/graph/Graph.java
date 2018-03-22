@@ -1,6 +1,7 @@
 package org.insa.graph;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
  * holds a list of nodes and each node holds a list of its successors.
  *
  */
-public class Graph implements Iterable<Node> {
+public final class Graph implements Iterable<Node> {
 
     // Map identifier.
     private final String mapId;
@@ -36,7 +37,7 @@ public class Graph implements Iterable<Node> {
     public Graph(String mapId, String mapName, List<Node> nodes, GraphStatistics graphStatistics) {
         this.mapId = mapId;
         this.mapName = mapName;
-        this.nodes = nodes;
+        this.nodes = Collections.unmodifiableList(nodes);
         this.graphStatistics = graphStatistics;
     }
 
