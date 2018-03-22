@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 import org.insa.algo.AbstractAlgorithm;
@@ -72,14 +71,14 @@ public class WeaklyConnectedComponentsAlgorithm
      *         graph.
      */
     protected ArrayList<HashSet<Integer>> createUndirectedGraph() {
-        int nNodes = getInputData().getGraph().getNodes().size();
+        int nNodes = getInputData().getGraph().size();
         ArrayList<HashSet<Integer>> res = new ArrayList<HashSet<Integer>>(nNodes);
         for (int i = 0; i < nNodes; ++i) {
             res.add(new HashSet<Integer>());
         }
 
-        for (Node node: getInputData().getGraph().getNodes()) {
-            for (Arc arc: node.getSuccessors()) {
+        for (Node node: getInputData().getGraph()) {
+            for (Arc arc: node) {
                 res.get(node.getId()).add(arc.getDestination().getId());
                 if (arc.getRoadInformation().isOneWay()) {
                     res.get(arc.getDestination().getId()).add(node.getId());
@@ -100,27 +99,27 @@ public class WeaklyConnectedComponentsAlgorithm
      * @return
      */
     protected ArrayList<Node> bfs(ArrayList<HashSet<Integer>> ugraph, boolean[] marked, int cur) {
-        List<Node> nodes = getInputData().getGraph().getNodes();
+        Graph graph = getInputData().getGraph();
         ArrayList<Node> component = new ArrayList<Node>();
 
         // Using a queue because we are doing a BFS
         Queue<Integer> queue = new LinkedList<Integer>();
 
         // Notify observers about the current component.
-        notifyStartComponent(nodes.get(cur));
+        notifyStartComponent(graph.get(cur));
 
         // Add original node and loop until the queue is empty.
         queue.add(cur);
         marked[cur] = true;
         while (!queue.isEmpty()) {
-            Node node = nodes.get(queue.remove());
+            Node node = graph.get(queue.remove());
             component.add(node);
 
             // Notify observers
             notifyNewNodeInComponent(node);
 
             for (Integer destId: ugraph.get(node.getId())) {
-                Node dest = nodes.get(destId);
+                Node dest = graph.get(destId);
                 if (!marked[dest.getId()]) {
                     queue.add(destId);
                     marked[destId] = true;
@@ -138,7 +137,7 @@ public class WeaklyConnectedComponentsAlgorithm
 
         Graph graph = getInputData().getGraph();
         ArrayList<HashSet<Integer>> ugraph = createUndirectedGraph();
-        boolean[] marked = new boolean[graph.getNodes().size()];
+        boolean[] marked = new boolean[graph.size()];
         Arrays.fill(marked, false);
 
         ArrayList<ArrayList<Node>> components = new ArrayList<ArrayList<Node>>();

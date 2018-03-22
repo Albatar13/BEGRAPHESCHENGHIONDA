@@ -62,7 +62,7 @@ public class GraphTest {
      */
     private List<Arc> getArcsBetween(Node a, Node b) {
         List<Arc> arcs = new ArrayList<>();
-        for (Arc arc: a.getSuccessors()) {
+        for (Arc arc: a) {
             if (arc.getDestination().equals(b)) {
                 arcs.add(arc);
             }
@@ -76,53 +76,33 @@ public class GraphTest {
 
         // Basic asserts...
         assertEquals("R/" + graph.getMapId(), transpose.getMapId());
-        assertEquals(graph.getNodes().size(), transpose.getNodes().size());
+        assertEquals(graph.size(), transpose.size());
 
         final int expNbSucc[] = { 4, 2, 2, 4, 2 };
         for (int i = 0; i < expNbSucc.length; ++i) {
-            assertEquals(expNbSucc[i], transpose.getNodes().get(i).getSuccessors().size());
+            assertEquals(expNbSucc[i], transpose.get(i).getNumberOfSuccessors());
         }
 
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(0), transpose.getNodes().get(1)).size(), 1);
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(0), transpose.getNodes().get(2)).size(), 1);
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(0), transpose.getNodes().get(3)).size(), 1);
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(0), transpose.getNodes().get(4)).size(), 1);
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(1), transpose.getNodes().get(0)).size(), 1);
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(1), transpose.getNodes().get(2)).size(), 1);
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(1), transpose.getNodes().get(3)).size(), 0);
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(1), transpose.getNodes().get(4)).size(), 0);
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(2), transpose.getNodes().get(0)).size(), 1);
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(2), transpose.getNodes().get(1)).size(), 1);
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(2), transpose.getNodes().get(3)).size(), 0);
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(2), transpose.getNodes().get(4)).size(), 0);
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(3), transpose.getNodes().get(0)).size(), 1);
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(3), transpose.getNodes().get(1)).size(), 0);
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(3), transpose.getNodes().get(2)).size(), 3);
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(3), transpose.getNodes().get(4)).size(), 0);
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(4), transpose.getNodes().get(0)).size(), 1);
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(4), transpose.getNodes().get(1)).size(), 0);
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(4), transpose.getNodes().get(2)).size(), 0);
-        assertEquals(
-                getArcsBetween(transpose.getNodes().get(4), transpose.getNodes().get(3)).size(), 1);
+        assertEquals(getArcsBetween(transpose.get(0), transpose.get(1)).size(), 1);
+        assertEquals(getArcsBetween(transpose.get(0), transpose.get(2)).size(), 1);
+        assertEquals(getArcsBetween(transpose.get(0), transpose.get(3)).size(), 1);
+        assertEquals(getArcsBetween(transpose.get(0), transpose.get(4)).size(), 1);
+        assertEquals(getArcsBetween(transpose.get(1), transpose.get(0)).size(), 1);
+        assertEquals(getArcsBetween(transpose.get(1), transpose.get(2)).size(), 1);
+        assertEquals(getArcsBetween(transpose.get(1), transpose.get(3)).size(), 0);
+        assertEquals(getArcsBetween(transpose.get(1), transpose.get(4)).size(), 0);
+        assertEquals(getArcsBetween(transpose.get(2), transpose.get(0)).size(), 1);
+        assertEquals(getArcsBetween(transpose.get(2), transpose.get(1)).size(), 1);
+        assertEquals(getArcsBetween(transpose.get(2), transpose.get(3)).size(), 0);
+        assertEquals(getArcsBetween(transpose.get(2), transpose.get(4)).size(), 0);
+        assertEquals(getArcsBetween(transpose.get(3), transpose.get(0)).size(), 1);
+        assertEquals(getArcsBetween(transpose.get(3), transpose.get(1)).size(), 0);
+        assertEquals(getArcsBetween(transpose.get(3), transpose.get(2)).size(), 3);
+        assertEquals(getArcsBetween(transpose.get(3), transpose.get(4)).size(), 0);
+        assertEquals(getArcsBetween(transpose.get(4), transpose.get(0)).size(), 1);
+        assertEquals(getArcsBetween(transpose.get(4), transpose.get(1)).size(), 0);
+        assertEquals(getArcsBetween(transpose.get(4), transpose.get(2)).size(), 0);
+        assertEquals(getArcsBetween(transpose.get(4), transpose.get(3)).size(), 1);
 
     }
 }

@@ -614,7 +614,7 @@ public class BasicDrawing extends JPanel implements Drawing {
 
     @Override
     public void drawGraph(Graph graph, GraphPalette palette) {
-        int repaintModulo = Math.max(1, graph.getNodes().size() / 100);
+        int repaintModulo = Math.max(1, graph.size() / 100);
 
         // Initialize the buffered image
 
@@ -625,8 +625,8 @@ public class BasicDrawing extends JPanel implements Drawing {
         this.removeMouseMotionListener(zoomAndPanListener);
         this.removeMouseWheelListener(zoomAndPanListener);
 
-        for (Node node: graph.getNodes()) {
-            for (Arc arc: node.getSuccessors()) {
+        for (Node node: graph) {
+            for (Arc arc: node) {
                 // Draw arcs only if there are one-way arcs or if origin is lower than
                 // destination, avoid drawing two-ways arc twice.
                 if (arc.getRoadInformation().isOneWay()

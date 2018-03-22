@@ -65,7 +65,7 @@ public class NodesInputPanel extends JPanel
         public Node findClosestNode(Point point) {
             Node minNode = null;
             double minDis = Double.POSITIVE_INFINITY;
-            for (Node node: graph.getNodes()) {
+            for (Node node: graph) {
                 double dlon = point.getLongitude() - node.getPoint().getLongitude();
                 double dlat = point.getLatitude() - node.getPoint().getLatitude();
                 double dis = dlon * dlon + dlat * dlat; // No need to square
@@ -308,7 +308,7 @@ public class NodesInputPanel extends JPanel
      */
     protected Node getNodeForInput(JTextField textfield) {
         try {
-            Node node = graph.getNodes().get(Integer.valueOf(textfield.getText().trim()));
+            Node node = graph.get(Integer.valueOf(textfield.getText().trim()));
             return node;
         }
         catch (IllegalArgumentException | IndexOutOfBoundsException ex) {

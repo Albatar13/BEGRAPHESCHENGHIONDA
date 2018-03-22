@@ -70,7 +70,7 @@ public class BinaryPathReader extends BinaryReader implements PathReader {
      * @throws IndexOutOfBoundsException if the node is not in the graph.
      */
     protected Node readNode(Graph graph) throws IOException {
-        return graph.getNodes().get(dis.readInt());
+        return graph.get(dis.readInt());
     }
 
 }

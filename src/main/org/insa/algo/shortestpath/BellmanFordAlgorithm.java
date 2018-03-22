@@ -24,7 +24,7 @@ public class BellmanFordAlgorithm extends ShortestPathAlgorithm {
         ShortestPathData data = getInputData();
         Graph graph = data.getGraph();
 
-        final int nbNodes = graph.getNodes().size();
+        final int nbNodes = graph.size();
 
         // Initialize array of distances.
         double[] distances = new double[nbNodes];
@@ -41,8 +41,8 @@ public class BellmanFordAlgorithm extends ShortestPathAlgorithm {
         boolean found = false;
         for (int i = 0; !found && i < nbNodes; ++i) {
             found = true;
-            for (Node node: graph.getNodes()) {
-                for (Arc arc: node.getSuccessors()) {
+            for (Node node: graph) {
+                for (Arc arc: node) {
 
                     // Small test to check allowed roads...
                     if (!data.isAllowed(arc)) {

@@ -1,7 +1,7 @@
 package org.insa.graph;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -11,7 +11,7 @@ import java.util.List;
  * holds a list of nodes and each node holds a list of its successors.
  *
  */
-public class Graph {
+public class Graph implements Iterable<Node> {
 
     // Map identifier.
     private final String mapId;
@@ -48,10 +48,28 @@ public class Graph {
     }
 
     /**
-     * @return Immutable view of the list of nodes of this graph.
+     * Fetch the node with the given ID.
+     * 
+     * Complexity: O(1).
+     * 
+     * @param id ID of the node to fetch.
+     * 
+     * @return Node with the given ID.
      */
-    public List<Node> getNodes() {
-        return Collections.unmodifiableList(nodes);
+    public Node get(int id) {
+        return this.nodes.get(id);
+    }
+
+    /**
+     * @return Number of nodes in this graph.
+     */
+    public int size() {
+        return this.nodes.size();
+    }
+
+    @Override
+    public Iterator<Node> iterator() {
+        return this.nodes.iterator();
     }
 
     /**
@@ -78,7 +96,7 @@ public class Graph {
         }
         for (Node node: nodes) {
             Node orig = trNodes.get(node.getId());
-            for (Arc arc: node.getSuccessors()) {
+            for (Arc arc: node) {
                 if (arc.getRoadInformation().isOneWay()) {
                     Node dest = trNodes.get(arc.getDestination().getId());
                     dest.addSuccessor(new ArcBackward(new ArcForward(orig, dest, arc.getLength(),

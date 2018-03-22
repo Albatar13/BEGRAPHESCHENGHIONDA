@@ -1,9 +1,9 @@
 //
 // ******************PUBLIC OPERATIONS*********************
-// void insert( x )       --> Insert x
+// void insert( x ) --> Insert x
 // Comparable deleteMin( )--> Return and remove smallest item
-// Comparable findMin( )  --> Return smallest item
-// boolean isEmpty( )     --> Return true if empty; else false
+// Comparable findMin( ) --> Return smallest item
+// boolean isEmpty( ) --> Return true if empty; else false
 // ******************ERRORS********************************
 // Throws RuntimeException for findMin and deleteMin when empty
 
@@ -61,20 +61,6 @@ public class BinaryHeap<E extends Comparable<E>> {
     }
 
     /**
-     * @return true if the heap is empty, false otherwise.
-     */
-    public boolean isEmpty() {
-        return this.currentSize == 0;
-    }
-
-    /**
-     * @return Current size (number of elements) of this heap.
-     */
-    public int size() {
-        return this.currentSize;
-    }
-
-    /**
      * @return Index of the parent of the given index.
      */
     private int index_parent(int index) {
@@ -86,17 +72,6 @@ public class BinaryHeap<E extends Comparable<E>> {
      */
     private int index_left(int index) {
         return index * 2 + 1;
-    }
-
-    /**
-     * Insert the given element into the heap.
-     * 
-     * @param x Item to insert.
-     */
-    public void insert(E x) {
-        int index = this.currentSize++;
-        this.arraySet(index, x);
-        this.percolateUp(index);
     }
 
     /**
@@ -152,6 +127,41 @@ public class BinaryHeap<E extends Comparable<E>> {
     }
 
     /**
+     * @return true if the heap is empty, false otherwise.
+     */
+    public boolean isEmpty() {
+        return this.currentSize == 0;
+    }
+
+    /**
+     * @return Current size (number of elements) of this heap.
+     */
+    public int size() {
+        return this.currentSize;
+    }
+
+    /**
+     * Insert the given element into the heap.
+     * 
+     * @param x Item to insert.
+     */
+    public void add(E x) {
+        int index = this.currentSize++;
+        this.arraySet(index, x);
+        this.percolateUp(index);
+    }
+
+    /**
+     * Tell the binary heap that the given element has been modified and should be
+     * re-positioned inside the heap.
+     * 
+     * @param x Item to update.
+     */
+    public void update(E x) {
+        // TODO:
+    }
+
+    /**
      * Find the smallest item in the heap.
      * 
      * @return The smallest item in the heap.
@@ -160,7 +170,7 @@ public class BinaryHeap<E extends Comparable<E>> {
      */
     public E findMin() throws RuntimeException {
         if (isEmpty())
-            throw new RuntimeException("Empty binary heap");
+            throw new RuntimeException("Empty binary heap.");
         return this.array.get(0);
     }
 

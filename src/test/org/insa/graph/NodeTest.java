@@ -18,7 +18,7 @@ public class NodeTest {
     public void initAll() throws IOException {
 
         // Create nodes
-        nodes = new Node[5];
+        nodes = new Node[6];
         for (int i = 0; i < nodes.length; ++i) {
             nodes[i] = new Node(i, null);
         }
@@ -54,7 +54,7 @@ public class NodeTest {
      * @return The first arc between from a to b, or null.
      */
     private Arc getFirstArcBetween(Node a, Node b) {
-        for (Arc arc: a.getSuccessors()) {
+        for (Arc arc: a) {
             if (arc.getDestination().equals(b)) {
                 return arc;
             }
@@ -63,13 +63,25 @@ public class NodeTest {
     }
 
     @Test
-    public void testLinkNodes() {
-        final int[] expNbSucc = { 4, 2, 5, 2, 1 };
+    public void testGetNumberOfSuccessors() {
+        final int[] expNbSucc = { 4, 2, 5, 2, 1, 0 };
         assertEquals(nodes.length, expNbSucc.length);
         for (int i = 0; i < expNbSucc.length; ++i) {
-            assertEquals(nodes[i].getSuccessors().size(), expNbSucc[i]);
+            assertEquals(nodes[i].getNumberOfSuccessors(), expNbSucc[i]);
         }
+    }
 
+    @Test
+    public void testHasSuccessors() {
+        final int[] expNbSucc = { 4, 2, 5, 2, 1, 0 };
+        assertEquals(nodes.length, expNbSucc.length);
+        for (int i = 0; i < expNbSucc.length; ++i) {
+            assertEquals(nodes[i].hasSuccessors(), expNbSucc[i] != 0);
+        }
+    }
+
+    @Test
+    public void testLinkNodes() {
         assertEquals(getFirstArcBetween(nodes[0], nodes[1]).getRoadInformation(),
                 getFirstArcBetween(nodes[1], nodes[0]).getRoadInformation());
     }
