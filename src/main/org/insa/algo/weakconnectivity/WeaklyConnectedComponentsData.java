@@ -9,7 +9,7 @@ public class WeaklyConnectedComponentsData extends AbstractInputData {
      * @param graph Graph for which components should be retrieved.
      */
     public WeaklyConnectedComponentsData(Graph graph) {
-        super(graph);
+        super(graph, null);
     }
 
     @Override

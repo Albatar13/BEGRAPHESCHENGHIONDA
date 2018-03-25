@@ -18,7 +18,8 @@ import org.mapsforge.map.layer.overlay.Marker;
  * correcting this. Internally, this image stores an {@link Image} instance and
  * scale it when a redraw is requested.
  * 
- * @see MarkerUtils#getMarkerForColor(java.awt.Color)
+ * @see MarkerUtils#getMarkerForColor(java.awt.Color, java.awt.Color,
+ *      org.insa.graphics.drawing.Drawing.AlphaMode)
  * @see PaintUtils#getStrokeWidth(int, byte)
  */
 public class MarkerAutoScaling extends Marker {

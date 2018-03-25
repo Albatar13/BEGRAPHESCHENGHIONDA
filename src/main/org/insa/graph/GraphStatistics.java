@@ -94,6 +94,8 @@ public class GraphStatistics {
         }
 
         /**
+         * @param other Box to intersect.
+         * 
          * @return true if this box contains the given box.
          */
         public boolean contains(BoundingBox other) {

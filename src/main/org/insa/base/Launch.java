@@ -23,6 +23,8 @@ public class Launch {
      * Create a new Drawing inside a JFrame an return it.
      * 
      * @return The created drawing.
+     * 
+     * @throws Exception if something wrong happens when creating the graph.
      */
     public static Drawing createDrawing() throws Exception {
         BasicDrawing basicDrawing = new BasicDrawing();

@@ -1,7 +1,8 @@
 package org.insa.algo.shortestpath;
 
-import org.insa.algo.AbstractInputData;
+import org.insa.algo.AbstractInputData.Mode;
 import org.insa.algo.AbstractSolution;
+import org.insa.graph.Arc;
 import org.insa.graph.Path;
 
 public class ShortestPathSolution extends AbstractSolution {
@@ -59,14 +60,17 @@ public class ShortestPathSolution extends AbstractSolution {
                     getInputData().getOrigin().getId(), getInputData().getDestination().getId());
         }
         else {
+            double cost = 0;
+            for (Arc arc: getPath().getArcs()) {
+                cost += getInputData().getCost(arc);
+            }
             info = String.format("Found a path from node #%d to node #%d",
                     getInputData().getOrigin().getId(), getInputData().getDestination().getId());
-            if (getInputData().getMode() == AbstractInputData.Mode.LENGTH) {
-                info = String.format("%s, %.4f kilometers", info, (getPath().getLength() / 1000.0));
+            if (getInputData().getMode() == Mode.LENGTH) {
+                info = String.format("%s, %.4f kilometers", info, cost / 1000.0);
             }
             else {
-                info = String.format("%s, %.4f minutes", info,
-                        (getPath().getMinimumTravelTime() / 60.0));
+                info = String.format("%s, %.4f minutes", info, cost / 60.0);
             }
         }
         info += " in " + getSolvingTime().getSeconds() + " seconds.";

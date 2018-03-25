@@ -2,6 +2,7 @@ package org.insa.algo;
 
 import org.insa.graph.Arc;
 import org.insa.graph.Graph;
+import org.insa.graph.GraphStatistics;
 
 /**
  * Base class for algorithm input data classes. This class contains the basic
@@ -12,77 +13,29 @@ import org.insa.graph.Graph;
 public abstract class AbstractInputData {
 
     /**
-     * Mode for computing costs on the arc (time or length).
-     *
+     * Enum specifying the top mode of the algorithms.
+     * 
+     * @see ArcInspector
      */
     public enum Mode {
         TIME, LENGTH
     }
 
-    /**
-     * Filtering interface for arcs - This class can be used to indicate to an
-     * algorithm which arc can be used.
-     *
-     */
-    public interface ArcFilter {
-
-        /**
-         * Check if the given arc can be used (is allowed).
-         * 
-         * @param arc Arc to check.
-         * 
-         * @return true if the given arc is allowed.
-         */
-        public boolean isAllowed(Arc arc);
-
-    }
-
     // Graph
     private final Graph graph;
 
-    // Mode for the computation of the costs.
-    private final Mode mode;
-
     // Arc filter.
-    private final ArcFilter arcFilter;
+    protected final ArcInspector arcInspector;
 
     /**
      * Create a new AbstractInputData instance for the given graph, mode and filter.
      * 
-     * @param graph
-     * @parma mode
-     * @param arcFilter
+     * @param graph Graph for this input data.
+     * @param arcInspector Arc inspector for this input data.
      */
-    protected AbstractInputData(Graph graph, Mode mode, ArcFilter arcFilter) {
+    protected AbstractInputData(Graph graph, ArcInspector arcInspector) {
         this.graph = graph;
-        this.mode = mode;
-        this.arcFilter = arcFilter;
-    }
-
-    /**
-     * Create a new AbstractInputData instance for the given graph and mode, with no
-     * filtering on the arc.
-     * 
-     * @param graph
-     * @param mode
-     */
-    protected AbstractInputData(Graph graph, Mode mode) {
-        this(graph, mode, new AbstractInputData.ArcFilter() {
-            @Override
-            public boolean isAllowed(Arc arc) {
-                return true;
-            }
-        });
-    }
-
-    /**
-     * Create a new AbstractInputData instance for the given graph, with default
-     * mode (LENGHT), with no filtering on the arc.
-     * 
-     * @param graph
-     */
-    protected AbstractInputData(Graph graph) {
-        this(graph, Mode.LENGTH);
+        this.arcInspector = arcInspector;
     }
 
     /**
@@ -93,12 +46,39 @@ public abstract class AbstractInputData {
     }
 
     /**
-     * @return Mode of the algorithm (time or length).
+     * Retrieve the cost associated with the given arc according to the underlying
+     * arc inspector.
+     * 
+     * @param arc Arc for which cost should be retrieved.
+     * 
+     * @return Cost for the given arc.
+     * 
+     * @see ArcInspector
+     */
+    public double getCost(Arc arc) {
+        return this.arcInspector.getCost(arc);
+    }
+
+    /**
+     * @return Mode associated with this input data.
      * 
      * @see Mode
      */
     public Mode getMode() {
-        return mode;
+        return this.arcInspector.getMode();
+    }
+
+    /**
+     * Retrieve the maximum speed associated with this input data, or
+     * {@link GraphStatistics#NO_MAXIMUM_SPEED} if none is associated. The maximum
+     * speed associated with input data is different from the maximum speed
+     * associated with graph (accessible via {@link Graph#getGraphInformation()}).
+     * 
+     * @return The maximum speed for this inspector, or
+     *         {@link GraphStatistics#NO_MAXIMUM_SPEED} if none is set.
+     */
+    public int getMaximumSpeed() {
+        return this.arcInspector.getMaximumSpeed();
     }
 
     /**
@@ -108,10 +88,10 @@ public abstract class AbstractInputData {
      * 
      * @return true if the given arc is allowed.
      * 
-     * @see ArcFilter
+     * @see ArcInspector
      */
     public boolean isAllowed(Arc arc) {
-        return this.arcFilter.isAllowed(arc);
+        return this.arcInspector.isAllowed(arc);
     }
 
 }

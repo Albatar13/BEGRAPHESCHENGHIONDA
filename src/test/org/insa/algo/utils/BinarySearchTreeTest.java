@@ -10,7 +10,7 @@ import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
 
-public class BinaryHeapTest {
+public class BinarySearchTreeTest {
 
     class MutableInteger implements Comparable<MutableInteger> {
 
@@ -50,146 +50,146 @@ public class BinaryHeapTest {
     private MutableInteger[] data2 = Arrays.stream(new int[] { 8, 1, 6, 3, 4, 5, 9 })
             .mapToObj(MutableInteger::new).toArray(MutableInteger[]::new);
 
-    // Actual heap.
-    private BinaryHeap<MutableInteger> heap1, heap2;
+    // Actual searchTree.
+    private BinarySearchTree<MutableInteger> searchTree1, searchTree2;
 
     @Before
     public void init() {
-        // Create the range heap
-        this.heap1 = new BinaryHeap<>();
-        this.heap2 = new BinaryHeap<>();
+        // Create the range searchTree
+        this.searchTree1 = new BinarySearchTree<>();
+        this.searchTree2 = new BinarySearchTree<>();
 
         for (MutableInteger v: data1) {
-            this.heap1.insert(v);
+            this.searchTree1.insert(v);
         }
 
         for (MutableInteger v: data2) {
-            this.heap2.insert(v);
+            this.searchTree2.insert(v);
         }
     }
 
     @Test
     public void testIsEmpty() {
-        BinaryHeap<MutableInteger> tree = new BinaryHeap<>();
+        BinarySearchTree<MutableInteger> tree = new BinarySearchTree<>();
         assertTrue(tree.isEmpty());
-        assertFalse(this.heap1.isEmpty());
-        assertFalse(this.heap2.isEmpty());
+        assertFalse(this.searchTree1.isEmpty());
+        assertFalse(this.searchTree2.isEmpty());
     }
 
     @Test
     public void testSize() {
-        BinaryHeap<MutableInteger> tree = new BinaryHeap<>();
+        BinarySearchTree<MutableInteger> tree = new BinarySearchTree<>();
         assertEquals(0, tree.size());
-        assertEquals(20, this.heap1.size());
-        assertEquals(7, this.heap2.size());
+        assertEquals(20, this.searchTree1.size());
+        assertEquals(7, this.searchTree2.size());
     }
 
     @Test
     public void testInsert() {
-        BinaryHeap<MutableInteger> heap = new BinaryHeap<>();
+        BinarySearchTree<MutableInteger> searchTree = new BinarySearchTree<>();
         int size = 0;
         for (MutableInteger x: data1) {
-            heap.insert(x);
-            assertEquals(++size, heap.size());
+            searchTree.insert(x);
+            assertEquals(++size, searchTree.size());
         }
-        assertEquals(data1.length, heap.size());
+        assertEquals(data1.length, searchTree.size());
 
-        heap = new BinaryHeap<>();
+        searchTree = new BinarySearchTree<>();
         size = 0;
         for (MutableInteger x: data2) {
-            heap.insert(x);
-            assertEquals(++size, heap.size());
+            searchTree.insert(x);
+            assertEquals(++size, searchTree.size());
         }
-        assertEquals(data2.length, heap.size());
+        assertEquals(data2.length, searchTree.size());
     }
 
     @Test(expected = EmptyPriorityQueueException.class)
     public void testEmptyFindMin() {
-        BinaryHeap<MutableInteger> heap = new BinaryHeap<>();
-        heap.findMin();
+        BinarySearchTree<MutableInteger> searchTree = new BinarySearchTree<>();
+        searchTree.findMin();
     }
 
     @Test
     public void testFindMin() {
-        assertEquals(0, heap1.findMin().get());
-        assertEquals(1, heap2.findMin().get());
+        assertEquals(0, searchTree1.findMin().get());
+        assertEquals(1, searchTree2.findMin().get());
     }
 
     @Test(expected = EmptyPriorityQueueException.class)
     public void testEmptyDeleteMin() {
-        BinaryHeap<MutableInteger> heap = new BinaryHeap<>();
-        heap.deleteMin();
+        BinarySearchTree<MutableInteger> searchTree = new BinarySearchTree<>();
+        searchTree.deleteMin();
     }
 
     @Test
     public void testDeleteMin() {
         // range 1 (sorted)
         int size = data1.length;
-        assertEquals(heap1.size(), size);
+        assertEquals(searchTree1.size(), size);
         for (MutableInteger x: data1) {
-            assertEquals(x, heap1.deleteMin());
+            assertEquals(x, searchTree1.deleteMin());
             size -= 1;
-            assertEquals(size, heap1.size());
+            assertEquals(size, searchTree1.size());
         }
-        assertEquals(0, heap1.size());
-        assertTrue(heap1.isEmpty());
+        assertEquals(0, searchTree1.size());
+        assertTrue(searchTree1.isEmpty());
 
         // range 2 (was not sorted)
         MutableInteger[] range2 = Arrays.copyOf(data2, data2.length);
         Arrays.sort(range2);
         size = range2.length;
-        assertEquals(heap2.size(), size);
+        assertEquals(searchTree2.size(), size);
         for (MutableInteger x: range2) {
-            assertEquals(x.get(), heap2.deleteMin().get());
+            assertEquals(x.get(), searchTree2.deleteMin().get());
             size -= 1;
-            assertEquals(size, heap2.size());
+            assertEquals(size, searchTree2.size());
         }
-        assertEquals(0, heap2.size());
-        assertTrue(heap2.isEmpty());
+        assertEquals(0, searchTree2.size());
+        assertTrue(searchTree2.isEmpty());
     }
 
     @Test(expected = ElementNotFoundException.class)
     public void testRemoveEmpty() {
-        BinaryHeap<MutableInteger> heap = new BinaryHeap<>();
-        heap.remove(new MutableInteger(0));
+        BinarySearchTree<MutableInteger> searchTree = new BinarySearchTree<>();
+        searchTree.remove(new MutableInteger(0));
     }
 
     @Test(expected = ElementNotFoundException.class)
     public void testRemoveNotFound() {
-        heap1.remove(new MutableInteger(20));
+        searchTree1.remove(new MutableInteger(20));
     }
 
     @Test
     public void testRemove() {
-        // heap 1
-        int size1 = heap1.size();
+        // searchTree 1
+        int size1 = searchTree1.size();
         int[] deleteOrder1 = new int[] { 12, 17, 18, 19, 4, 5, 3, 2, 0, 9, 10, 16, 8, 14, 13, 15, 7,
                 6, 1, 11 };
         for (int x: deleteOrder1) {
-            heap1.remove(this.data1[x]);
-            assertEquals(--size1, heap1.size());
+            searchTree1.remove(this.data1[x]);
+            assertEquals(--size1, searchTree1.size());
         }
-        assertTrue(heap1.isEmpty());
+        assertTrue(searchTree1.isEmpty());
 
-        // heap 2
-        int size2 = heap2.size();
+        // searchTree 2
+        int size2 = searchTree2.size();
         int[] deleteOrder2 = new int[] { 6, 5, 0, 1, 4, 2, 3 };
         for (int x: deleteOrder2) {
-            heap2.remove(this.data2[x]);
-            assertEquals(--size2, heap2.size());
+            searchTree2.remove(this.data2[x]);
+            assertEquals(--size2, searchTree2.size());
         }
-        assertTrue(heap2.isEmpty());
+        assertTrue(searchTree2.isEmpty());
     }
 
     @Test
     public void testRemoveThenAdd() {
         MutableInteger mi5 = this.data1[6];
-        heap1.remove(mi5);
-        assertEquals(19, heap1.size());
+        searchTree1.remove(mi5);
+        assertEquals(19, searchTree1.size());
         mi5.set(-20);
-        heap1.insert(mi5);
-        assertEquals(20, heap1.size());
-        assertEquals(-20, heap1.findMin().get());
+        searchTree1.insert(mi5);
+        assertEquals(20, searchTree1.size());
+        assertEquals(-20, searchTree1.findMin().get());
     }
 
 }

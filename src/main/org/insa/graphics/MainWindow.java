@@ -157,7 +157,7 @@ public class MainWindow extends JFrame {
         this.currentPalette = this.basicPalette;
 
         wccPanel = new AlgorithmPanel(this, WeaklyConnectedComponentsAlgorithm.class,
-                "Weakly-Connected Components", new String[] {}, false, false);
+                "Weakly-Connected Components", new String[] {}, false);
         wccPanel.addStartActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -202,13 +202,13 @@ public class MainWindow extends JFrame {
         });
 
         spPanel = new AlgorithmPanel(this, ShortestPathAlgorithm.class, "Shortest-Path",
-                new String[] { "Origin", "Destination" }, true, true);
+                new String[] { "Origin", "Destination" }, true);
         spPanel.addStartActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 StartActionEvent evt = (StartActionEvent) e;
                 ShortestPathData data = new ShortestPathData(graph, evt.getNodes().get(0),
-                        evt.getNodes().get(1), evt.getMode(), evt.getArcFilter());
+                        evt.getNodes().get(1), evt.getArcFilter());
 
                 ShortestPathAlgorithm spAlgorithm = null;
                 try {
@@ -257,11 +257,10 @@ public class MainWindow extends JFrame {
         cpPanel = new AlgorithmPanel(
                 this, CarPoolingAlgorithm.class, "Car-Pooling", new String[] { "Origin Car",
                         "Origin Pedestrian", "Destination Car", "Destination Pedestrian" },
-                true, true);
+                true);
 
         psPanel = new AlgorithmPanel(this, PackageSwitchAlgorithm.class, "Car-Pooling",
-                new String[] { "Oribin A", "Origin B", "Destination A", "Destination B" }, true,
-                true);
+                new String[] { "Oribin A", "Origin B", "Destination A", "Destination B" }, true);
 
         // add algorithm panels
         algoPanels.add(wccPanel);

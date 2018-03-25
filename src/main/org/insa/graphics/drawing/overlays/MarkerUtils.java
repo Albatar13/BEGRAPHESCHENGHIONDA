@@ -18,8 +18,6 @@ public class MarkerUtils {
      * @param mode Mode to use to fill the inner part of the marker.
      * 
      * @return An image representing a marker.
-     * 
-     * @see MarkerUtils#getMarkerForColor(Color, AlphaMode)
      */
     public static Image getMarkerForColor(Color outer, Color inner, AlphaMode mode) {
         // create image

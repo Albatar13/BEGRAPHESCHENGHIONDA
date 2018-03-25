@@ -14,22 +14,18 @@ import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.border.EmptyBorder;
 
 import org.insa.algo.AbstractAlgorithm;
-import org.insa.algo.AbstractInputData;
-import org.insa.algo.AbstractInputData.ArcFilter;
-import org.insa.algo.AbstractInputData.Mode;
 import org.insa.algo.AlgorithmFactory;
-import org.insa.algo.ArcFilterFactory;
+import org.insa.algo.ArcInspector;
+import org.insa.algo.ArcInspectorFactory;
 import org.insa.graph.Node;
 import org.insa.graphics.NodesInputPanel.InputChangedEvent;
 import org.insa.graphics.drawing.Drawing;
@@ -55,20 +51,18 @@ public class AlgorithmPanel extends JPanel implements DrawingChangeListener {
         protected static final int START_EVENT_ID = 0x1;
 
         private final List<Node> nodes;
-        private final AbstractInputData.Mode mode;
         private final Class<? extends AbstractAlgorithm<?>> algoClass;
 
-        private final AbstractInputData.ArcFilter arcFilter;
+        private final ArcInspector arcFilter;
 
         private final boolean graphicVisualization;
         private final boolean textualVisualization;
 
         public StartActionEvent(Class<? extends AbstractAlgorithm<?>> algoClass, List<Node> nodes,
-                Mode mode, ArcFilter arcFilter, boolean graphicVisualization,
+                ArcInspector arcFilter, boolean graphicVisualization,
                 boolean textualVisualization) {
             super(AlgorithmPanel.this, START_EVENT_ID, START_EVENT_COMMAND);
             this.nodes = nodes;
-            this.mode = mode;
             this.algoClass = algoClass;
             this.graphicVisualization = graphicVisualization;
             this.textualVisualization = textualVisualization;
@@ -83,16 +77,9 @@ public class AlgorithmPanel extends JPanel implements DrawingChangeListener {
         }
 
         /**
-         * @return Mode associated with this event.
-         */
-        public Mode getMode() {
-            return this.mode;
-        }
-
-        /**
          * @return Arc filter associated with this event.
          */
-        public ArcFilter getArcFilter() {
+        public ArcInspector getArcFilter() {
             return this.arcFilter;
         }
 
@@ -147,16 +134,13 @@ public class AlgorithmPanel extends JPanel implements DrawingChangeListener {
      * @param baseAlgorithm Base algorithm for this algorithm panel.
      * @param title Title of the panel.
      * @param nodeNames Names of the input nodes.
-     * @param enableModeSelection <code>true</code> to enable {@link Mode}
-     *        selection.
-     * @param enableArcFilterSelection <code>true</code> to enable {@link ArcFilter}
-     *        selection.
+     * @param enableArcFilterSelection <code>true</code> to enable
+     *        {@link ArcInspector} selection.
      * 
-     * @see ArcFilterFactory
+     * @see ArcInspectorFactory
      */
     public AlgorithmPanel(Component parent, Class<? extends AbstractAlgorithm<?>> baseAlgorithm,
-            String title, String[] nodeNames, boolean enableModeSelection,
-            boolean enableArcFilterSelection) {
+            String title, String[] nodeNames, boolean enableArcFilterSelection) {
         super();
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
@@ -178,20 +162,14 @@ public class AlgorithmPanel extends JPanel implements DrawingChangeListener {
         add(this.nodesInputPanel);
         components.add(this.nodesInputPanel);
 
-        JComboBox<ArcFilter> arcFilterSelect = new JComboBox<>(
-                ArcFilterFactory.getAllFilters().toArray(new ArcFilter[0]));
+        JComboBox<ArcInspector> arcFilterSelect = new JComboBox<>(
+                ArcInspectorFactory.getAllFilters().toArray(new ArcInspector[0]));
         arcFilterSelect.setBackground(Color.WHITE);
 
         // Add mode selection
         JPanel modeAndObserverPanel = new JPanel();
         modeAndObserverPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         modeAndObserverPanel.setLayout(new GridBagLayout());
-        JRadioButton lengthModeButton = new JRadioButton("Length");
-        lengthModeButton.setSelected(true);
-        JRadioButton timeModeButton = new JRadioButton("Time");
-        ButtonGroup group = new ButtonGroup();
-        group.add(lengthModeButton);
-        group.add(timeModeButton);
 
         graphicObserverCheckbox = new JCheckBox("Graphic");
         graphicObserverCheckbox.setSelected(true);
@@ -200,19 +178,6 @@ public class AlgorithmPanel extends JPanel implements DrawingChangeListener {
         GridBagConstraints c = new GridBagConstraints();
 
         c.fill = GridBagConstraints.HORIZONTAL;
-
-        if (enableModeSelection) {
-            c.gridx = 0;
-            c.gridy = 0;
-            c.weightx = 0;
-            modeAndObserverPanel.add(new JLabel("Mode: "), c);
-            c.gridx = 1;
-            c.weightx = 1;
-            modeAndObserverPanel.add(lengthModeButton, c);
-            c.gridx = 2;
-            c.weightx = 1;
-            modeAndObserverPanel.add(timeModeButton, c);
-        }
 
         c.gridy = 2;
         c.gridx = 0;
@@ -236,8 +201,6 @@ public class AlgorithmPanel extends JPanel implements DrawingChangeListener {
             modeAndObserverPanel.add(arcFilterSelect, c);
         }
 
-        components.add(timeModeButton);
-        components.add(lengthModeButton);
         components.add(arcFilterSelect);
         components.add(textualObserverCheckbox);
 
@@ -258,16 +221,12 @@ public class AlgorithmPanel extends JPanel implements DrawingChangeListener {
         startAlgoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                AbstractInputData.Mode mode = lengthModeButton.isSelected()
-                        ? AbstractInputData.Mode.LENGTH
-                        : AbstractInputData.Mode.TIME;
-
                 for (ActionListener lis: startActionListeners) {
                     lis.actionPerformed(new StartActionEvent(
                             AlgorithmFactory.getAlgorithmClass(baseAlgorithm,
                                     (String) algoSelect.getSelectedItem()),
-                            nodesInputPanel.getNodeForInputs(), mode,
-                            (AbstractInputData.ArcFilter) arcFilterSelect.getSelectedItem(),
+                            nodesInputPanel.getNodeForInputs(),
+                            (ArcInspector) arcFilterSelect.getSelectedItem(),
                             graphicObserverCheckbox.isSelected(),
                             textualObserverCheckbox.isSelected()));
                 }
