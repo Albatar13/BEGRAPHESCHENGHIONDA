@@ -150,7 +150,7 @@ public class BinaryHeap<E extends Comparable<E>> implements PriorityQueue<E> {
     @Override
     public E findMin() throws EmptyPriorityQueueException {
         if (isEmpty())
-            throw new RuntimeException("Empty binary heap.");
+            throw new EmptyPriorityQueueException();
         return this.array.get(0);
     }
 

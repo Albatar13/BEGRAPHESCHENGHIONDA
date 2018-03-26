@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.stream.IntStream;
 
 import org.junit.Before;
@@ -165,8 +166,28 @@ public class BinaryHeapTest {
         int size1 = heap1.size();
         int[] deleteOrder1 = new int[] { 12, 17, 18, 19, 4, 5, 3, 2, 0, 9, 10, 16, 8, 14, 13, 15, 7,
                 6, 1, 11 };
-        for (int x: deleteOrder1) {
-            heap1.remove(this.data1[x]);
+        for (int i = 0; i < deleteOrder1.length; ++i) {
+            // Remove from structure
+            heap1.remove(this.data1[deleteOrder1[i]]);
+
+            // Copy the remaining elements
+            BinaryHeap<MutableInteger> copyTree = new BinaryHeap<>(heap1);
+
+            // Retrieve all remaining elements in both structures
+            MutableInteger[] remains_in = new MutableInteger[deleteOrder1.length - i - 1],
+                    remains_cp = new MutableInteger[deleteOrder1.length - i - 1];
+            for (int j = 0; j < remains_cp.length; ++j) {
+                remains_in[j] = this.data1[deleteOrder1[i + j + 1]];
+                remains_cp[j] = copyTree.deleteMin();
+            }
+
+            // Check that the copy is now empty, and that both list contains all
+            // elements.
+            assertTrue(copyTree.isEmpty());
+            assertEquals(new HashSet<>(Arrays.asList(remains_in)),
+                    new HashSet<>(Arrays.asList(remains_cp)));
+
+            // Check that the size of the original tree is correct.
             assertEquals(--size1, heap1.size());
         }
         assertTrue(heap1.isEmpty());
@@ -174,8 +195,28 @@ public class BinaryHeapTest {
         // heap 2
         int size2 = heap2.size();
         int[] deleteOrder2 = new int[] { 6, 5, 0, 1, 4, 2, 3 };
-        for (int x: deleteOrder2) {
-            heap2.remove(this.data2[x]);
+        for (int i = 0; i < deleteOrder2.length; ++i) {
+            // Remove from structure
+            heap2.remove(this.data2[deleteOrder2[i]]);
+
+            // Copy the remaining elements
+            BinaryHeap<MutableInteger> copyTree = new BinaryHeap<>(heap2);
+
+            // Retrieve all remaining elements in both structures
+            MutableInteger[] remains_in = new MutableInteger[deleteOrder2.length - i - 1],
+                    remains_cp = new MutableInteger[deleteOrder2.length - i - 1];
+            for (int j = 0; j < remains_cp.length; ++j) {
+                remains_in[j] = this.data2[deleteOrder2[i + j + 1]];
+                remains_cp[j] = copyTree.deleteMin();
+            }
+
+            // Check that the copy is now empty, and that both list contains all
+            // elements.
+            assertTrue(copyTree.isEmpty());
+            assertEquals(new HashSet<>(Arrays.asList(remains_in)),
+                    new HashSet<>(Arrays.asList(remains_cp)));
+
+            // Check that the size of the original tree is correct.
             assertEquals(--size2, heap2.size());
         }
         assertTrue(heap2.isEmpty());
