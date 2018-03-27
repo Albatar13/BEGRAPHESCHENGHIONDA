@@ -97,13 +97,17 @@ public abstract class PriorityQueueTest {
                 IntStream.range(0, 50).toArray()));
         objects.add(new TestParameters<>(
                 IntStream.range(0, 20).mapToObj(MutableInteger::new).toArray(MutableInteger[]::new),
-                new int[] { 12, 17, 18, 19, 4, 5, 3, 2, 0, 9, 10, 16, 8, 14, 13, 15, 7, 6, 1,
-                        11 }));
+                new int[]{ 12, 17, 18, 19, 4, 5, 3, 2, 0, 9, 10, 16, 8, 14, 13, 15, 7, 6, 1, 11 }));
         objects.add(
                 new TestParameters<>(
-                        Arrays.stream(new int[] { 8, 1, 6, 3, 4, 5, 9 })
+                        Arrays.stream(new int[]{ 8, 1, 6, 3, 4, 5, 9 })
                                 .mapToObj(MutableInteger::new).toArray(MutableInteger[]::new),
-                        new int[] { 6, 5, 0, 1, 4, 2, 3 }));
+                        new int[]{ 6, 5, 0, 1, 4, 2, 3 }));
+        objects.add(
+                new TestParameters<>(
+                        Arrays.stream(new int[]{ 1, 7, 4, 8, 9, 6, 5 })
+                                .mapToObj(MutableInteger::new).toArray(MutableInteger[]::new),
+                        new int[]{ 2, 0, 1, 3, 4, 5, 6 }));
         return objects;
     }
 
