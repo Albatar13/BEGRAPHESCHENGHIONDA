@@ -34,14 +34,12 @@ public class BlockingActionFactory {
                     RunningAction action = actions.get(i);
                     // If action is running, ask user...
                     if (action.isRunning()) {
-                        System.out.println("Action " + action.getInformation() + " is running... ");
-                        if (JOptionPane.showConfirmDialog(parentComponent, "Action {" + action.getInformation()
+                        if (JOptionPane.showConfirmDialog(parentComponent, "Action {"
+                                + action.getInformation()
                                 + "} is running, do you want to stop it?") == JOptionPane.OK_OPTION) {
-                            System.out.println("Action " + action.getInformation() + " has been interrupted.");
                             action.interrupt();
                         }
                         else {
-                            System.out.println("Action " + action.getInformation() + " not interrupted... ");
                             accepted = false;
                         }
                     }
