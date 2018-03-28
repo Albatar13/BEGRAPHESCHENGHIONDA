@@ -37,7 +37,7 @@ public class GraphReaderProgressBar extends JDialog implements GraphReaderObserv
     private final JProgressBar[] progressBars = new JProgressBar[3];
 
     // Current element read, and modulo.
-    private int[] counters = new int[] { 0, 0, 0 };
+    private int[] counters = new int[]{ 0, 0, 0 };
     private int[] modulos = new int[3];
 
     public GraphReaderProgressBar(JFrame owner) {
@@ -75,6 +75,7 @@ public class GraphReaderProgressBar extends JDialog implements GraphReaderObserv
     @Override
     public void notifyEndReading() {
         setVisible(false);
+        dispose();
     }
 
     protected void initProgressBar(int index, int max) {

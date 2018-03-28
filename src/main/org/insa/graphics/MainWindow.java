@@ -157,7 +157,7 @@ public class MainWindow extends JFrame {
         this.currentPalette = this.basicPalette;
 
         wccPanel = new AlgorithmPanel(this, WeaklyConnectedComponentsAlgorithm.class,
-                "Weakly-Connected Components", new String[] {}, false);
+                "Weakly-Connected Components", new String[]{}, false);
         wccPanel.addStartActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -202,7 +202,7 @@ public class MainWindow extends JFrame {
         });
 
         spPanel = new AlgorithmPanel(this, ShortestPathAlgorithm.class, "Shortest-Path",
-                new String[] { "Origin", "Destination" }, true);
+                new String[]{ "Origin", "Destination" }, true);
         spPanel.addStartActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -254,13 +254,12 @@ public class MainWindow extends JFrame {
             }
         });
 
-        cpPanel = new AlgorithmPanel(
-                this, CarPoolingAlgorithm.class, "Car-Pooling", new String[] { "Origin Car",
-                        "Origin Pedestrian", "Destination Car", "Destination Pedestrian" },
+        cpPanel = new AlgorithmPanel(this, CarPoolingAlgorithm.class, "Car-Pooling", new String[]{
+                "Origin Car", "Origin Pedestrian", "Destination Car", "Destination Pedestrian" },
                 true);
 
         psPanel = new AlgorithmPanel(this, PackageSwitchAlgorithm.class, "Car-Pooling",
-                new String[] { "Oribin A", "Origin B", "Destination A", "Destination B" }, true);
+                new String[]{ "Oribin A", "Origin B", "Destination A", "Destination B" }, true);
 
         // add algorithm panels
         algoPanels.add(wccPanel);
@@ -580,10 +579,10 @@ public class MainWindow extends JFrame {
                 reader.addObserver(progressBar);
                 try {
                     graph = reader.read();
-                    System.out.flush();
                 }
                 catch (Exception exception) {
                     progressBar.setVisible(false);
+                    progressBar.dispose();
                     progressBar = null;
                     JOptionPane.showMessageDialog(MainWindow.this,
                             "Unable to read graph from the selected file.");
@@ -593,6 +592,7 @@ public class MainWindow extends JFrame {
 
                 // In case of....
                 progressBar.setVisible(false);
+                progressBar.dispose();
                 progressBar = null;
 
                 String info = graph.getMapId();
