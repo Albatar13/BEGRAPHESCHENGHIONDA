@@ -79,6 +79,34 @@ public class ArcInspectorFactory {
         });
 
         // Only road allowed for cars and time:
+
+        filters.add(new ArcInspector() {
+            @Override
+            public boolean isAllowed(Arc arc) {
+                return true;
+            }
+
+            @Override
+            public double getCost(Arc arc) {
+                return arc.getMinimumTravelTime();
+            }
+
+            @Override
+            public int getMaximumSpeed() {
+                return GraphStatistics.NO_MAXIMUM_SPEED;
+            }
+
+            @Override
+            public Mode getMode() {
+                return Mode.TIME;
+            }
+
+            @Override
+            public String toString() {
+                return "Fastest path, all roads allowed";
+            }
+        });
+
         filters.add(new ArcInspector() {
             @Override
             public boolean isAllowed(Arc arc) {

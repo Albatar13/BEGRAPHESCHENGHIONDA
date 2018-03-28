@@ -194,7 +194,7 @@ public class AlgorithmPanel extends JPanel implements DrawingChangeListener {
             c.gridy = 1;
             c.gridx = 0;
             c.weightx = 0;
-            modeAndObserverPanel.add(new JLabel("Restrictions: "), c);
+            modeAndObserverPanel.add(new JLabel("Mode: "), c);
             c.gridx = 1;
             c.gridwidth = 2;
             c.weightx = 1;
