@@ -97,28 +97,41 @@ public abstract class PriorityQueueTest {
     @Parameters
     public static Collection<Object> data() {
         Collection<Object> objects = new ArrayList<>();
+
+        // Empty queue
         objects.add(new TestParameters<>(new MutableInteger[0], new int[0]));
+
+        // Queue with 50 elements from 0 to 49, inserted in order and deleted in order.
         objects.add(new TestParameters<>(
                 IntStream.range(0, 50).mapToObj(MutableInteger::new).toArray(MutableInteger[]::new),
                 IntStream.range(0, 50).toArray()));
+
+        // Queue with 20 elements from 0 to 19, inserted in order, deleted in the given
+        // order.
         objects.add(new TestParameters<>(
                 IntStream.range(0, 20).mapToObj(MutableInteger::new).toArray(MutableInteger[]::new),
                 new int[]{ 12, 17, 18, 19, 4, 5, 3, 2, 0, 9, 10, 16, 8, 14, 13, 15, 7, 6, 1, 11 }));
+
+        // Queue with 7 elements.
         objects.add(
                 new TestParameters<>(
                         Arrays.stream(new int[]{ 8, 1, 6, 3, 4, 5, 9 })
                                 .mapToObj(MutableInteger::new).toArray(MutableInteger[]::new),
                         new int[]{ 6, 5, 0, 1, 4, 2, 3 }));
+
+        // Queue with 7 elements.
         objects.add(
                 new TestParameters<>(
                         Arrays.stream(new int[]{ 1, 7, 4, 8, 9, 6, 5 })
                                 .mapToObj(MutableInteger::new).toArray(MutableInteger[]::new),
                         new int[]{ 2, 0, 1, 3, 4, 5, 6 }));
 
+        // Queue with 13 elements.
         objects.add(new TestParameters<>(
                 Arrays.stream(new int[]{ 1, 7, 2, 8, 9, 3, 4, 10, 11, 12, 13, 5, 6 })
                         .mapToObj(MutableInteger::new).toArray(MutableInteger[]::new),
                 new int[]{ 3, 4, 0, 2, 5, 6, 1, 7, 8, 9, 10, 11, 12 }));
+
         return objects;
     }
 
