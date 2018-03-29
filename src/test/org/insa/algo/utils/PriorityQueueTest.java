@@ -2,6 +2,7 @@ package org.insa.algo.utils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,6 +70,11 @@ public abstract class PriorityQueueTest {
             return Integer.compare(this.value, other.value);
         }
 
+        @Override
+        public String toString() {
+            return Integer.toString(get());
+        }
+
     };
 
     protected static class TestParameters<E extends Comparable<E>> {
@@ -108,6 +114,11 @@ public abstract class PriorityQueueTest {
                         Arrays.stream(new int[]{ 1, 7, 4, 8, 9, 6, 5 })
                                 .mapToObj(MutableInteger::new).toArray(MutableInteger[]::new),
                         new int[]{ 2, 0, 1, 3, 4, 5, 6 }));
+
+        objects.add(new TestParameters<>(
+                Arrays.stream(new int[]{ 1, 7, 2, 8, 9, 3, 4, 10, 11, 12, 13, 5, 6 })
+                        .mapToObj(MutableInteger::new).toArray(MutableInteger[]::new),
+                new int[]{ 3, 4, 0, 2, 5, 6, 1, 7, 8, 9, 10, 11, 12 }));
         return objects;
     }
 
@@ -194,26 +205,57 @@ public abstract class PriorityQueueTest {
         queue.remove(new MutableInteger(0));
     }
 
-    @Test(expected = ElementNotFoundException.class)
+    @Test
     public void testRemoveNotFound() {
         Assume.assumeFalse(queue.isEmpty());
         List<MutableInteger> data = Arrays.asList(parameters.data);
-        queue.remove(new MutableInteger(Collections.min(data).get() - 1));
-        queue.remove(new MutableInteger(Collections.max(data).get() + 1));
+        MutableInteger min = new MutableInteger(Collections.min(data).get() - 1),
+                max = new MutableInteger(Collections.max(data).get() + 1);
+        try {
+            queue.remove(min);
+            fail("Expected exception " + ElementNotFoundException.class.getName());
+        }
+        catch (ElementNotFoundException e) {
+            assertEquals(e.getElement(), min);
+        }
+        try {
+            queue.remove(max);
+            fail("Expected exception " + ElementNotFoundException.class.getName());
+        }
+        catch (ElementNotFoundException e) {
+            assertEquals(e.getElement(), max);
+        }
     }
 
-    @Test(expected = ElementNotFoundException.class)
+    @Test
     public void testDeleteThenRemove() {
         Assume.assumeFalse(queue.isEmpty());
-        MutableInteger min = queue.deleteMin();
-        queue.remove(min);
+        while (!queue.isEmpty()) {
+            MutableInteger min = queue.deleteMin();
+            try {
+                queue.remove(min);
+                fail("Expected exception " + ElementNotFoundException.class.getName());
+            }
+            catch (ElementNotFoundException e) {
+                assertEquals(e.getElement(), min);
+            }
+        }
     }
 
-    @Test(expected = ElementNotFoundException.class)
+    @Test
     public void testRemoveTwice() {
         Assume.assumeFalse(queue.isEmpty());
-        queue.remove(parameters.data[4 % parameters.data.length]);
-        queue.remove(parameters.data[4 % parameters.data.length]);
+        for (MutableInteger data: parameters.data) {
+            PriorityQueue<MutableInteger> copyQueue = this.createQueue(this.queue);
+            copyQueue.remove(data);
+            try {
+                copyQueue.remove(data);
+                fail("Expected exception " + ElementNotFoundException.class.getName());
+            }
+            catch (ElementNotFoundException e) {
+                assertEquals(e.getElement(), data);
+            }
+        }
     }
 
     @Test
@@ -233,6 +275,7 @@ public abstract class PriorityQueueTest {
                 remains_in.add(parameters.data[parameters.deleteOrder[j]]);
                 remains_cp.add(copyTree.deleteMin());
             }
+
             Collections.sort(remains_in);
 
             // Check that the copy is now empty, and that both list contains all
