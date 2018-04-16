@@ -122,7 +122,6 @@ public class SolutionPanel extends JPanel implements DrawingChangeListener, Grap
 
         /*
          * (non-Javadoc)
-         * 
          * @see java.lang.Object#toString()
          */
         public String toString() {
@@ -192,25 +191,24 @@ public class SolutionPanel extends JPanel implements DrawingChangeListener, Grap
         solutionSelect.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
-                SolutionBundle bundle = (SolutionBundle) solutionSelect.getSelectedItem();
-
-                // Handle case when the JComboBox is empty.
-                if (bundle == null) {
-                    return;
-                }
-
                 if (currentBundle != null) {
                     for (PathOverlay overlay: currentBundle.getOverlays()) {
                         overlay.setVisible(false);
                     }
                 }
 
-                updateInformationLabel(bundle);
-                buttonPanel.setVisible(bundle.getSolution().isFeasible() && bundle.hasOverlays());
-                clearButton.setText(bundle.getSolution().isFeasible() ? "Hide" : "Show");
+                SolutionBundle bundle = (SolutionBundle) solutionSelect.getSelectedItem();
 
-                for (PathOverlay overlay: bundle.getOverlays()) {
-                    overlay.setVisible(true);
+                if (bundle != null) {
+
+                    updateInformationLabel(bundle);
+                    buttonPanel
+                            .setVisible(bundle.getSolution().isFeasible() && bundle.hasOverlays());
+                    clearButton.setText(bundle.getSolution().isFeasible() ? "Hide" : "Show");
+
+                    for (PathOverlay overlay: bundle.getOverlays()) {
+                        overlay.setVisible(true);
+                    }
                 }
 
                 currentBundle = bundle;
@@ -249,7 +247,7 @@ public class SolutionPanel extends JPanel implements DrawingChangeListener, Grap
 
         if (enabled) {
             // Trigger event
-            solutionSelect.actionPerformed(null);
+            solutionSelect.setSelectedItem(currentBundle);
         }
         else {
             SolutionBundle bundle = (SolutionBundle) this.solutionSelect.getSelectedItem();
