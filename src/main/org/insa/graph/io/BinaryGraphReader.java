@@ -249,6 +249,9 @@ public class BinaryGraphReader extends BinaryReader implements GraphReader {
                 }
                 maxLength = Math.max(length, maxLength);
 
+                length = Math.max(length, (float) Point.distance(nodes.get(node).getPoint(),
+                        nodes.get(destNode).getPoint()));
+
                 // Number of segments.
                 int nbSegments = dis.readUnsignedShort();
 
