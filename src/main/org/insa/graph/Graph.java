@@ -115,4 +115,10 @@ public final class Graph implements Iterable<Node> {
         return new Graph("R/" + mapId, mapName, trNodes, graphStatistics);
     }
 
+    @Override
+    public String toString() {
+        return String.format("%s[id=%s, name=%s, #nodes=%d]", getClass().getCanonicalName(),
+                getMapId(), getMapName(), size());
+    }
+
 }
