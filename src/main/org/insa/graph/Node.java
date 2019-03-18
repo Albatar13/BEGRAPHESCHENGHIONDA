@@ -5,23 +5,33 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * <p>
  * Class representing a Node in a {@link Graph}.
+ * </p>
  * 
+ * <p>
  * This class holds information regarding nodes in the graph together with the
  * successors associated to the nodes.
+ * </p>
  * 
+ * <p>
  * Nodes are comparable based on their ID.
+ * </p>
  *
  */
 public final class Node implements Comparable<Node> {
 
     /**
+     * <p>
      * Link the two given nodes with one or two arcs (depending on roadInformation),
      * with the given attributes.
+     * </p>
      * 
-     * If `roadInformation.isOneWay()` is true, only a forward arc is created
-     * (origin to destination) and added to origin. Otherwise, a corresponding
-     * backward arc is created and add to destination.
+     * <p>
+     * If {@code roadInformation.isOneWay()} is {@code true}, only a forward arc is
+     * created (origin to destination) and added to origin. Otherwise, a
+     * corresponding backward arc is created and add to destination.
+     * </p>
      * 
      * @param origin Origin of the arc.
      * @param destination Destination of the arc.

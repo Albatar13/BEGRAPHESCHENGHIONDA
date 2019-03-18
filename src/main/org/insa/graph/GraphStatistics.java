@@ -1,11 +1,16 @@
 package org.insa.graph;
 
 /**
+ * <p>
  * Utility class that stores some statistics of graphs that are not easy to
  * access.
+ * </p>
  * 
- * This class is used to provide O(1) access to information in graph that do not
- * change, and that usually require O(n) to compute.
+ * <p>
+ * This class is used to provide constant ({@code O(1)}) access to information
+ * in graph that do not change, and that usually require linear complexity to
+ * compute.
+ * </p>
  *
  */
 public class GraphStatistics {
@@ -13,6 +18,7 @@ public class GraphStatistics {
     /**
      * Special value used to indicate that the graph has no maximum speed limit
      * (some roads are not limited).
+     * 
      */
     public static final int NO_MAXIMUM_SPEED = -1;
 
@@ -38,7 +44,7 @@ public class GraphStatistics {
         }
 
         /**
-         * @return Bottom-right point of this boundin box.
+         * @return Bottom-right point of this bounding box.
          */
         public Point getBottomRightPoint() {
             return bottomRight;

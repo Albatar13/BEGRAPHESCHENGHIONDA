@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Implementation of Arc that represents a "backward" arc in a graph, i.e. an
+ * Implementation of Arc that represents a "backward" arc in a graph, i.e., an
  * arc that is the reverse of another one. This arc only holds a reference to
  * the original arc.
  *

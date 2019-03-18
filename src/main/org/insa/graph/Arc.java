@@ -3,17 +3,18 @@ package org.insa.graph;
 import java.util.List;
 
 /**
- * Interface representing an arc in the graph - Arc is an interface and not a
- * class to allow us to represent two-ways roads in a memory efficient manner
- * (without having to duplicate attributes).
+ * <p>
+ * Interface representing an arc in the graph. {@code Arc} is an interface and
+ * not a class to allow us to represent two-ways roads in a memory efficient
+ * manner (without having to duplicate attributes).
+ * </p>
  * 
+ * <p>
  * Arc should never be created manually but always using the
  * {@link Node#linkNodes(Node, Node, float, RoadInformation, java.util.ArrayList)}
  * method to ensure proper instantiation of the {@link ArcForward} and
  * {@link ArcBackward} classes.
- * 
- * @see ArcForward
- * @see ArcBackward
+ * </p>
  *
  */
 public abstract class Arc {

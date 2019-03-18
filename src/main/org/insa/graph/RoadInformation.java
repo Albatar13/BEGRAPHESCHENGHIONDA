@@ -1,16 +1,24 @@
 package org.insa.graph;
 
 /**
+ * <p>
  * Class containing information for road that may be shared by multiple arcs.
+ * </p>
  * 
- * Sharing information between arcs reduces memory footprints of the program - A
- * long road is often split into multiple arcs at each intersection.
+ * <p>
+ * Sharing information between arcs reduces memory footprints of the program (a
+ * long road is often split into multiple arcs at each intersection).
+ * </p>
  * 
  */
 public class RoadInformation {
 
     /**
-     * Road type.
+     * Enumeration for road types.
+     * 
+     * @see <a href=
+     *      "https://wiki.openstreetmap.org/wiki/Key:highway#Values">OpenStreetMap
+     *      reference for road types.</a>
      */
     public enum RoadType {
         MOTORWAY,
@@ -53,7 +61,7 @@ public class RoadInformation {
      * 
      * @param roadType Type of the road (see {@link RoadType}).
      * @param access Access restrictions for the road (see
-     * {@link AccessRestrictions}).
+     *        {@link AccessRestrictions}).
      * @param isOneWay true if this road is a one way road, false otherwise.
      * @param maxSpeed Maximum speed for the road (in kilometers-per-hour).
      * @param name Name of the road.

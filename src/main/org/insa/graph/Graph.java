@@ -5,10 +5,14 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * <p>
  * Main graph class.
+ * </p>
  * 
- * This class acts as a object-oriented adjacency list for a graph, i.e. it
- * holds a list of nodes and each node holds a list of its successors.
+ * <p>
+ * This class acts as a object-oriented <b>adjacency list</b> for a graph, i.e.,
+ * it holds a list of nodes and each node holds a list of its successors.
+ * </p>
  *
  */
 public final class Graph {

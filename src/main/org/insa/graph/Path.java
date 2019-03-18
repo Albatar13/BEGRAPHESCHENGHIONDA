@@ -5,10 +5,15 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * <p>
  * Class representing a path between nodes in a graph.
+ * </p>
  * 
- * A path is represented as a list of {@link Arc} and not a list of {@link Node}
- * due to the multigraph nature of the considered graphs.
+ * <p>
+ * A path is represented as a list of {@link Arc} with an origin and not a list
+ * of {@link Node} due to the multi-graph nature (multiple arcs between two
+ * nodes) of the considered graphs.
+ * </p>
  *
  */
 public class Path {
