@@ -62,7 +62,7 @@ public class GraphTest {
      */
     private List<Arc> getArcsBetween(Node a, Node b) {
         List<Arc> arcs = new ArrayList<>();
-        for (Arc arc: a) {
+        for (Arc arc: a.getSuccessors()) {
             if (arc.getDestination().equals(b)) {
                 arcs.add(arc);
             }

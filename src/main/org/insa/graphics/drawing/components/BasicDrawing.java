@@ -679,8 +679,8 @@ public class BasicDrawing extends JPanel implements Drawing {
         this.removeMouseMotionListener(zoomAndPanListener);
         this.removeMouseWheelListener(zoomAndPanListener);
 
-        for (Node node: graph) {
-            for (Arc arc: node) {
+        for (Node node: graph.getNodes()) {
+            for (Arc arc: node.getSuccessors()) {
                 // Draw arcs only if there are one-way arcs or if origin is lower than
                 // destination, avoid drawing two-ways arc twice.
                 if (arc.getRoadInformation().isOneWay()

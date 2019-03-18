@@ -77,8 +77,8 @@ public class WeaklyConnectedComponentsAlgorithm
             res.add(new HashSet<Integer>());
         }
 
-        for (Node node: getInputData().getGraph()) {
-            for (Arc arc: node) {
+        for (Node node: getInputData().getGraph().getNodes()) {
+            for (Arc arc: node.getSuccessors()) {
                 res.get(node.getId()).add(arc.getDestination().getId());
                 if (arc.getRoadInformation().isOneWay()) {
                     res.get(arc.getDestination().getId()).add(node.getId());

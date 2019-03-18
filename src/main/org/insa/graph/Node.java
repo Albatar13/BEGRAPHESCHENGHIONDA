@@ -2,7 +2,7 @@ package org.insa.graph;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.List;
 
 /**
  * Class representing a Node in a {@link Graph}.
@@ -13,7 +13,7 @@ import java.util.Iterator;
  * Nodes are comparable based on their ID.
  *
  */
-public final class Node implements Comparable<Node>, Iterable<Arc> {
+public final class Node implements Comparable<Node> {
 
     /**
      * Link the two given nodes with one or two arcs (depending on roadInformation),
@@ -107,9 +107,13 @@ public final class Node implements Comparable<Node>, Iterable<Arc> {
         return !this.successors.isEmpty();
     }
 
-    @Override
-    public Iterator<Arc> iterator() {
-        return Collections.unmodifiableList(this.successors).iterator();
+    /**
+     * @return List of successors of this node (unmodifiable list).
+     * 
+     * @see Collections#unmodifiableList(List)
+     */
+    public List<Arc> getSuccessors() {
+        return Collections.unmodifiableList(this.successors);
     }
 
     /**

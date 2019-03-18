@@ -2,7 +2,6 @@ package org.insa.graph;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -12,7 +11,7 @@ import java.util.List;
  * holds a list of nodes and each node holds a list of its successors.
  *
  */
-public final class Graph implements Iterable<Node> {
+public final class Graph {
 
     // Map identifier.
     private final String mapId;
@@ -68,9 +67,13 @@ public final class Graph implements Iterable<Node> {
         return this.nodes.size();
     }
 
-    @Override
-    public Iterator<Node> iterator() {
-        return this.nodes.iterator();
+    /**
+     * @return List of nodes in this graph (unmodifiable).
+     * 
+     * @see Collections#unmodifiableList(List)
+     */
+    public List<Node> getNodes() {
+        return this.nodes;
     }
 
     /**
@@ -97,7 +100,7 @@ public final class Graph implements Iterable<Node> {
         }
         for (Node node: nodes) {
             Node orig = trNodes.get(node.getId());
-            for (Arc arc: node) {
+            for (Arc arc: node.getSuccessors()) {
                 if (arc.getRoadInformation().isOneWay()) {
                     Node dest = trNodes.get(arc.getDestination().getId());
                     dest.addSuccessor(new ArcBackward(new ArcForward(orig, dest, arc.getLength(),

@@ -54,7 +54,7 @@ public class NodeTest {
      * @return The first arc between from a to b, or null.
      */
     private Arc getFirstArcBetween(Node a, Node b) {
-        for (Arc arc: a) {
+        for (Arc arc: a.getSuccessors()) {
             if (arc.getDestination().equals(b)) {
                 return arc;
             }
