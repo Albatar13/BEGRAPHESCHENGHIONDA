@@ -47,6 +47,9 @@ import org.mapsforge.map.model.Model;
 import org.mapsforge.map.reader.MapFile;
 import org.mapsforge.map.rendertheme.InternalRenderTheme;
 
+/**
+ *
+ */
 public class MapViewDrawing extends MapView implements Drawing {
 
     /**

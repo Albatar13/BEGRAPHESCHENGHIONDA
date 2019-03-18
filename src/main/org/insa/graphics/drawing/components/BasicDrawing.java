@@ -40,10 +40,8 @@ import org.insa.graphics.drawing.overlays.PathOverlay;
 import org.insa.graphics.drawing.overlays.PointSetOverlay;
 
 /**
- * Cette implementation de la classe Dessin produit vraiment un affichage (au
- * contraire de la classe DessinInvisible).
+ *
  */
-
 public class BasicDrawing extends JPanel implements Drawing {
 
     /**
