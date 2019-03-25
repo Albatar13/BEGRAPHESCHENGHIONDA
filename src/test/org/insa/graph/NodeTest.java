@@ -65,18 +65,18 @@ public class NodeTest {
     @Test
     public void testGetNumberOfSuccessors() {
         final int[] expNbSucc = { 4, 2, 5, 2, 1, 0 };
-        assertEquals(nodes.length, expNbSucc.length);
+        assertEquals(expNbSucc.length, nodes.length);
         for (int i = 0; i < expNbSucc.length; ++i) {
-            assertEquals(nodes[i].getNumberOfSuccessors(), expNbSucc[i]);
+            assertEquals(expNbSucc[i], nodes[i].getNumberOfSuccessors());
         }
     }
 
     @Test
     public void testHasSuccessors() {
         final int[] expNbSucc = { 4, 2, 5, 2, 1, 0 };
-        assertEquals(nodes.length, expNbSucc.length);
+        assertEquals(expNbSucc.length, nodes.length);
         for (int i = 0; i < expNbSucc.length; ++i) {
-            assertEquals(nodes[i].hasSuccessors(), expNbSucc[i] != 0);
+            assertEquals(expNbSucc[i] != 0, nodes[i].hasSuccessors());
         }
     }
 

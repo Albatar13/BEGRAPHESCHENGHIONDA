@@ -83,26 +83,26 @@ public class GraphTest {
             assertEquals(expNbSucc[i], transpose.get(i).getNumberOfSuccessors());
         }
 
-        assertEquals(getArcsBetween(transpose.get(0), transpose.get(1)).size(), 1);
-        assertEquals(getArcsBetween(transpose.get(0), transpose.get(2)).size(), 1);
-        assertEquals(getArcsBetween(transpose.get(0), transpose.get(3)).size(), 1);
-        assertEquals(getArcsBetween(transpose.get(0), transpose.get(4)).size(), 1);
-        assertEquals(getArcsBetween(transpose.get(1), transpose.get(0)).size(), 1);
-        assertEquals(getArcsBetween(transpose.get(1), transpose.get(2)).size(), 1);
-        assertEquals(getArcsBetween(transpose.get(1), transpose.get(3)).size(), 0);
-        assertEquals(getArcsBetween(transpose.get(1), transpose.get(4)).size(), 0);
-        assertEquals(getArcsBetween(transpose.get(2), transpose.get(0)).size(), 1);
-        assertEquals(getArcsBetween(transpose.get(2), transpose.get(1)).size(), 1);
-        assertEquals(getArcsBetween(transpose.get(2), transpose.get(3)).size(), 0);
-        assertEquals(getArcsBetween(transpose.get(2), transpose.get(4)).size(), 0);
-        assertEquals(getArcsBetween(transpose.get(3), transpose.get(0)).size(), 1);
-        assertEquals(getArcsBetween(transpose.get(3), transpose.get(1)).size(), 0);
-        assertEquals(getArcsBetween(transpose.get(3), transpose.get(2)).size(), 3);
-        assertEquals(getArcsBetween(transpose.get(3), transpose.get(4)).size(), 0);
-        assertEquals(getArcsBetween(transpose.get(4), transpose.get(0)).size(), 1);
-        assertEquals(getArcsBetween(transpose.get(4), transpose.get(1)).size(), 0);
-        assertEquals(getArcsBetween(transpose.get(4), transpose.get(2)).size(), 0);
-        assertEquals(getArcsBetween(transpose.get(4), transpose.get(3)).size(), 1);
+        assertEquals(1, getArcsBetween(transpose.get(0), transpose.get(1)).size());
+        assertEquals(1, getArcsBetween(transpose.get(0), transpose.get(2)).size());
+        assertEquals(1, getArcsBetween(transpose.get(0), transpose.get(3)).size());
+        assertEquals(1, getArcsBetween(transpose.get(0), transpose.get(4)).size());
+        assertEquals(1, getArcsBetween(transpose.get(1), transpose.get(0)).size());
+        assertEquals(1, getArcsBetween(transpose.get(1), transpose.get(2)).size());
+        assertEquals(0, getArcsBetween(transpose.get(1), transpose.get(3)).size());
+        assertEquals(0, getArcsBetween(transpose.get(1), transpose.get(4)).size());
+        assertEquals(1, getArcsBetween(transpose.get(2), transpose.get(0)).size());
+        assertEquals(1, getArcsBetween(transpose.get(2), transpose.get(1)).size());
+        assertEquals(0, getArcsBetween(transpose.get(2), transpose.get(3)).size());
+        assertEquals(0, getArcsBetween(transpose.get(2), transpose.get(4)).size());
+        assertEquals(1, getArcsBetween(transpose.get(3), transpose.get(0)).size());
+        assertEquals(0, getArcsBetween(transpose.get(3), transpose.get(1)).size());
+        assertEquals(3, getArcsBetween(transpose.get(3), transpose.get(2)).size());
+        assertEquals(0, getArcsBetween(transpose.get(3), transpose.get(4)).size());
+        assertEquals(1, getArcsBetween(transpose.get(4), transpose.get(0)).size());
+        assertEquals(0, getArcsBetween(transpose.get(4), transpose.get(1)).size());
+        assertEquals(0, getArcsBetween(transpose.get(4), transpose.get(2)).size());
+        assertEquals(1, getArcsBetween(transpose.get(4), transpose.get(3)).size());
 
     }
 }

@@ -110,27 +110,28 @@ public abstract class PriorityQueueTest {
         // order.
         objects.add(new TestParameters<>(
                 IntStream.range(0, 20).mapToObj(MutableInteger::new).toArray(MutableInteger[]::new),
-                new int[]{ 12, 17, 18, 19, 4, 5, 3, 2, 0, 9, 10, 16, 8, 14, 13, 15, 7, 6, 1, 11 }));
+                new int[] { 12, 17, 18, 19, 4, 5, 3, 2, 0, 9, 10, 16, 8, 14, 13, 15, 7, 6, 1,
+                        11 }));
 
         // Queue with 7 elements.
         objects.add(
                 new TestParameters<>(
-                        Arrays.stream(new int[]{ 8, 1, 6, 3, 4, 5, 9 })
+                        Arrays.stream(new int[] { 8, 1, 6, 3, 4, 5, 9 })
                                 .mapToObj(MutableInteger::new).toArray(MutableInteger[]::new),
-                        new int[]{ 6, 5, 0, 1, 4, 2, 3 }));
+                        new int[] { 6, 5, 0, 1, 4, 2, 3 }));
 
         // Queue with 7 elements.
         objects.add(
                 new TestParameters<>(
-                        Arrays.stream(new int[]{ 1, 7, 4, 8, 9, 6, 5 })
+                        Arrays.stream(new int[] { 1, 7, 4, 8, 9, 6, 5 })
                                 .mapToObj(MutableInteger::new).toArray(MutableInteger[]::new),
-                        new int[]{ 2, 0, 1, 3, 4, 5, 6 }));
+                        new int[] { 2, 0, 1, 3, 4, 5, 6 }));
 
         // Queue with 13 elements.
         objects.add(new TestParameters<>(
-                Arrays.stream(new int[]{ 1, 7, 2, 8, 9, 3, 4, 10, 11, 12, 13, 5, 6 })
+                Arrays.stream(new int[] { 1, 7, 2, 8, 9, 3, 4, 10, 11, 12, 13, 5, 6 })
                         .mapToObj(MutableInteger::new).toArray(MutableInteger[]::new),
-                new int[]{ 3, 4, 0, 2, 5, 6, 1, 7, 8, 9, 10, 11, 12 }));
+                new int[] { 3, 4, 0, 2, 5, 6, 1, 7, 8, 9, 10, 11, 12 }));
 
         return objects;
     }
@@ -200,7 +201,7 @@ public abstract class PriorityQueueTest {
     @Test
     public void testDeleteMin() {
         int size = parameters.data.length;
-        assertEquals(queue.size(), size);
+        assertEquals(size, queue.size());
         MutableInteger[] range = Arrays.copyOf(parameters.data, parameters.data.length);
         Arrays.sort(range);
         for (MutableInteger x: range) {
@@ -229,14 +230,14 @@ public abstract class PriorityQueueTest {
             fail("Expected exception " + ElementNotFoundException.class.getName());
         }
         catch (ElementNotFoundException e) {
-            assertEquals(e.getElement(), min);
+            assertEquals(min, e.getElement());
         }
         try {
             queue.remove(max);
             fail("Expected exception " + ElementNotFoundException.class.getName());
         }
         catch (ElementNotFoundException e) {
-            assertEquals(e.getElement(), max);
+            assertEquals(max, e.getElement());
         }
     }
 
@@ -250,7 +251,7 @@ public abstract class PriorityQueueTest {
                 fail("Expected exception " + ElementNotFoundException.class.getName());
             }
             catch (ElementNotFoundException e) {
-                assertEquals(e.getElement(), min);
+                assertEquals(min, e.getElement());
             }
         }
     }
@@ -266,7 +267,7 @@ public abstract class PriorityQueueTest {
                 fail("Expected exception " + ElementNotFoundException.class.getName());
             }
             catch (ElementNotFoundException e) {
-                assertEquals(e.getElement(), data);
+                assertEquals(data, e.getElement());
             }
         }
     }

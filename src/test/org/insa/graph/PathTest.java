@@ -93,15 +93,15 @@ public class PathTest {
         assertFalse(longLoopPath.isEmpty());
         assertFalse(invalidPath.isEmpty());
     }
-    
+
     @Test
     public void testSize() {
-        assertEquals(emptyPath.size(), 0);
-        assertEquals(singleNodePath.size(), 1);
-        assertEquals(shortPath.size(), 4);
-        assertEquals(longPath.size(), 5);
-        assertEquals(loopPath.size(), 5);
-        assertEquals(longLoopPath.size(), 10);
+        assertEquals(0, emptyPath.size());
+        assertEquals(1, singleNodePath.size());
+        assertEquals(4, shortPath.size());
+        assertEquals(5, longPath.size());
+        assertEquals(5, loopPath.size());
+        assertEquals(10, longLoopPath.size());
     }
 
     @Test
@@ -118,41 +118,41 @@ public class PathTest {
 
     @Test
     public void testGetLength() {
-        assertEquals(emptyPath.getLength(), 0, 1e-6);
-        assertEquals(singleNodePath.getLength(), 0, 1e-6);
-        assertEquals(shortPath.getLength(), 40, 1e-6);
-        assertEquals(longPath.getLength(), 62.8, 1e-6);
-        assertEquals(loopPath.getLength(), 55, 1e-6);
-        assertEquals(longLoopPath.getLength(), 120, 1e-6);
+        assertEquals(0, emptyPath.getLength(), 1e-6);
+        assertEquals(0, singleNodePath.getLength(), 1e-6);
+        assertEquals(40, shortPath.getLength(), 1e-6);
+        assertEquals(62.8, longPath.getLength(), 1e-6);
+        assertEquals(55, loopPath.getLength(), 1e-6);
+        assertEquals(120, longLoopPath.getLength(), 1e-6);
     }
 
     @Test
     public void testGetTravelTime() {
         // Note: 18 km/h = 5m/s
-        assertEquals(emptyPath.getTravelTime(18), 0, 1e-6);
-        assertEquals(singleNodePath.getTravelTime(18), 0, 1e-6);
-        assertEquals(shortPath.getTravelTime(18), 8, 1e-6);
-        assertEquals(longPath.getTravelTime(18), 12.56, 1e-6);
-        assertEquals(loopPath.getTravelTime(18), 11, 1e-6);
-        assertEquals(longLoopPath.getTravelTime(18), 24, 1e-6);
+        assertEquals(0, emptyPath.getTravelTime(18), 1e-6);
+        assertEquals(0, singleNodePath.getTravelTime(18), 1e-6);
+        assertEquals(8, shortPath.getTravelTime(18), 1e-6);
+        assertEquals(12.56, longPath.getTravelTime(18), 1e-6);
+        assertEquals(11, loopPath.getTravelTime(18), 1e-6);
+        assertEquals(24, longLoopPath.getTravelTime(18), 1e-6);
 
         // Note: 28.8 km/h = 8m/s
-        assertEquals(emptyPath.getTravelTime(28.8), 0, 1e-6);
-        assertEquals(singleNodePath.getTravelTime(28.8), 0, 1e-6);
-        assertEquals(shortPath.getTravelTime(28.8), 5, 1e-6);
-        assertEquals(longPath.getTravelTime(28.8), 7.85, 1e-6);
-        assertEquals(loopPath.getTravelTime(28.8), 6.875, 1e-6);
-        assertEquals(longLoopPath.getTravelTime(28.8), 15, 1e-6);
+        assertEquals(0, emptyPath.getTravelTime(28.8), 1e-6);
+        assertEquals(0, singleNodePath.getTravelTime(28.8), 1e-6);
+        assertEquals(5, shortPath.getTravelTime(28.8), 1e-6);
+        assertEquals(7.85, longPath.getTravelTime(28.8), 1e-6);
+        assertEquals(6.875, loopPath.getTravelTime(28.8), 1e-6);
+        assertEquals(15, longLoopPath.getTravelTime(28.8), 1e-6);
     }
 
     @Test
     public void testGetMinimumTravelTime() {
-        assertEquals(emptyPath.getMinimumTravelTime(), 0, 1e-4);
-        assertEquals(singleNodePath.getLength(), 0, 1e-4);
-        assertEquals(shortPath.getMinimumTravelTime(), 4, 1e-4);
-        assertEquals(longPath.getMinimumTravelTime(), 5.14, 1e-4);
-        assertEquals(loopPath.getMinimumTravelTime(), 5.5, 1e-4);
-        assertEquals(longLoopPath.getMinimumTravelTime(), 11.25, 1e-4);
+        assertEquals(0, emptyPath.getMinimumTravelTime(), 1e-4);
+        assertEquals(0, singleNodePath.getLength(), 1e-4);
+        assertEquals(4, shortPath.getMinimumTravelTime(), 1e-4);
+        assertEquals(5.14, longPath.getMinimumTravelTime(), 1e-4);
+        assertEquals(5.5, loopPath.getMinimumTravelTime(), 1e-4);
+        assertEquals(11.25, longLoopPath.getMinimumTravelTime(), 1e-4);
     }
 
     @Test
@@ -180,13 +180,13 @@ public class PathTest {
 
         // Trap construction!
         path = Path.createFastestPathFromNodes(graph, Arrays.asList(new Node[] { nodes[1] }));
-        assertEquals(path.getOrigin(), nodes[1]);
-        assertEquals(path.getArcs().size(), 0);
+        assertEquals(nodes[1], path.getOrigin());
+        assertEquals(0, path.getArcs().size());
 
         // Trap construction - The return!
         path = Path.createFastestPathFromNodes(graph, Arrays.asList(new Node[0]));
-        assertEquals(path.getOrigin(), null);
-        assertEquals(path.getArcs().size(), 0);
+        assertEquals(null, path.getOrigin());
+        assertEquals(0, path.getArcs().size());
         assertTrue(path.isEmpty());
     }
 
@@ -215,13 +215,13 @@ public class PathTest {
 
         // Trap construction!
         path = Path.createShortestPathFromNodes(graph, Arrays.asList(new Node[] { nodes[1] }));
-        assertEquals(path.getOrigin(), nodes[1]);
-        assertEquals(path.getArcs().size(), 0);
+        assertEquals(nodes[1], path.getOrigin());
+        assertEquals(0, path.getArcs().size());
 
         // Trap construction - The return!
         path = Path.createShortestPathFromNodes(graph, Arrays.asList(new Node[0]));
-        assertEquals(path.getOrigin(), null);
-        assertEquals(path.getArcs().size(), 0);
+        assertEquals(null, path.getOrigin());
+        assertEquals(0, path.getArcs().size());
         assertTrue(path.isEmpty());
     }
 
