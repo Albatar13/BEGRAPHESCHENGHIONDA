@@ -1,19 +1,14 @@
-//
-// ******************PUBLIC OPERATIONS*********************
-// void insert( x ) --> Insert x
-// Comparable deleteMin( )--> Return and remove smallest item
-// Comparable findMin( ) --> Return smallest item
-// boolean isEmpty( ) --> Return true if empty; else false
-// ******************ERRORS********************************
-// Throws RuntimeException for findMin and deleteMin when empty
-
 package org.insa.algo.utils;
 
 import java.util.ArrayList;
 
+
+
 /**
- * Implements a binary heap. Note that all "matching" is based on the compareTo
- * method.
+ * Implements a binary heap containing elements of type E.
+ *
+ * Note that all comparisons are based on the compareTo method,
+ * hence E must implement Comparable
  * 
  * @author Mark Allen Weiss
  * @author DLB
@@ -57,6 +52,7 @@ public class BinaryHeap<E extends Comparable<E>> implements PriorityQueue<E> {
         else {
             this.array.set(index, value);
         }
+        
     }
 
     /**
@@ -163,41 +159,153 @@ public class BinaryHeap<E extends Comparable<E>> implements PriorityQueue<E> {
         return minItem;
     }
 
-    /**
-     * Prints the heap
+    /* This class is used by toString_tree.
+     * It is just a triple of strings. Could it be made simpler in Java ?
+     *
+     * Printing context, functional style.
      */
-    public void print() {
-        System.out.println();
-        System.out.println("========  HEAP  (size = " + this.currentSize + ")  ========");
-        System.out.println();
+    private class Context {
+        /* Output text */
+        public final String acu ; 
 
-        for (int i = 0; i < this.currentSize; i++) {
-            System.out.println(this.array.get(i).toString());
+        /* margin: the margin to get back exactly under the current position on the next line. */
+        public final String margin ;
+        
+        /* lastmargin: margin used for the last child of a node. The markers are different. */
+        public final String lastmargin ;
+
+        public Context(String a, String b, String c) {
+            this.acu = a ;
+            this.margin = b ;
+            this.lastmargin = c ;
         }
 
-        System.out.println();
-        System.out.println("--------  End of heap  --------");
-        System.out.println();
+        /* Appends newlines. */
+        public Context nl(int n) {
+            if (n <= 0) { return this ; }
+            else {
+                String acu2 = this.acu + "\n" + this.margin ;
+                return (new Context(acu2, this.margin, this.lastmargin).nl(n-1)) ;
+            }
+        }
+
+        /* Adds some text */
+        public Context add(Integer count, String s) {
+            int cnt = (count==null) ? s.length() : count ;
+            String spaces = new String(new char[cnt]).replace('\0', ' ');
+
+            return new Context(this.acu + s, this.margin + spaces, this.lastmargin + spaces) ;
+        }
+
+        /* Adds a branch */
+        public Context br(Integer count, String label) {
+            Context ctxt = this.add(count, label) ;
+
+            if (count == null) {
+                return new Context(ctxt.acu + "_",
+                                   ctxt.margin + "|",
+                                   ctxt.margin + " ") ;
+            }
+            else {
+                return new Context(ctxt.acu,
+                                   ctxt.margin + "|",
+                                   ctxt.margin + " ").nl(1) ;
+            
+            }
+        }
     }
 
-    /**
-     * Prints the elements of the heap according to their respective order.
-     */
-    public void printSorted() {
+    /* Input : ready to write the current node at the current context position.
+     * Output : the last character of acu is the last character of the current node. */
+    public Context toString_loop(Context ctxt, int node, int max_depth) {
 
+        if (max_depth < 0) { return ctxt.add(null,"...") ; }
+        else {            
+            E nodeval = this.array.get(node) ;
+            String nodevals = nodeval.toString() ;
+        
+            ArrayList<Integer> childs = new ArrayList<Integer>() ;
+            // Add childs
+            int index_left = this.index_left(node) ;
+            int index_right = index_left + 1 ;
+
+            if (index_left < this.currentSize) { childs.add(index_left) ; }
+            if (index_right < this.currentSize) { childs.add(index_right) ; }
+        
+            Context ctxt2 = childs.isEmpty() ? ctxt.add(null,nodevals) : ctxt.br(1, nodevals) ;
+
+            for (int ch = 0 ; ch < childs.size() ; ch++) {
+                boolean is_last = (ch == childs.size() - 1) ;
+                int child = childs.get(ch) ;
+
+                if (is_last) {
+                    Context ctxt3 = new Context( ctxt2.acu, ctxt2.lastmargin, ctxt2.lastmargin) ;
+                    ctxt2 = new Context( this.toString_loop(ctxt3.add(null, "___"),child,max_depth-1).acu,
+                                         ctxt2.margin,
+                                         ctxt2.lastmargin) ;
+                }
+                else {
+                    ctxt2 = new Context(this.toString_loop(ctxt2.add(null,"___"),child,max_depth-1).acu,
+                                        ctxt2.margin,
+                                        ctxt2.lastmargin).nl(2) ;
+                }
+            }
+        
+            return ctxt2 ;
+        }
+    }
+            
+        
+    // Textual representation of the tree.
+    public String toString_tree(int max_depth) {
+        Context init_context = new Context("   ", "   ", "   ") ;        
+        Context result = this.toString_loop(init_context, 0, max_depth) ;
+        return result.acu ;
+    }
+    
+    // Prints the elements, sorted.
+    // max_elements: maximal number of elements printed. -1 for infinity.
+    public String toString_sorted(int max_elements) {
+        String result = "\n" ;
         BinaryHeap<E> copy = new BinaryHeap<E>(this);
 
-        System.out.println();
-        System.out.println("========  Sorted HEAP  (size = " + this.currentSize + ")  ========");
-        System.out.println();
+        int remaining = max_elements ;
 
-        while (!copy.isEmpty()) {
-            System.out.println(copy.deleteMin());
+        String truncate = "" ;
+        if (max_elements < 0 || max_elements >= this.currentSize) {
+            truncate = "" ;
+        } else {
+            truncate = ", only " + max_elements + " elements are shown";
+        }
+        
+        result += "========  Sorted HEAP  (size = " + this.currentSize + truncate + ")  ========\n\n" ;
+
+        while (!copy.isEmpty() && remaining != 0) {
+            result += copy.deleteMin() + "\n" ;
+            remaining-- ;
         }
 
-        System.out.println();
-        System.out.println("--------  End of heap  --------");
-        System.out.println();
+        result += "\n--------  End of heap  --------\n\n" ;
+
+        return result ;        
     }
 
+    public String toString() {
+        return this.toString_tree(8) ;
+    }
+
+    /* 
+    public static void main(String[] args) {
+        BinaryHeap<Integer> heap = new BinaryHeap<Integer>() ;
+
+        for (int i = 0 ; i < 50 ; i++) {
+            heap.insert(i) ;
+        }
+
+        System.out.println(heap.toString_tree(4)) ;        
+    }
+    */
+    
 }
+
+
