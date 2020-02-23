@@ -6,12 +6,14 @@ bin
 target
 doc
 *.jar
+.settings
+.classpath
 
 # Editor specific files and folders
 *~
 .project
 
-# Project speicific files and folders
+# Project specific files and folders
 *.mapfg
 *.mapgr
 *.path
