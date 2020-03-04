@@ -9,27 +9,30 @@
 		<artifactId>be-graphes-all</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	
+
 	<properties>
-	   <mapsforge.version>0.13.0</mapsforge.version>
+		<mapsforge.version>0.13.0</mapsforge.version>
 	</properties>
-	
+
 	<artifactId>be-graphes-gui</artifactId>
 	<name>be-graphes-gui</name>
 	
+	<!-- Repository for Salamander (dependency of Mapsforge). -->
 	<repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
 
 	<dependencies>
+	
 		<dependency>
 			<groupId>org.insa.graphs</groupId>
 			<artifactId>be-graphes-model</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.insa.graphs</groupId>
 			<artifactId>be-graphes-algos</artifactId>
@@ -43,39 +46,39 @@
 			<version>2.3.0</version>
 		</dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.mapsforge/mapsforge-map-reader -->
-        <dependency>
-            <groupId>org.mapsforge</groupId>
-            <artifactId>mapsforge-themes</artifactId>
-            <version>${mapsforge.version}</version>
-        </dependency>
+		<!-- https://mvnrepository.com/artifact/org.mapsforge/mapsforge-map-reader -->
+		<dependency>
+			<groupId>org.mapsforge</groupId>
+			<artifactId>mapsforge-themes</artifactId>
+			<version>${mapsforge.version}</version>
+		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.mapsforge/mapsforge-map -->
 		<dependency>
 			<groupId>org.mapsforge</groupId>
 			<artifactId>mapsforge-map</artifactId>
-            <version>${mapsforge.version}</version>
+			<version>${mapsforge.version}</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.mapsforge/mapsforge-map-awt -->
 		<dependency>
 			<groupId>org.mapsforge</groupId>
 			<artifactId>mapsforge-map-awt</artifactId>
-            <version>${mapsforge.version}</version>
+			<version>${mapsforge.version}</version>
 		</dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.mapsforge/mapsforge-map-reader -->
-        <dependency>
-            <groupId>org.mapsforge</groupId>
-            <artifactId>mapsforge-themes</artifactId>
-            <version>${mapsforge.version}</version>
-        </dependency>
+		<!-- https://mvnrepository.com/artifact/org.mapsforge/mapsforge-map-reader -->
+		<dependency>
+			<groupId>org.mapsforge</groupId>
+			<artifactId>mapsforge-themes</artifactId>
+			<version>${mapsforge.version}</version>
+		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.mapsforge/mapsforge-map-reader -->
 		<dependency>
 			<groupId>org.mapsforge</groupId>
 			<artifactId>mapsforge-map-reader</artifactId>
-            <version>${mapsforge.version}</version>
+			<version>${mapsforge.version}</version>
 		</dependency>
 
 	</dependencies>
