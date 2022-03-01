@@ -32,10 +32,12 @@ public class ArcInspectorFactory {
                 return arc.getLength();
             }
 
+            /*
             @Override
             public int getMaximumSpeed() {
                 return GraphStatistics.NO_MAXIMUM_SPEED;
             }
+            */
 
             @Override
             public Mode getMode() {
@@ -62,10 +64,12 @@ public class ArcInspectorFactory {
                 return arc.getLength();
             }
 
+            /*
             @Override
             public int getMaximumSpeed() {
                 return GraphStatistics.NO_MAXIMUM_SPEED;
             }
+            */
 
             @Override
             public Mode getMode() {
@@ -91,10 +95,12 @@ public class ArcInspectorFactory {
                 return arc.getMinimumTravelTime();
             }
 
+            /*
             @Override
             public int getMaximumSpeed() {
                 return GraphStatistics.NO_MAXIMUM_SPEED;
             }
+            */
 
             @Override
             public Mode getMode() {
@@ -120,11 +126,13 @@ public class ArcInspectorFactory {
                 return arc.getMinimumTravelTime();
             }
 
+            /*
             @Override
             public int getMaximumSpeed() {
                 return GraphStatistics.NO_MAXIMUM_SPEED;
             }
-
+            */
+            
             @Override
             public Mode getMode() {
                 return Mode.TIME;
@@ -139,6 +147,8 @@ public class ArcInspectorFactory {
         // Non-private roads for pedestrian and bicycle:
         filters.add(new ArcInspector() {
 
+            static final int maxPedestrianSpeed = 5 ;
+        	
             @Override
             public boolean isAllowed(Arc arc) {
                 return arc.getRoadInformation().getAccessRestrictions()
@@ -149,7 +159,7 @@ public class ArcInspectorFactory {
             @Override
             public double getCost(Arc arc) {
                 return arc.getTravelTime(
-                        Math.min(getMaximumSpeed(), arc.getRoadInformation().getMaximumSpeed()));
+                        Math.min(maxPedestrianSpeed, arc.getRoadInformation().getMaximumSpeed()));
             }
 
             @Override
@@ -157,11 +167,13 @@ public class ArcInspectorFactory {
                 return "Fastest path for pedestrian";
             }
 
+            /*
             @Override
             public int getMaximumSpeed() {
                 return 5;
             }
-
+            */
+            
             @Override
             public Mode getMode() {
                 return Mode.TIME;

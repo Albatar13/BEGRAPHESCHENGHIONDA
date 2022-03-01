@@ -33,7 +33,7 @@ public interface ArcInspector {
      * @return The maximum speed for this inspector, or
      *         {@link GraphStatistics#NO_MAXIMUM_SPEED} if none is set.
      */
-    public int getMaximumSpeed();
+    /* public int getMaximumSpeed(); */
 
     /**
      * @return Mode for this arc inspector.
