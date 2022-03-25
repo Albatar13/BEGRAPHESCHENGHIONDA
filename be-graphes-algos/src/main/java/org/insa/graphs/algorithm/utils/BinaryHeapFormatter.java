@@ -155,9 +155,9 @@ public class BinaryHeapFormatter {
      * Creates a multi-lines string representing a sorted view of the given binary
      * heap.
      * 
-     * @param heap       The binary heap to display.
-     * @param maxElement Maximum number of elements to display. or {@code -1} to
-     *                   display all the elements.
+     * @param heap         The binary heap to display.
+     * @param max_elements Maximum number of elements to display. or {@code -1} to
+     *                     display all the elements.
      * 
      * @return a string containing a sorted view the given binary heap.
      */
