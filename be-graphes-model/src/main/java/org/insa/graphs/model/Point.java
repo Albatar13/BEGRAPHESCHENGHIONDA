@@ -25,7 +25,15 @@ public final class Point {
         double cosLat = Math.cos(Math.toRadians(p1.getLatitude()))
                 * Math.cos(Math.toRadians(p2.getLatitude()));
         double cosLong = Math.cos(Math.toRadians(p2.getLongitude() - p1.getLongitude()));
-        return EARTH_RADIUS * Math.acos(sinLat + cosLat * cosLong);
+
+	double koef = sinLat + cosLat * cosLong ;
+
+	if (koef >= 1.0) { koef = 1.0 ;	}
+	if (koef <= -1.0) { koef = -1.0 ; }
+	
+        res = EARTH_RADIUS * Math.acos(koef) ;
+	
+	return res
     }
 
     // Longitude and latitude of the point.
