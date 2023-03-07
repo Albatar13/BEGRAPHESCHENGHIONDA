@@ -9,7 +9,7 @@ import org.insa.graphs.model.Path;
  * Base interface that should be implemented by class used to write paths.
  *
  */
-public interface PathWriter extends AutoCloseable, Closeable {
+public interface PathWriter extends Closeable {
 
     /**
      * Write the given path.

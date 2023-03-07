@@ -2,7 +2,7 @@ package org.insa.graphs.algorithm;
 
 import org.insa.graphs.algorithm.AbstractInputData.Mode;
 import org.insa.graphs.model.Arc;
-import org.insa.graphs.model.GraphStatistics;
+//import org.insa.graphs.model.GraphStatistics;
 
 /**
  * This class can be used to indicate to an algorithm which arcs can be used and

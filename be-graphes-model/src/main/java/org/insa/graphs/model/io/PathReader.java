@@ -10,7 +10,7 @@ import org.insa.graphs.model.Path;
  * Base interface that should be implemented by class used to read paths.
  *
  */
-public interface PathReader extends AutoCloseable, Closeable {
+public interface PathReader extends Closeable {
 
     /**
      * Read a path of the given graph and returns it.

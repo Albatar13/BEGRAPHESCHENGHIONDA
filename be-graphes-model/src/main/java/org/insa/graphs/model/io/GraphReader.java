@@ -9,7 +9,7 @@ import org.insa.graphs.model.Graph;
  * Base interface for classes that can read graph.
  *
  */
-public interface GraphReader extends AutoCloseable, Closeable {
+public interface GraphReader extends Closeable {
 
     /**
      * Add a new observer to this graph reader.

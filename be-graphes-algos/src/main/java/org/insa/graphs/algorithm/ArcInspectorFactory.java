@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.insa.graphs.algorithm.AbstractInputData.Mode;
 import org.insa.graphs.model.Arc;
-import org.insa.graphs.model.GraphStatistics;
+//import org.insa.graphs.model.GraphStatistics;
 import org.insa.graphs.model.AccessRestrictions.AccessMode;
 import org.insa.graphs.model.AccessRestrictions.AccessRestriction;
 

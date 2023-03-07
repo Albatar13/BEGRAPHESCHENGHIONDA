@@ -8,7 +8,7 @@ import java.io.IOException;
  * Base class for writing binary file.
  *
  */
-public abstract class BinaryWriter implements AutoCloseable, Closeable {
+public abstract class BinaryWriter implements Closeable {
 
     // Output stream.
     protected final DataOutputStream dos;

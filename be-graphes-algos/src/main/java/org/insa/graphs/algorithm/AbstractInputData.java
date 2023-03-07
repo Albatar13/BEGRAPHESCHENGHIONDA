@@ -2,7 +2,7 @@ package org.insa.graphs.algorithm;
 
 import org.insa.graphs.model.Arc;
 import org.insa.graphs.model.Graph;
-import org.insa.graphs.model.GraphStatistics;
+//import org.insa.graphs.model.GraphStatistics;
 
 /**
  * Base class for algorithm input data classes. This class contains the basic

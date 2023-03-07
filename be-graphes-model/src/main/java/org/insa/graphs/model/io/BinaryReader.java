@@ -8,7 +8,7 @@ import java.io.IOException;
  * Base class for writing binary file.
  *
  */
-public abstract class BinaryReader implements AutoCloseable, Closeable {
+public abstract class BinaryReader implements Closeable {
 
     // Map version and magic number targeted for this reader.
     private final int minVersion;
