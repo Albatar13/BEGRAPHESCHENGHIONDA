@@ -31,9 +31,7 @@ public final class Point {
 	if (koef >= 1.0) { koef = 1.0 ;	}
 	if (koef <= -1.0) { koef = -1.0 ; }
 	
-        res = EARTH_RADIUS * Math.acos(koef) ;
-	
-	return res
+        return (EARTH_RADIUS * Math.acos(koef)) ;
     }
 
     // Longitude and latitude of the point.
