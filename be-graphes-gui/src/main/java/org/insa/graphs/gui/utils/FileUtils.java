@@ -59,9 +59,9 @@ public class FileUtils {
     static {
         // Populate folderToEntry
         folderToEntry.put(FolderType.Map, new PreferencesEntry("DefaultMapFolder",
-                "/home/commetud/3eme Annee MIC/Graphes-et-Algorithmes/Maps"));
+                "/mnt/commetud/3eme Annee MIC/Graphes-et-Algorithmes/Maps"));
         folderToEntry.put(FolderType.PathInput, new PreferencesEntry("DefaultPathInputFolder",
-                "/home/commetud/3eme Annee MIC/Graphes-et-Algorithmes/Paths"));
+                "/mnt/commetud/3eme Annee MIC/Graphes-et-Algorithmes/Paths"));
         folderToEntry.put(FolderType.PathOutput,
                 new PreferencesEntry("DefaultPathOutputsFolder", "paths"));
 
