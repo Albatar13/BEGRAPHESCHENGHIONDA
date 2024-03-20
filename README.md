@@ -37,7 +37,7 @@ You first need to register and then log in to the platform you want. The steps t
 5. Click *Create project*.
 6. Wait for completion... Done!
 
-### Importing to another repository provider *[not recommended]*:
+### Importing to another repository provider:
 
 1. Create a new **empty** repository (no README, no LICENSE) on your provider. Let's assume the URL of your repository is `$URL_REPOSITORY`.
 2. Clone this repository somewhere:
