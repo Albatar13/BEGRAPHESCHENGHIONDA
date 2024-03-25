@@ -201,7 +201,33 @@ public class Path {
      * @deprecated Need to be implemented.
      */
     public boolean isValid() {
-        // TODO:
+        if (this.isEmpty()) {
+            return true;
+        }
+    
+        if (this.size() == 1) {
+            return true;
+        }
+    
+        // Vérifier les arcs consécutifs
+        List<Arc> arcsListe = this.getArcs();
+        Node currentOrigin = this.getOrigin();
+        for (int i = 0; i < arcsListe.size() - 1; i++) {
+            Arc currentArc = arcsListe.get(i);
+            Arc nextArc = arcsListe.get(i + 1);
+    
+            // Vérifier si l'origine de l'arc actuel correspond à l'origine du chemin
+            if (i == 0 && currentArc.getOrigin() != currentOrigin) {
+                return false;
+            }
+    
+            // Vérifier si la destination de l'arc actuel correspond à l'origine de l'arc suivant
+            if (currentArc.getDestination() != nextArc.getOrigin()) {
+                return false;
+            }
+        }
+        
+
         return false;
     }
 
