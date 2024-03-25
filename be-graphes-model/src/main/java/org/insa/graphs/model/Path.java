@@ -213,16 +213,17 @@ public class Path {
      * @deprecated Need to be implemented.
      */
     public float getLength() {
-        if (this.isEmpty()){
+
+        if (this.isEmpty()) {
             return 0;
-        }else{
-            float total =0;
-            List<Arc> arcliste =this.getArcs();
-            for (Arc arc: arcliste){
-                total=total+arc.getLength();
+        } else {
+            float total = 0;
+            List<Arc> arcsListe = this.getArcs();
+            for (Arc arc : arcsListe) {
+                total = total + arc.getLength();
             }
+            return total;
         }
-        return 0;
     }
 
     /**
