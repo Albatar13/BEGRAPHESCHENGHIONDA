@@ -43,7 +43,10 @@ public class Path {
         if (nodes.isEmpty()) {
             throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");
         }
-        if (nodes.size()==1) {valid=true;}
+        if (nodes.size()==1) {
+            valid=true;
+            return new Path(graph);
+        }
         if(!valid){
             for (int i = 0; i < nodes.size() - 1; i++) {
                 Node source = nodes.get(i);
@@ -58,8 +61,6 @@ public class Path {
                if(!valid){throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");} 
             }
         } 
-        if(nodes.size()==1){
-            return new Path(graph);
         }else{
             for (int i = 0; i < nodes.size() - 1; i++) {
                 Node source = nodes.get(i);
@@ -102,7 +103,10 @@ public class Path {
         if (nodes.isEmpty()) {
             throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");
         }
-        if (nodes.size()==1) {valid=true;}
+        if (nodes.size()==1) {
+            valid=true;
+            return new Path(graph);
+        }
         if(!valid){
             for (int i = 0; i < nodes.size() - 1; i++) {
                 Node source = nodes.get(i);
@@ -116,9 +120,8 @@ public class Path {
                 }
                if(!valid){throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");} 
             }
-        } 
-        if(nodes.size()==1){
-            return new Path(graph);
+        }
+            
         }else{
             for (int i = 0; i < nodes.size() - 1; i++) {
                 Node source = nodes.get(i);
