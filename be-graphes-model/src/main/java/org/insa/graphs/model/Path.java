@@ -1,8 +1,11 @@
 package org.insa.graphs.model;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.w3c.dom.Node;
 
 /**
  * <p>
@@ -35,8 +38,47 @@ public class Path {
     public static Path createFastestPathFromNodes(Graph graph, List<Node> nodes)
             throws IllegalArgumentException {
         List<Arc> arcs = new ArrayList<Arc>();
-        // TODO:
-        return new Path(graph, arcs);
+        // Vérifier la connectivité entre les nœuds consécutifs
+        boolean valid = false;
+        if (nodes.isEmpty()) {
+            throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");
+        }
+        if (nodes.size()==1) {valid=true;}
+        if(!valid){
+            for (int i = 0; i < nodes.size() - 1; i++) {
+                Node source = nodes.get(i);
+                Node target = nodes.get(i + 1);
+                valid =false;
+                List<Arc> arcsListe = source.getSuccessors();
+                for (int j=0;j<arcsListe.size();j++){
+                    if (arcsListe.get(j).getDestination()==target){
+                        valid=true;
+                    }
+                }
+               if(!valid){throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");} 
+            }
+        } 
+        if(nodes.size()==1){
+            return new Path(graph);
+        }else{
+            for (int i = 0; i < nodes.size() - 1; i++) {
+                Node source = nodes.get(i);
+                Node target = nodes.get(i + 1);
+                List<Arc> arcsListe = source.getSuccessors();
+                double Time = Double.MAX_VALUE;
+                int index=-1;
+                for (int j=0;j<arcsListe.size();j++){
+                    if (arcsListe.get(j).getDestination()==target){
+                        if(arcsListe.get(j).getMinimumTravelTime()<=Time){
+                            Time=arcsListe.get(j).getMinimumTravelTime();
+                            index=j;
+                        }
+                    }
+                }
+                arcs.add(arcsListe.get(index));
+            }  
+            return new Path(graph, arcs);
+        }
     }
 
     /**
@@ -56,10 +98,47 @@ public class Path {
     public static Path createShortestPathFromNodes(Graph graph, List<Node> nodes)
             throws IllegalArgumentException {
         List<Arc> arcs = new ArrayList<Arc>();
-        // TODO:
+        boolean valid = false;
+        if (nodes.isEmpty()) {
+            throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");
+        }
+        if (nodes.size()==1) {valid=true;}
+        if(!valid){
+            for (int i = 0; i < nodes.size() - 1; i++) {
+                Node source = nodes.get(i);
+                Node target = nodes.get(i + 1);
+                valid =false;
+                List<Arc> arcsListe = source.getSuccessors();
+                for (int j=0;j<arcsListe.size();j++){
+                    if (arcsListe.get(j).getDestination()==target){
+                        valid=true;
+                    }
+                }
+               if(!valid){throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");} 
+            }
+        } 
+        if(nodes.size()==1){
+            return new Path(graph);
+        }else{
+            for (int i = 0; i < nodes.size() - 1; i++) {
+                Node source = nodes.get(i);
+                Node target = nodes.get(i + 1);
+                List<Arc> arcsListe = source.getSuccessors();
+                float length = Float.MAX_VALUE;
+                int index=-1;
+                for (int j=0;j<arcsListe.size();j++){
+                    if (arcsListe.get(j).getDestination()==target){
+                        if(arcsListe.get(j).getLength()<=length){
+                            length=arcsListe.get(j).getLength();
+                            index=j;
+                        }
+                    }
+                }
+                arcs.add(arcsListe.get(index));
+            }  
         return new Path(graph, arcs);
+        }
     }
-
     /**
      * Concatenate the given paths.
      * 
@@ -200,7 +279,7 @@ public class Path {
      * 
      * @deprecated Need to be implemented.
      */
-    public boolean isValid() {
+    public  boolean isValid() {
         if (this.isEmpty()) {
             return true;
         }
@@ -228,7 +307,7 @@ public class Path {
         }
         
 
-        return false;
+        return true;
     }
 
     /**
