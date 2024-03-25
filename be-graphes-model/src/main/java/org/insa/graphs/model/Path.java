@@ -249,7 +249,16 @@ public class Path {
      * @deprecated Need to be implemented.
      */
     public double getMinimumTravelTime() {
-        return 0;
+        if (this.isEmpty()) {
+            return 0;
+        } else {
+            float TimeTotal=0;
+            List<Arc> arcsListe = this.getArcs();
+            for (Arc arc : arcsListe) {
+                TimeTotal+= arc.getMinimumTravelTime();
+            }
+            return TimeTotal;
+        }
     }
 
 }
