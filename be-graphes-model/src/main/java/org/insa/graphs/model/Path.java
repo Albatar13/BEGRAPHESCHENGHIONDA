@@ -186,7 +186,8 @@ public class Path {
 
     /**
      * Check if this path is valid.
-     * 
+     * Liste.get(i + 1);
+    
      * A path is valid if any of the following is true:
      * <ul>
      * <li>it is empty;</li>
