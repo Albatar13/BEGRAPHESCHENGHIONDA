@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.w3c.dom.Node;
+//import org.w3c.dom.Node;
 
 /**
  * <p>
@@ -35,17 +35,17 @@ public class Path {
      * 
      * @deprecated Need to be implemented.
      */
-    public static Path createFastestPathFromNodes(Graph graph, List<Node> nodes)
-            throws IllegalArgumentException {
+    public static Path createFastestPathFromNodes(Graph graph, List<Node> nodes) throws IllegalArgumentException {
         List<Arc> arcs = new ArrayList<Arc>();
         // Vérifier la connectivité entre les nœuds consécutifs
         boolean valid = false;
         if (nodes.isEmpty()) {
-            throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");
+            return new Path(graph);
+            //throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");
         }
         if (nodes.size()==1) {
             valid=true;
-            return new Path(graph);
+            return new Path(graph,nodes.get(0));
         }
         if(!valid){
             for (int i = 0; i < nodes.size() - 1; i++) {
@@ -60,9 +60,9 @@ public class Path {
                 }
                if(!valid){throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");} 
             }
-        } 
-        }else{
-            for (int i = 0; i < nodes.size() - 1; i++) {
+        }
+        
+        for (int i = 0; i < nodes.size() - 1; i++) {
                 Node source = nodes.get(i);
                 Node target = nodes.get(i + 1);
                 List<Arc> arcsListe = source.getSuccessors();
@@ -78,9 +78,8 @@ public class Path {
                 }
                 arcs.add(arcsListe.get(index));
             }  
-            return new Path(graph, arcs);
+        return new Path(graph, arcs);
         }
-    }
 
     /**
      * Create a new path that goes through the given list of nodes (in order),
@@ -101,12 +100,14 @@ public class Path {
         List<Arc> arcs = new ArrayList<Arc>();
         boolean valid = false;
         if (nodes.isEmpty()) {
-            throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");
+            return new Path(graph);
+            //throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");
         }
         if (nodes.size()==1) {
             valid=true;
-            return new Path(graph);
+            return new Path(graph,nodes.get(0));
         }
+        
         if(!valid){
             for (int i = 0; i < nodes.size() - 1; i++) {
                 Node source = nodes.get(i);
@@ -121,9 +122,8 @@ public class Path {
                if(!valid){throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");} 
             }
         }
-            
-        }else{
-            for (int i = 0; i < nodes.size() - 1; i++) {
+        
+        for (int i = 0; i < nodes.size() - 1; i++) {
                 Node source = nodes.get(i);
                 Node target = nodes.get(i + 1);
                 List<Arc> arcsListe = source.getSuccessors();
@@ -140,8 +140,8 @@ public class Path {
                 arcs.add(arcsListe.get(index));
             }  
         return new Path(graph, arcs);
-        }
     }
+    
     /**
      * Concatenate the given paths.
      * 
