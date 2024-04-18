@@ -3,17 +3,29 @@ package org.insa.graphs.algorithm.shortestpath;
 import org.insa.graphs.model.Arc;
 import org.insa.graphs.model.Node;
 
-public class Label {
+public class Label implements Comparable<Label> {
     private boolean marque;
+    private float cout_realise;
+    private Node sommet_courant;
+    private Arc pere;
+    private boolean isInTas;
+    
+    public Label(Node sommet_courant){
+        this.marque=false;
+        this.cout_realise=Float.POSITIVE_INFINITY;
+        this.sommet_courant=sommet_courant;
+        this.pere=null;     
+    }
+
     public void setMarque(boolean marque) {
         this.marque = marque;
     }
 
-    public void setCout_realise(int cout_realise) {
+    public void setCout_realise(float cout_realise) {
         this.cout_realise = cout_realise;
     }
 
-    public void setSommet_courant(double sommet_courant) {
+    public void setSommet_courant(Node sommet_courant) {
         this.sommet_courant = sommet_courant;
     }
 
@@ -21,19 +33,18 @@ public class Label {
         this.pere = pere;
     }
 
-    public static void setN(int n) {
-        N = n;
-    }
-
+    public void InTas(){
+        this.isInTas=true;
+    } 
     public boolean isMarque() {
         return marque;
     }
 
-    public int getCout_realise() {
+    public float getCout_realise() {
         return cout_realise;
     }
 
-    public double getSommet_courant() {
+    public Node getSommet_courant() {
         return sommet_courant;
     }
 
@@ -41,21 +52,21 @@ public class Label {
         return pere;
     }
 
-    public static int getN() {
-        return N;
-    }
-
-    private int cout_realise;
-    private double sommet_courant;
-    private Arc pere;
-    static int N=0;
-    
-    public Label(boolean marque,int cout_realise){
-        this.marque=marque;
-        this.cout_realise=cout_realise;
-    }
-
-    
-
+    public boolean isInTas(){
+        return isInTas;
+    } 
+    public int compareTo(Label autre) {
+		int resultat;
+		if (this.getCout_realise() < autre.getCout_realise()) {
+			resultat = -1;
+		}
+		else if (this.getCout_realise() == autre.getCout_realise()) {
+			resultat = 0;
+		}
+		else {
+			resultat = 1;
+		}
+		return resultat;
+	}
    
 }
