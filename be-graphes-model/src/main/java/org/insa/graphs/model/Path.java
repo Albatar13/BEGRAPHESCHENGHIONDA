@@ -40,8 +40,7 @@ public class Path {
         // Vérifier la connectivité entre les nœuds consécutifs
         boolean valid = false;
         if (nodes.isEmpty()) {
-            return new Path(graph);
-            //throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");
+            throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");
         }
         if (nodes.size()==1) {
             valid=true;
@@ -60,9 +59,9 @@ public class Path {
                 }
                if(!valid){throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");} 
             }
-        }
-        
-        for (int i = 0; i < nodes.size() - 1; i++) {
+        } 
+        }else{
+            for (int i = 0; i < nodes.size() - 1; i++) {
                 Node source = nodes.get(i);
                 Node target = nodes.get(i + 1);
                 List<Arc> arcsListe = source.getSuccessors();
@@ -78,8 +77,9 @@ public class Path {
                 }
                 arcs.add(arcsListe.get(index));
             }  
-        return new Path(graph, arcs);
+            return new Path(graph, arcs);
         }
+    }
 
     /**
      * Create a new path that goes through the given list of nodes (in order),
@@ -100,8 +100,7 @@ public class Path {
         List<Arc> arcs = new ArrayList<Arc>();
         boolean valid = false;
         if (nodes.isEmpty()) {
-            return new Path(graph);
-            //throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");
+            throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");
         }
         if (nodes.size()==1) {
             valid=true;
@@ -122,8 +121,9 @@ public class Path {
                if(!valid){throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");} 
             }
         }
-        
-        for (int i = 0; i < nodes.size() - 1; i++) {
+            
+        }else{
+            for (int i = 0; i < nodes.size() - 1; i++) {
                 Node source = nodes.get(i);
                 Node target = nodes.get(i + 1);
                 List<Arc> arcsListe = source.getSuccessors();
@@ -140,8 +140,8 @@ public class Path {
                 arcs.add(arcsListe.get(index));
             }  
         return new Path(graph, arcs);
+        }
     }
-    
     /**
      * Concatenate the given paths.
      * 
@@ -268,7 +268,8 @@ public class Path {
 
     /**
      * Check if this path is valid.
-     * 
+     * Liste.get(i + 1);
+    
      * A path is valid if any of the following is true:
      * <ul>
      * <li>it is empty;</li>
