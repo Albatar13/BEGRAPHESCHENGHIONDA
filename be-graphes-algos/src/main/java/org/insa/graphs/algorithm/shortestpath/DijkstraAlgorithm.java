@@ -7,7 +7,7 @@ import java.util.List;
 import org.insa.graphs.algorithm.AbstractSolution.Status;
 import org.insa.graphs.algorithm.utils.BinaryHeap;
 import org.insa.graphs.model.*;
-
+import org.insa.graphs.algorithm.utils.ElementNotFoundException;
 
 
 public class DijkstraAlgorithm extends ShortestPathAlgorithm {
@@ -36,7 +36,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 
         notifyOriginProcessed(data.getOrigin());
 
-        while(!Tas.isEmpty()||!fini){
+        while(!Tas.isEmpty() && !fini){
             Label courant= Tas.deleteMin();
             notifyNodeMarked(courant.getSommet_courant());
             courant.setMarque(true);
@@ -47,42 +47,41 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
             /*on parcourt les successors de ce node */
             List<Arc> arcliste= courant.getSommet_courant().getSuccessors();
             for (int i=0;i<arcliste.size();i++){
-                
+                if(data.isAllowed(arcliste.get(i))){
                 Node successor = (arcliste.get(i).getDestination());
                 Label successorLabel= Tab[successor.getId()];
                 System.out.println(successor.getId());
-                if(!data.isAllowed(arcliste.get(i))){
-                    continue;
-                } 
-
-                /*si ce node n'est pas encore dans le tableau, on le rajout */
-                if (successorLabel==null){
-                    notifyNodeReached(arcliste.get(i).getDestination());
-                    successorLabel= new Label(successor);
-                    Tab[successor.getId()]= successorLabel; 
-                }  
                 
-                /*si le successor n'est pas marque */
-                if(!successorLabel.isMarque()){
-                    /*le cas ou le cout a ete mis a jour */
-                    if(successorLabel.getCout_realise()>arcliste.get(i).getLength()+courant.getCout_realise()
-                    ||successorLabel.getCout_realise()==Float.POSITIVE_INFINITY){
-                        if(successorLabel.isInTas()){
-                            Tas.remove(successorLabel);
-                        }else{
-                            successorLabel.InTas();
-                        }
-                        successorLabel.setCout_realise(arcliste.get(i).getLength()+courant.getCout_realise());
-                        successorLabel.setPere(arcliste.get(i));
-                        Tas.insert(successorLabel);  
-                    } 
-                } 
+                    /*si ce node n'est pas encore dans le tableau, on le rajout */
+                    if (successorLabel==null){
+                        notifyNodeReached(arcliste.get(i).getDestination());
+                        successorLabel= new Label(successor);
+                        Tab[successor.getId()]= successorLabel; 
+                    }  
+                    
+                    /*si le successor n'est pas marque */
+                    if(!successorLabel.isMarque()){
+                        /*le cas ou le cout a ete mis a jour */
+                        if(successorLabel.getCout_realise()>data.getCost(arcliste.get(i))+courant.getCout_realise()
+                        ||successorLabel.getCout_realise()==Float.POSITIVE_INFINITY){
+                            if(successorLabel.isInTas()){
+                                try{Tas.remove(successorLabel);}catch(ElementNotFoundException e){}
+                                
+                            }else{
+                                successorLabel.InTas();
+                            }
+                            successorLabel.setCout_realise((float)data.getCost(arcliste.get(i))+courant.getCout_realise());
+                            successorLabel.setPere(arcliste.get(i));
+                            Tas.insert(successorLabel);  
+                        } 
+                    }
+                }
             } 
 
         } 
         
         /*la destination n'est pas atteint */
-        if(Tab[data.getDestination().getId()].getPere()==null){
+        if(!fini){
             solution = new ShortestPathSolution(data, Status.INFEASIBLE);
         /*la destination est atteint */
         }else{

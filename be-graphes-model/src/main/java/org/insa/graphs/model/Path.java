@@ -1,6 +1,5 @@
 package org.insa.graphs.model;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +39,7 @@ public class Path {
         // Vérifier la connectivité entre les nœuds consécutifs
         boolean valid = false;
         if (nodes.isEmpty()) {
-            throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");
+            return new Path(graph);
         }
         if (nodes.size()==1) {
             valid=true;
@@ -60,7 +59,6 @@ public class Path {
                if(!valid){throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");} 
             }
         } 
-        }else{
             for (int i = 0; i < nodes.size() - 1; i++) {
                 Node source = nodes.get(i);
                 Node target = nodes.get(i + 1);
@@ -78,8 +76,10 @@ public class Path {
                 arcs.add(arcsListe.get(index));
             }  
             return new Path(graph, arcs);
-        }
+        
     }
+
+
 
     /**
      * Create a new path that goes through the given list of nodes (in order),
@@ -100,7 +100,7 @@ public class Path {
         List<Arc> arcs = new ArrayList<Arc>();
         boolean valid = false;
         if (nodes.isEmpty()) {
-            throw new IllegalArgumentException("two consecutive nodes in the list are not connected in the graph.");
+            return new Path(graph);
         }
         if (nodes.size()==1) {
             valid=true;
@@ -122,7 +122,7 @@ public class Path {
             }
         }
             
-        }else{
+
             for (int i = 0; i < nodes.size() - 1; i++) {
                 Node source = nodes.get(i);
                 Node target = nodes.get(i + 1);
@@ -140,8 +140,9 @@ public class Path {
                 arcs.add(arcsListe.get(index));
             }  
         return new Path(graph, arcs);
-        }
+        
     }
+
     /**
      * Concatenate the given paths.
      * 
