@@ -44,7 +44,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
                 fini=true;
             } 
             
-            /*on parcourt les successors de ce node */
+            /*on parcourt les successors de ce node pour les actualiser*/
             List<Arc> arcliste= courant.getSommet_courant().getSuccessors();
             for (int i=0;i<arcliste.size();i++){
                 if(data.isAllowed(arcliste.get(i))){
