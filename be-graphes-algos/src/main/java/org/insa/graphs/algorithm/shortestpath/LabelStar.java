@@ -2,22 +2,19 @@ package org.insa.graphs.algorithm.shortestpath;
 import org.insa.graphs.model.Node;
 
 public class LabelStar extends Label{
-    protected float coutdest;
+    private float totalcost;
     public LabelStar(Node sommet_courant){
         super(sommet_courant);
     }
+    
+    public void settotalcost(float totalcost){
+        this.totalcost=totalcost;
+    }
 
-    public void setcoutdest(float cout){
-        this.coutdest=cout;
-    }
-    
-    public float getcoutdest(){
-        return this.coutdest;
-    }
-    
     @Override
     public float gettotalcost(){
-        return this.getcoutdest() + this.getCout_realise();
+        return this.totalcost;
     }
+
     
 }

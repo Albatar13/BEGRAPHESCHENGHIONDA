@@ -9,12 +9,14 @@ public class Label implements Comparable<Label> {
     private Node sommet_courant;
     private Arc pere;
     private boolean isInTas;
+    private float totalcost;
     
     public Label(Node sommet_courant){
         this.marque=false;
         this.cout_realise=Float.POSITIVE_INFINITY;
         this.sommet_courant=sommet_courant;
-        this.pere=null;     
+        this.pere=null;
+        this.totalcost=Float.POSITIVE_INFINITY;     
     }
 
     public void setMarque(boolean marque) {
@@ -24,6 +26,11 @@ public class Label implements Comparable<Label> {
     public void setCout_realise(float cout_realise) {
         this.cout_realise = cout_realise;
     }
+
+    public void settotalcost(float totalcost){
+        this.cout_realise=totalcost;
+    }
+
 
     public void setSommet_courant(Node sommet_courant) {
         this.sommet_courant = sommet_courant;

@@ -17,6 +17,14 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         super(data);
     }
 
+    public float calcul_cout_estime(Node courant,Node destination){
+        return(0);
+    }
+
+    public Label makeLabel(Node courant){
+        return new Label(courant);
+    }
+
     @Override
     protected ShortestPathSolution doRun() {
         final ShortestPathData data = getInputData();
@@ -29,8 +37,9 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         BinaryHeap<Label> Tas = new BinaryHeap<Label>();    
         
         /*on definit le depart */
-        Label Deb = new Label(data.getOrigin());
+        Label Deb = makeLabel(data.getOrigin());
         Tab[Deb.getSommet_courant().getId()] = Deb;
+        Deb.settotalcost(0);
         Deb.setCout_realise(0);
         Tas.insert(Deb); 
         Deb.InTas();
@@ -56,7 +65,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
                     /*si ce node n'est pas encore dans le tableau, on le rajout */
                     if (successorLabel==null){
                         notifyNodeReached(arcliste.get(i).getDestination());
-                        successorLabel= new Label(successor);
+                        successorLabel= makeLabel(successor);
                         Tab[successor.getId()]= successorLabel; 
                     }  
                     
@@ -64,14 +73,16 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
                     if(!successorLabel.isMarque()){
                         /*le cas ou le cout a ete mis a jour */
                         double a;
+                        System.out.println("!!!");
                         if(data.getMode()== AbstractInputData.Mode.LENGTH){
                             a =(double)arcliste.get(i).getLength();
                         }else{
                             a =arcliste.get(i).getMinimumTravelTime();
                         }
 
-                        if(successorLabel.gettotalcost()>(float)a+courant.gettotalcost()
-                        ||successorLabel.gettotalcost()==Float.POSITIVE_INFINITY){
+                        if(successorLabel.getCout_realise()>(float)a+courant.getCout_realise()
+                        ||successorLabel.getCout_realise()==Float.POSITIVE_INFINITY){
+                            System.out.println("??");
                             if(successorLabel.isInTas()){
                                 try{Tas.remove(successorLabel);}catch(ElementNotFoundException e){}
                                 
@@ -79,6 +90,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
                                 successorLabel.InTas();
                             }
                             successorLabel.setCout_realise((float)a+courant.getCout_realise());
+                            successorLabel.settotalcost((float)a+courant.getCout_realise()+calcul_cout_estime(successorLabel.getSommet_courant(), data.getDestination()));
                             successorLabel.setPere(arcliste.get(i));
                             Tas.insert(successorLabel);  
                         } 
