@@ -4,6 +4,7 @@ import java.util.Collections;
 
 import java.util.List;
 
+import org.insa.graphs.algorithm.AbstractInputData;
 import org.insa.graphs.algorithm.AbstractSolution.Status;
 import org.insa.graphs.algorithm.utils.BinaryHeap;
 import org.insa.graphs.model.*;
@@ -62,15 +63,22 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
                     /*si le successor n'est pas marque */
                     if(!successorLabel.isMarque()){
                         /*le cas ou le cout a ete mis a jour */
-                        if(successorLabel.getCout_realise()>data.getCost(arcliste.get(i))+courant.getCout_realise()
-                        ||successorLabel.getCout_realise()==Float.POSITIVE_INFINITY){
+                        double a;
+                        if(data.getMode()== AbstractInputData.Mode.LENGTH){
+                            a =(double)arcliste.get(i).getLength();
+                        }else{
+                            a =arcliste.get(i).getMinimumTravelTime();
+                        }
+
+                        if(successorLabel.gettotalcost()>(float)a+courant.gettotalcost()
+                        ||successorLabel.gettotalcost()==Float.POSITIVE_INFINITY){
                             if(successorLabel.isInTas()){
                                 try{Tas.remove(successorLabel);}catch(ElementNotFoundException e){}
                                 
                             }else{
                                 successorLabel.InTas();
                             }
-                            successorLabel.setCout_realise((float)data.getCost(arcliste.get(i))+courant.getCout_realise());
+                            successorLabel.setCout_realise((float)a+courant.getCout_realise());
                             successorLabel.setPere(arcliste.get(i));
                             Tas.insert(successorLabel);  
                         } 

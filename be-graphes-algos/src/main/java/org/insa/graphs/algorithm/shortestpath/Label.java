@@ -55,12 +55,17 @@ public class Label implements Comparable<Label> {
     public boolean isInTas(){
         return isInTas;
     } 
+    public float gettotalcost(){
+        return cout_realise;
+    }
+
+
     public int compareTo(Label autre) {
 		int resultat;
-		if (this.getCout_realise() < autre.getCout_realise()) {
+		if (this.gettotalcost() < autre.gettotalcost()) {
 			resultat = -1;
 		}
-		else if (this.getCout_realise() == autre.getCout_realise()) {
+		else if (this.gettotalcost() == autre.gettotalcost()) {
 			resultat = 0;
 		}
 		else {
