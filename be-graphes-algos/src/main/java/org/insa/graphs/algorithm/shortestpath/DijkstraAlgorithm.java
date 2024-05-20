@@ -60,7 +60,6 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
                 if(data.isAllowed(arcliste.get(i))){
                 Node successor = (arcliste.get(i).getDestination());
                 Label successorLabel= Tab[successor.getId()];
-                System.out.println(successor.getId());
                 
                     /*si ce node n'est pas encore dans le tableau, on le rajout */
                     if (successorLabel==null){
@@ -73,7 +72,6 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
                     if(!successorLabel.isMarque()){
                         /*le cas ou le cout a ete mis a jour */
                         double a;
-                        System.out.println("!!!");
                         if(data.getMode()== AbstractInputData.Mode.LENGTH){
                             a =(double)arcliste.get(i).getLength();
                         }else{
@@ -82,7 +80,6 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 
                         if(successorLabel.getCout_realise()>(float)a+courant.getCout_realise()
                         ||successorLabel.getCout_realise()==Float.POSITIVE_INFINITY){
-                            System.out.println("??");
                             if(successorLabel.isInTas()){
                                 try{Tas.remove(successorLabel);}catch(ElementNotFoundException e){}
                                 
