@@ -135,7 +135,7 @@ public class Launch {
     } 
     public static void testFastestCarsOnly(int origin,int dest,Graph graph,String mapname){
         System.out.println("---- testFastestCarsOnly-----------");
-        init(origin, dest, 2, graph);
+        init(origin, dest, 3, graph);
         System.out.println("FastestCarsOnly path length from node " + origin + " to node " + dest + " in " + mapname + "\n with Dijkstra: " + dijstra_solution.getPath().getLength() 
         +"\n with BMF: " + BMF_solution.getPath().getLength() + "\n with A*: " + Astar_solution.getPath().getLength());
     } 

@@ -87,7 +87,11 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
                                 successorLabel.InTas();
                             }
                             successorLabel.setCout_realise((float)a+courant.getCout_realise());
-                            successorLabel.settotalcost((float)a+courant.getCout_realise()+calcul_cout_estime(successorLabel.getSommet_courant(), data.getDestination()));
+                            if(data.getMode()==AbstractInputData.Mode.LENGTH){
+                                successorLabel.settotalcost((float)a+courant.getCout_realise()+calcul_cout_estime(successorLabel.getSommet_courant(), data.getDestination()));
+                            }else{
+                                successorLabel.settotalcost((float)a+courant.getCout_realise()+(float)(calcul_cout_estime(successorLabel.getSommet_courant(), data.getDestination())* 3600.0 / (90 * 1000.0)));
+                            }
                             successorLabel.setPere(arcliste.get(i));
                             Tas.insert(successorLabel);  
                         } 
