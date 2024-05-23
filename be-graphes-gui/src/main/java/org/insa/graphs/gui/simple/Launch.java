@@ -118,11 +118,33 @@ public class Launch {
         final Graph graph_midi_pyrenees = reader.read();
 
         drawing.drawGraph(graph_midi_pyrenees);
+         for(int i=0;i<5;i++){
+            origine= random.nextInt(graph_midi_pyrenees.size());
+            destination=random.nextInt(graph_midi_pyrenees.size());
+            System.out.println("Test numéro " + i + " origine: " + origine + " destination: " + destination +"\n");
+            try {
+                testShortestAllRoads(origine,destination, graph_midi_pyrenees,"Midi Pyrenees",2);
+            } catch (PathNotFoundException e) {
+                System.out.println(e.getMessage()+"\n");
+            }
+            try {
+                testShortestCarsonly(origine,destination,graph_midi_pyrenees, "Midi Pyrenees",2);
+            } catch (PathNotFoundException e) {
+                System.out.println(e.getMessage()+"\n");
+            }
+            try {
+                testFastestAllRoads(origine,destination,graph_midi_pyrenees,"Midi Pyrenees",2);
+            } catch (PathNotFoundException e) {
+                System.out.println(e.getMessage()+"\n");
+            }
+            try {
+                testFastestCarsOnly(origine,destination, graph_midi_pyrenees, "Midi Pyrenees",2);
+            } catch (PathNotFoundException e) {
+                System.out.println(e.getMessage()+"\n");
+            }
+        }
         
-        testShortestAllRoads(414207, 397522, graph_midi_pyrenees,"midi_pyrennes",2);
-        testShortestCarsonly(414207, 397522, graph_midi_pyrenees,"midi_pyrennes",2);
-        testFastestAllRoads(414207, 397522, graph_midi_pyrenees,"midi_pyrennes",2);
-        testFastestCarsOnly(414207, 397522, graph_midi_pyrenees,"midi_pyrennes",2);
+
 
         // Create a PathReader.
         //final PathReader pathReader = new BinaryPathReader(new DataInputStream(new BufferedInputStream(new FileInputStream(pathName))));
