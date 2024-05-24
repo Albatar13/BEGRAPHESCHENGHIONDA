@@ -44,6 +44,12 @@ public class Launch {
     private static int origine;
     private static int destination;
     private static Random random =new Random();
+    private static float BMF_res=0;
+    private static float dijkstra_res=0;
+    private static float Astar_res=0;
+    private final static int nb_test1=10;
+    private final static int nb_test2=5;
+    
     /**
      * Create a new Drawing inside a JFrame an return it.
      * 
@@ -87,32 +93,42 @@ public class Launch {
 
         // Draw the graph on the drawing.
         //drawing.drawGraph(graph_toulouse);
-        for(int i=0;i<5;i++){
+        for(int i=0;i<nb_test1;i++){
             origine= random.nextInt(graph_toulouse.size());
             destination=random.nextInt(graph_toulouse.size());
             System.out.println("Test numéro " + i + " origine: " + origine + " destination: " + destination +"\n");
             try {
                 testShortestAllRoads(origine,destination, graph_toulouse,"Toulouse",1);
+                
             } catch (PathNotFoundException e) {
                 System.out.println(e.getMessage()+"\n");
             }
             try {
                 testShortestCarsonly(origine,destination, graph_toulouse, "Toulouse",1);
+                
             } catch (PathNotFoundException e) {
                 System.out.println(e.getMessage()+"\n");
             }
             try {
                 testFastestAllRoads(origine,destination, graph_toulouse,"Toulouse",1);
+                
             } catch (PathNotFoundException e) {
                 System.out.println(e.getMessage()+"\n");
             }
             try {
                 testFastestCarsOnly(origine,destination, graph_toulouse, "Toulouse",1);
+                
             } catch (PathNotFoundException e) {
                 System.out.println(e.getMessage()+"\n");
             }
         }
-         
+        System.out.println("Le temps moyen BMF : "+BMF_res);
+        System.out.println("Le temps moyen Dijkstra : "+dijkstra_res);
+        System.out.println("Le temps moyen Astar : "+Astar_res);
+        
+        BMF_res=0;
+        dijkstra_res=0;
+        Astar_res=0;
         System.out.println(" Deuxieme scénario : Midi Pyrenees ");
         final String midi_pyrenees= "/mnt/commetud/3eme Annee MIC/Graphes-et-Algorithmes/Maps/midi-pyrenees.mapgr";
 
@@ -145,7 +161,8 @@ public class Launch {
                 System.out.println(e.getMessage()+"\n");
             }
         }
-        
+        System.out.println("Le temps moyen Dijkstra : "+dijkstra_res);
+        System.out.println("Le temps moyen Astar : "+Astar_res);
 
 
         // Create a PathReader.
@@ -173,18 +190,21 @@ public class Launch {
         dijstra_solution=dijstra_algo.run();
         endtime=System.nanoTime();
         dijstra_temps=(endtime-startime) ;
-        
+        dijkstra_res+=dijstra_temps/nb_test1;
+
         BMF_algo=new BellmanFordAlgorithm(data);
         startime=System.nanoTime();
         BMF_solution=BMF_algo.run();
         endtime=System.nanoTime();
         BMF_temps=endtime-startime;
-        
+        BMF_res+=BMF_temps/nb_test1;
+
         Astar_algo=new AStarAlgorithm(data);
         startime=System.nanoTime();
         Astar_solution=Astar_algo.run();
         endtime=System.nanoTime();
         Astar_temps=endtime-startime;
+        Astar_res+=Astar_temps/nb_test1;
     }
 
     
@@ -195,12 +215,14 @@ public class Launch {
         dijstra_solution=dijstra_algo.run();
         endtime=System.nanoTime();
         dijstra_temps=(endtime-startime) ;
+        dijkstra_res+=dijstra_temps/nb_test2;
+
         Astar_algo=new AStarAlgorithm(data);
         startime=System.nanoTime();
         Astar_solution=Astar_algo.run();
         endtime=System.nanoTime();
         Astar_temps=endtime-startime;
-
+        Astar_res+=Astar_temps/nb_test2;
     }
     
     public static void testShortestAllRoads(int origin,int dest,Graph graph,String mapname,int scenario) throws PathNotFoundException{
