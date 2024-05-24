@@ -6,6 +6,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.lang.Exception;
+import java.util.ArrayList;
 import java.util.Random;
 
 import javax.swing.JFrame;
@@ -14,6 +15,7 @@ import javax.swing.SwingUtilities;
 import org.insa.graphs.gui.drawing.Drawing;
 import org.insa.graphs.gui.drawing.components.BasicDrawing;
 import org.insa.graphs.model.Graph;
+import org.insa.graphs.model.Node;
 import org.insa.graphs.model.Path;
 import org.insa.graphs.model.io.BinaryGraphReader;
 import org.insa.graphs.model.io.BinaryPathReader;
@@ -84,7 +86,7 @@ public class Launch {
         final Drawing drawing = createDrawing();
 
         // Draw the graph on the drawing.
-        drawing.drawGraph(graph_toulouse);
+        //drawing.drawGraph(graph_toulouse);
         for(int i=0;i<5;i++){
             origine= random.nextInt(graph_toulouse.size());
             destination=random.nextInt(graph_toulouse.size());
@@ -111,13 +113,13 @@ public class Launch {
             }
         }
          
-
+        System.out.println(" Deuxieme scénario : Midi Pyrenees ");
         final String midi_pyrenees= "/mnt/commetud/3eme Annee MIC/Graphes-et-Algorithmes/Maps/midi-pyrenees.mapgr";
 
         reader = new BinaryGraphReader(new DataInputStream(new BufferedInputStream(new FileInputStream(midi_pyrenees))));
         final Graph graph_midi_pyrenees = reader.read();
 
-        drawing.drawGraph(graph_midi_pyrenees);
+        //drawing.drawGraph(graph_midi_pyrenees);
          for(int i=0;i<5;i++){
             origine= random.nextInt(graph_midi_pyrenees.size());
             destination=random.nextInt(graph_midi_pyrenees.size());
@@ -156,8 +158,8 @@ public class Launch {
         // Draw the path.
         //drawing.drawPath(path);
 
-        reader.close();
-        reader.close();
+        //reader.close();
+        //reader.close();
         //pathReader.close();
     }
 
@@ -189,23 +191,16 @@ public class Launch {
     public static void init2(int orgin,int dest,int mode,Graph graph){
         data=new ShortestPathData(graph,graph.get(orgin),graph.get(dest),ArcInspectorFactory.getAllFilters().get(mode));
         dijstra_algo=new DijkstraAlgorithm(data);
-        
         startime=System.nanoTime();
         dijstra_solution=dijstra_algo.run();
         endtime=System.nanoTime();
         dijstra_temps=(endtime-startime) ;
-        
-        //BMF_algo=new BellmanFordAlgorithm(data);
-        //startime=System.nanoTime();
-        //BMF_solution=BMF_algo.run();
-        //endtime=System.nanoTime();
-        //BMF_temps=endtime-startime;
-        
         Astar_algo=new AStarAlgorithm(data);
         startime=System.nanoTime();
         Astar_solution=Astar_algo.run();
         endtime=System.nanoTime();
         Astar_temps=endtime-startime;
+
     }
     
     public static void testShortestAllRoads(int origin,int dest,Graph graph,String mapname,int scenario) throws PathNotFoundException{
@@ -215,15 +210,33 @@ public class Launch {
             init1(origin, dest, 0, graph);
             if(BMF_solution.getStatus()==Status.INFEASIBLE && dijstra_solution.getStatus()==Status.INFEASIBLE && Astar_solution.getStatus()==Status.INFEASIBLE) 
         { throw new PathNotFoundException("PathNotFoundException");} 
+            if(dijstra_solution.getPath().getLength()!=Astar_solution.getPath().getLength() || BMF_solution.getPath().getLength()!=Astar_solution.getPath().getLength()||BMF_solution.getPath().getLength()!=dijstra_solution.getPath().getLength()){
+            throw new PathNotFoundException("Les trois solutions ne sont pas pareilles");}
             System.out.println("Shortest path length from node " + origin + " to node " + dest + " in " + mapname + "\n with Dijkstra: " + dijstra_solution.getPath().getLength() 
             +" temps d'éxecution: " + dijstra_temps + "\n with BMF: " + BMF_solution.getPath().getLength() + " temps d'éxecution: " + BMF_temps+ "\n with A*: " + Astar_solution.getPath().getLength() + " temps d'éxecution: " +Astar_temps+"\n");    
+            System.out.println("OK");
             break;
             case 2:
             init2(origin, dest, 0, graph);
             if(dijstra_solution.getStatus()==Status.INFEASIBLE && Astar_solution.getStatus()==Status.INFEASIBLE) 
         { throw new PathNotFoundException("PathNotFoundException");}
+            if(dijstra_solution.getPath().getLength()!=Astar_solution.getPath().getLength()){
+                System.out.println(dijstra_solution.getPath().getLength());
+                System.out.println(Astar_solution.getPath().getLength());
+                throw new PathNotFoundException("Les deux solutions ne sont pas pareilles");}
             System.out.println("Shortest path length from node " + origin + " to node " + dest + " in " + mapname + "\n with Dijkstra: " + dijstra_solution.getPath().getLength() 
             +" temps d'éxecution: " + dijstra_temps + "\n with A*: " + Astar_solution.getPath().getLength() + " temps d'éxecution: " +Astar_temps+"\n");
+            int IDnodeintermediaire;
+            Path path_dijstra=dijstra_solution.getPath();
+            int size_path_dijstra=path_dijstra.size();
+            IDnodeintermediaire=(path_dijstra.getArcs().get((int)(size_path_dijstra/2)).getDestination().getId());
+            init2(origin,IDnodeintermediaire,0,graph);
+            Path path_dijstra1=dijstra_solution.getPath();
+            init2(IDnodeintermediaire,dest,0,graph);
+            Path path_dijstra2=dijstra_solution.getPath();
+            float diff=new Float(0.5);
+            if(Math.abs(path_dijstra1.getLength()+path_dijstra2.getLength()-path_dijstra.getLength()) > diff){throw new PathNotFoundException("La somme de sous-chemin != cout de solution(Dijkstra)");}
+            System.out.println("OK");
             break;    
             default:
                 break;
@@ -237,16 +250,31 @@ public class Launch {
             init1(origin, dest, 1, graph);
             if(BMF_solution.getStatus()==Status.INFEASIBLE && dijstra_solution.getStatus()==Status.INFEASIBLE && Astar_solution.getStatus()==Status.INFEASIBLE) 
             { throw new PathNotFoundException("PathNotFoundException");}
+            if(dijstra_solution.getPath().getLength()!=Astar_solution.getPath().getLength() || BMF_solution.getPath().getLength()!=Astar_solution.getPath().getLength()||BMF_solution.getPath().getLength()!=dijstra_solution.getPath().getLength()){
+                throw new PathNotFoundException("Les trois solutions ne sont pas pareilles");}
             System.out.println("ShortestCarsOnly path length from node " + origin + " to node " + dest + " in " + mapname + "\n with Dijkstra: " + dijstra_solution.getPath().getLength() 
             +" temps d'éxecution: " + dijstra_temps + "\n with BMF: " + BMF_solution.getPath().getLength() + " temps d'éxecution: " + BMF_temps+ "\n with A*: " + Astar_solution.getPath().getLength() + " temps d'éxecution: " +Astar_temps+"\n");
+            System.out.println("OK");
             break;
             case 2:
             init2(origin, dest, 1, graph);
             if(dijstra_solution.getStatus()==Status.INFEASIBLE && Astar_solution.getStatus()==Status.INFEASIBLE) 
             { throw new PathNotFoundException("PathNotFoundException");}
+            if(dijstra_solution.getPath().getLength()!=Astar_solution.getPath().getLength()){throw new PathNotFoundException("Les deux solutions ne sont pas pareilles");}
             System.out.println("ShortestCarsonly path length from node " + origin + " to node " + dest + " in " + mapname + "\n with Dijkstra: " + dijstra_solution.getPath().getLength() 
             +" temps d'éxecution: " + dijstra_temps + "\n with A*: " + Astar_solution.getPath().getLength() + " temps d'éxecution: " +Astar_temps+"\n");
-            break;    
+            int IDnodeintermediaire;
+            Path path_dijstra=dijstra_solution.getPath();
+            int size_path_dijstra=path_dijstra.size();
+            IDnodeintermediaire=(path_dijstra.getArcs().get((int)(size_path_dijstra/2)).getDestination().getId());
+            init2(origin,IDnodeintermediaire,1,graph);
+            Path path_dijstra1=dijstra_solution.getPath();
+            init2(IDnodeintermediaire,dest,1,graph);
+            Path path_dijstra2=dijstra_solution.getPath();
+            float diff=new Float(0.5);
+            if(Math.abs(path_dijstra1.getLength()+path_dijstra2.getLength()-path_dijstra.getLength()) > diff){throw new PathNotFoundException("La somme de sous-chemin != cout de solution(Dijkstra)");}  
+            System.out.println("OK");
+            break;  
             default:
                 break;
         }
@@ -259,63 +287,71 @@ public class Launch {
             init1(origin, dest, 2, graph);
             if(BMF_solution.getStatus()==Status.INFEASIBLE && dijstra_solution.getStatus()==Status.INFEASIBLE && Astar_solution.getStatus()==Status.INFEASIBLE) 
             { throw new PathNotFoundException("PathNotFoundException");}
+            if(dijstra_solution.getPath().getLength()!=Astar_solution.getPath().getLength() || BMF_solution.getPath().getLength()!=Astar_solution.getPath().getLength()||BMF_solution.getPath().getLength()!=dijstra_solution.getPath().getLength()){
+                throw new PathNotFoundException("Les trois solutions ne sont pas pareilles");}
             System.out.println("FastestAllRoads path length from node " + origin + " to node " + dest + " in " + mapname + "\n with Dijkstra: " + dijstra_solution.getPath().getMinimumTravelTime() 
             +" secondes temps d'éxecution: " + dijstra_temps + "\n with BMF: " + BMF_solution.getPath().getMinimumTravelTime() + " secondes temps d'éxecution: " + BMF_temps+ "\n with A*: " + Astar_solution.getPath().getMinimumTravelTime() + " secondes temps d'éxecution: " +Astar_temps+"\n");
-            
+            System.out.println("OK");
             break;
             case 2:
             init2(origin, dest, 2, graph);
             if(dijstra_solution.getStatus()==Status.INFEASIBLE && Astar_solution.getStatus()==Status.INFEASIBLE) 
             { throw new PathNotFoundException("PathNotFoundException");}
+            if(dijstra_solution.getPath().getLength()!=Astar_solution.getPath().getLength()){throw new PathNotFoundException("Les deux solutions ne sont pas pareilles");}
             System.out.println("FastestAllRoads path length from node " + origin + " to node " + dest + " in " + mapname + "\n with Dijkstra: " + dijstra_solution.getPath().getMinimumTravelTime() 
             +" secondes temps d'éxecution: " + dijstra_temps + "\n with A*: " + Astar_solution.getPath().getMinimumTravelTime() + " secondes temps d'éxecution: " +Astar_temps+"\n");
+            int IDnodeintermediaire;
+            Path path_dijstra=dijstra_solution.getPath();
+            int size_path_dijstra=path_dijstra.size();
+            IDnodeintermediaire=path_dijstra.getArcs().get((int)(size_path_dijstra/2)).getDestination().getId();
+            init2(origin,IDnodeintermediaire,2,graph);
+            Path path_dijstra1=dijstra_solution.getPath();
+            init2(IDnodeintermediaire,dest,2,graph);
+            Path path_dijstra2=dijstra_solution.getPath();
+            float diff=new Float(0.5);
+            if(Math.abs(path_dijstra1.getLength()+path_dijstra2.getLength()-path_dijstra.getLength()) > diff){throw new PathNotFoundException("La somme de sous-chemin != cout de solution(Dijkstra)");}
+            System.out.println("OK");
             break;
             default:
                 break;
         }
-        if(BMF_solution.getStatus()==Status.INFEASIBLE && BMF_solution.getStatus()==Status.INFEASIBLE && BMF_solution.getStatus()==Status.INFEASIBLE) 
-       { throw new PathNotFoundException("PathNotFoundException");} 
     } 
     public static void testFastestCarsOnly(int origin,int dest,Graph graph,String mapname,int scenario) throws PathNotFoundException{
         System.out.println("---- testFastestCarsOnly-----------");
         switch (scenario) {
             case 1:
-            init1(origin, dest, 3, graph);
-            if(BMF_solution.getStatus()==Status.INFEASIBLE && dijstra_solution.getStatus()==Status.INFEASIBLE && Astar_solution.getStatus()==Status.INFEASIBLE) 
-            { throw new PathNotFoundException("PathNotFoundException");}
-            System.out.println("FastestCarOnly path length from node " + origin + " to node " + dest + " in " + mapname + "\n with Dijkstra: " + dijstra_solution.getPath().getMinimumTravelTime() 
-            +" secondes semps d'éxecution: "+dijstra_temps+"\n with BMF: " + BMF_solution.getPath().getMinimumTravelTime() + " secondes temps d'éxecution: "+BMF_temps+"\n with A*: " + Astar_solution.getPath().getMinimumTravelTime() + " secondes temps d'éxecution: "+Astar_temps+"\n");
-            break;
+                init1(origin, dest, 3, graph);
+                if(BMF_solution.getStatus()==Status.INFEASIBLE && dijstra_solution.getStatus()==Status.INFEASIBLE && Astar_solution.getStatus()==Status.INFEASIBLE) 
+                { throw new PathNotFoundException("PathNotFoundException");}
+                if(dijstra_solution.getPath().getLength()!=Astar_solution.getPath().getLength() || BMF_solution.getPath().getLength()!=Astar_solution.getPath().getLength()||BMF_solution.getPath().getLength()!=dijstra_solution.getPath().getLength()){
+                    throw new PathNotFoundException("Les trois solutions ne sont pas pareilles");}
+                System.out.println("FastestCarOnly path length from node " + origin + " to node " + dest + " in " + mapname + "\n with Dijkstra: " + dijstra_solution.getPath().getMinimumTravelTime() 
+                +" secondes semps d'éxecution: "+dijstra_temps+"\n with BMF: " + BMF_solution.getPath().getMinimumTravelTime() + " secondes temps d'éxecution: "+BMF_temps+"\n with A*: " + Astar_solution.getPath().getMinimumTravelTime() + " secondes temps d'éxecution: "+Astar_temps+"\n");
+                System.out.println("OK");
+                break;
             case 2:
-            init2(origin, dest, 3, graph);
-            if(dijstra_solution.getStatus()==Status.INFEASIBLE && Astar_solution.getStatus()==Status.INFEASIBLE) 
-            { throw new PathNotFoundException("PathNotFoundException");}
-            System.out.println("FastestCarOnly path length from node " + origin + " to node " + dest + " in " + mapname + "\n with Dijkstra: " + dijstra_solution.getPath().getMinimumTravelTime() 
-            + " secondes temps d'éxecution: "+dijstra_temps+"\n with A*: " + Astar_solution.getPath().getMinimumTravelTime() + " secondes temps d'éxecution: "+Astar_temps+"\n");
-            break;
-            default:
-            break;
-        }
-        if(BMF_solution.getStatus()==Status.INFEASIBLE && BMF_solution.getStatus()==Status.INFEASIBLE && BMF_solution.getStatus()==Status.INFEASIBLE) 
-       { throw new PathNotFoundException("PathNotFoundException");} 
-    } 
-
-    /*public static void testPathNotFound(int origin,int dest,int mode,Graph graph,String mapname,int scenario) throws PathNotFoundException{
-        System.out.println("---- testPathRoadsNotFound-----------");
-        switch (scenario) {
-            case 1:
-            init1(origin, dest, mode, graph);
-            break;
-            case 2:
-            init2(origin, dest, mode, graph);
-            break;
+                init2(origin, dest, 3, graph);
+                if(dijstra_solution.getStatus()==Status.INFEASIBLE && Astar_solution.getStatus()==Status.INFEASIBLE) 
+                { throw new PathNotFoundException("PathNotFoundException");}
+                if(dijstra_solution.getPath().getLength()!=Astar_solution.getPath().getLength()){throw new PathNotFoundException("Les deux solutions ne sont pas pareilles");}
+                System.out.println("FastestCarOnly path length from node " + origin + " to node " + dest + " in " + mapname + "\n with Dijkstra: " + dijstra_solution.getPath().getMinimumTravelTime() 
+                + " secondes temps d'éxecution: "+dijstra_temps+"\n with A*: " + Astar_solution.getPath().getMinimumTravelTime() + " secondes temps d'éxecution: "+Astar_temps+"\n");
+                int IDnodeintermediaire;
+                Path path_dijstra=dijstra_solution.getPath();
+                int size_path_dijstra=path_dijstra.size();
+                IDnodeintermediaire=(path_dijstra.getArcs().get((int)(size_path_dijstra/2)).getDestination().getId());
+                init2(origin,IDnodeintermediaire,3,graph);
+                Path path_dijstra1=dijstra_solution.getPath();
+                init2(IDnodeintermediaire,dest,3,graph);
+                Path path_dijstra2=dijstra_solution.getPath();
+                float diff=new Float(0.5);
+                if(Math.abs(path_dijstra1.getLength()+path_dijstra2.getLength()-path_dijstra.getLength()) > diff){throw new PathNotFoundException("La somme de sous-chemin != cout de solution(Dijkstra)");}
+                System.out.println("OK");
+                break; 
             default:
                 break;
         }
-        if(BMF_solution.getStatus()==Status.INFEASIBLE && BMF_solution.getStatus()==Status.INFEASIBLE && BMF_solution.getStatus()==Status.INFEASIBLE) 
-       { throw new PathNotFoundException("PathNotFoundException");} 
-    } */
+    } 
 
-   
 
 }
